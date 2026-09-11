@@ -1,0 +1,620 @@
+@import "tailwindcss";
+@import "./storefront.css";
+@import "./admin.css";
+
+/* --------------------------------------------------------------------------
+   Cascade order
+   `@import` has to come first in a stylesheet, which means every rule below is
+   LATER in the cascade than all of storefront.css — so a bare `.hero__eyebrow`
+   silently lost to `.eyebrow`, and `.masthead__search { display: none }` lost
+   to `.ulink { display: inline-block }`. There were 85 such co-occurrences.
+
+   Putting this file's rules in a layer fixes the whole class of bug at once:
+   unlayered styles always beat layered ones, so the component sheets now win
+   over these defaults on merit rather than on specificity tricks. `@theme`
+   stays outside — it declares tokens, not rules.
+   -------------------------------------------------------------------------- */
+
+/* ==========================================================================
+   SHRINKLESS — premium American essentials, editorial.
+   Spec: docs/superpowers/specs/2026-08-21-shrinkless-redesign-design.md
+
+   Black, off-white, white. Photography and typography do the work. No
+   gradients, no glassmorphism, no shadows, no radius, no accent colour.
+   Every colour, size and duration downstream resolves to a token declared here.
+   ========================================================================== */
+
+@theme {
+  /* --- Colour ------------------------------------------------------------ */
+  --color-ink:        #0a0a0a;
+  --color-paper:      #f5f4f0;
+  --color-paper-deep: #edece7;
+  --color-white:      #ffffff;
+  --color-warm:       #d8d2c7;
+
+  /* Rules, dividers and display type ≥40px only. 2.2:1 on paper — it must
+     never carry small text. Use --color-muted-text for that. */
+  --color-muted:      #a5a5a0;
+  --color-muted-text: #6b6b66;
+
+  /* --- Accent ------------------------------------------------------------
+     The palette is monochrome by design and the storefront stays that way.
+     This one colour exists for a single job: the Buy now button, which has to
+     stand apart from Add to cart rather than mirror it in outline. Bright
+     orange, carrying black rather than white — 10.4:1, the highest contrast
+     either way round, and the reason the label reads as a shout. */
+  --color-accent:      #ff7a00;
+  --color-accent-deep: #ff9433;
+
+  /* In stock, once a size is chosen. Two greens rather than one: the dot is
+     decorative and can be as bright as it likes, while the words have to stay
+     readable at 13px uppercase — green goes pale fast, and a brighter text
+     green than this drops under 4.5:1 on paper. */
+  --color-instock:     #0b7a34;
+  --color-instock-dot: #22c55e;
+
+  /* A flat wash, not a gradient ramp: white hero type has to stay legible
+     over light frames and this is the least visible way to buy the contrast. */
+  --color-scrim:      rgba(10, 10, 10, 0.28);
+
+  /* --- Legacy aliases ----------------------------------------------------
+     The admin is a back office and is out of scope for this redesign, but it
+     consumes the old vintage token names. Rather than rewrite 353 lines of
+     working CSS, the old names are re-pointed at the monochrome palette. The
+     admin comes out black-and-white and nothing there breaks. */
+  --color-stock:       var(--color-paper);
+  --color-stock-deep:  var(--color-paper-deep);
+  --color-stock-shade: var(--color-warm);
+  --color-ink-soft:    var(--color-muted-text);
+  --color-rule:        var(--color-muted);
+  --color-spot:        var(--color-ink);
+  --color-spot-deep:   var(--color-ink);
+  --color-ochre:       var(--color-muted-text);
+
+  /* --- Type --------------------------------------------------------------
+     Neue Haas Grotesk is licensed and Helvetica Neue is not distributable as
+     a webfont, so Inter Tight ships — with Helvetica Neue ahead of it for the
+     machines that already have it. Cormorant is an accent, used twice. */
+  --font-sans:  var(--font-inter-tight), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif: var(--font-cormorant), Georgia, serif;
+
+  /* Fluid: editorial display type at 120px must not stay 120px on a phone. */
+  --text-display: clamp(2.75rem, 9vw, 7.5rem);
+  --text-head:    clamp(2rem, 5vw, 3.5rem);
+  --text-sub:     clamp(1.25rem, 2.2vw, 1.75rem);
+  --text-body:    1rem;
+  --text-meta:    0.8125rem;
+
+  /* Legacy steps, still consumed by the admin. */
+  --text-step-1: 0.75rem;
+  --text-step-2: 0.875rem;
+  --text-step-3: 1rem;
+  --text-step-4: 1.5rem;
+  --text-step-5: 2.25rem;
+  --text-step-6: 3.5rem;
+
+  /* --- Space -------------------------------------------------------------- */
+  --space-1: 0.5rem;
+  --space-2: 0.75rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2.5rem;
+  --space-6: 4rem;
+  --space-7: 6rem;
+  --space-8: 8rem;
+  --space-9: 10rem;
+
+  --spacing-rule: 1px;
+
+  /* Two radii, and they do different jobs. The slab is the page's bottom
+     corners, where it lifts off the footer — a large, architectural curve.
+     The card is the softening on a product photograph and on the labels that
+     sit over it: enough to take the hard corner off, not enough to read as a
+     rounded-rectangle app. Pills elsewhere use 999px directly. */
+  --radius-slab: clamp(1.25rem, 3vw, 2.5rem);
+  --radius-card: 0.75rem;
+
+  /* --- Motion -------------------------------------------------------------
+     One curve and four durations for the whole site. Every transition picks
+     from these so the navigation, the hero, the cards and the modal all move
+     with the same hand. */
+  --ease-out: cubic-bezier(0.16, 0.84, 0.44, 1);
+
+  /* The one exception: the fill that rises through a control. It leaves
+     quickly and settles slowly, which is what makes it read as liquid finding
+     its level rather than a panel sliding into place. */
+  --ease-liquid: cubic-bezier(0.32, 0.75, 0.2, 1);
+
+  --dur-1: 200ms;  /* state flicks: chips, swatches, small hovers */
+  --dur-2: 320ms;  /* the default: buttons, links, headers */
+  --dur-3: 520ms;  /* panels and modals */
+  --dur-4: 900ms;  /* photography: the slow scale under an image */
+
+  /* The hero rail's slide. Mirrored by SLIDE_MS in HeroSlider — the component
+     has to know when the slide has finished to make its jump home. */
+  --hero-slide: 700ms;
+}
+
+@layer shrinkless-base {
+  /* --------------------------------------------------------------------------
+     Base
+     -------------------------------------------------------------------------- */
+
+  html {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background-color: var(--color-paper);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    font-weight: 400;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+  }
+
+  p, ul, ol, dl, figure, fieldset, address { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  fieldset { border: 0; padding: 0; }
+  address { font-style: normal; }
+  img, video { display: block; max-width: 100%; }
+
+  a { color: inherit; text-underline-offset: 0.22em; }
+
+  /* The browser default is a purple-blue that belongs to no part of this
+     palette. Ink on warm reads as a highlighter over paper. */
+  ::selection {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  .band--ink ::selection {
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  button { font: inherit; }
+
+  /* Money, quantities, SKUs — anything columnar. */
+  .tnum,
+  input[type="number"] { font-variant-numeric: tabular-nums; }
+
+  /* Never removed, only restyled. */
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+
+  .skiplink {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+    background: var(--color-ink);
+    color: var(--color-white);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-meta);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .skiplink:focus { left: var(--space-3); top: var(--space-3); }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* --------------------------------------------------------------------------
+     Layout
+     A 12-column grid inside a wide measure. Full-bleed bands escape it entirely
+     rather than clawing back with negative margins.
+     -------------------------------------------------------------------------- */
+
+  .wrap {
+    width: 100%;
+    max-width: 100rem;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4vw, 4.5rem);
+  }
+
+  .grid12 {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 56.25rem) {
+    .grid12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  }
+
+  .band { padding-block: var(--space-7); }
+  .band--tight { padding-block: var(--space-6); }
+  .band--tall { padding-block: var(--space-8); }
+  .band--ink { background: var(--color-ink); color: var(--color-white); }
+  .band--white { background: var(--color-white); }
+  .band--warm { background: var(--color-warm); }
+
+  .rule {
+    border: 0;
+    border-top: var(--spacing-rule) solid var(--color-muted);
+    margin: 0;
+  }
+
+  /* --------------------------------------------------------------------------
+     Type roles
+     -------------------------------------------------------------------------- */
+
+  .display {
+    font-size: var(--text-display);
+    font-weight: 500;
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+  }
+
+  .head {
+    font-size: var(--text-head);
+    font-weight: 500;
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+
+  .sub {
+    font-size: var(--text-sub);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .eyebrow {
+    display: block;
+    font-size: var(--text-meta);
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted-text);
+  }
+
+  .band--ink .eyebrow { color: var(--color-muted); }
+
+  .lede {
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    max-width: 46ch;
+  }
+
+  .meta {
+    font-size: var(--text-meta);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted-text);
+  }
+
+  .band--ink .meta { color: var(--color-muted); }
+
+  .serif-mark {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  /* --------------------------------------------------------------------------
+     Controls
+     Squared, hairline, monochrome. Two weights and a text link — no more.
+     -------------------------------------------------------------------------- */
+
+  /* The house hover: a colour floods the control from the bottom edge to the
+     top and inverts the label, then drains back the way it came.
+
+     Drawn with a clip-path rather than a scale. `scaleY` squashed the fill
+     flat and stretched it back out, which the eye reads as a plane tilting
+     towards it — a 3D flip on a flat control. Clipping to an ellipse wider
+     than the control (`rx` past 100%) instead moves a real edge up the frame,
+     and because that edge is the shallow arc of the ellipse rather than a
+     ruled line, the surface bows slightly ahead at the centre the way a liquid
+     climbing a glass does. Nothing scales, nothing rotates: one flat edge
+     rising.
+
+     `--btn-fill` is the colour that rises and `--btn-fill-ink` is what the label
+     becomes underneath it, so every variant is two custom properties rather than
+     a second copy of this block. */
+  .btn {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: 0.75rem 2rem;
+    overflow: hidden;
+    border: var(--spacing-rule) solid var(--color-ink);
+    background: var(--color-ink);
+    color: var(--color-white);
+    font-size: var(--text-meta);
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 999px;
+    transition: color var(--dur-2) var(--ease-out);
+
+    --btn-fill: var(--color-white);
+    --btn-fill-ink: var(--color-ink);
+  }
+
+  .btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--btn-fill);
+    /* Anchored to the bottom edge with no height: the fill is present but
+       clipped away until the control is touched. */
+    clip-path: ellipse(140% 0% at 50% 100%);
+    transition: clip-path var(--dur-2) var(--ease-liquid);
+  }
+
+  .btn:hover::before,
+  .btn:focus-visible::before,
+  .btn:active::before {
+    /* Past the top corners on both axes, so the last of the rise fills the
+       corners rather than leaving the arc parked across the label. */
+    clip-path: ellipse(140% 165% at 50% 100%);
+  }
+
+  .btn:hover,
+  .btn:focus-visible,
+  .btn:active { color: var(--btn-fill-ink); }
+
+  /* On paper, over a photograph. */
+  .btn--light {
+    border-color: var(--color-white);
+    background: var(--color-white);
+    color: var(--color-ink);
+
+    --btn-fill: var(--color-ink);
+    --btn-fill-ink: var(--color-white);
+  }
+
+  /* Hairline only, for the second action in a pair. */
+  .btn--outline {
+    background: transparent;
+    color: var(--color-ink);
+
+    --btn-fill: var(--color-ink);
+    --btn-fill-ink: var(--color-white);
+  }
+
+  /* The one coloured control on the storefront: Buy now, which has to be
+     distinguishable from Add to cart at a glance rather than by reading it.
+     Black on orange, and heavier than any other label on the page. */
+  .btn--accent {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-ink);
+    font-weight: 700;
+
+    --btn-fill: var(--color-accent-deep);
+    --btn-fill-ink: var(--color-ink);
+  }
+
+  /* Hairline over a photograph or an ink band. */
+  .btn--ghost {
+    border-color: var(--color-white);
+    background: transparent;
+    color: var(--color-white);
+
+    --btn-fill: var(--color-white);
+    --btn-fill-ink: var(--color-ink);
+  }
+
+  /* Purchase actions. Spec §25: these have to read first. */
+  .btn--lg {
+    min-height: 3.5rem;
+    padding: 1rem 2.5rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.16em;
+  }
+
+  .btn[disabled],
+  .btn[aria-disabled="true"] {
+    border-color: var(--color-muted);
+    background: var(--color-muted);
+    color: var(--color-white);
+    cursor: not-allowed;
+  }
+
+  /* A disabled control must not animate on hover. */
+  .btn[disabled]::before,
+  .btn[aria-disabled="true"]::before { content: none; }
+
+  .btn[disabled]:hover,
+  .btn[disabled]:active,
+  .btn[aria-disabled="true"]:hover,
+  .btn[aria-disabled="true"]:active { color: var(--color-white); }
+
+  .btn--block { width: 100%; }
+
+  /* The same recipe as .btn, at link weight: a pill in the opposite colour
+     rises from the bottom edge and inverts the label. It replaces the hairline
+     rule that used to draw itself in underneath — one house hover for every
+     control on the site rather than two.
+
+     The pill is a pseudo-element with a negative inset rather than padding on
+     the link itself, so nothing it sits in — a nav row, a footer column, a
+     sentence — reflows when the style lands. */
+  .ulink {
+    position: relative;
+    isolation: isolate;
+    display: inline-block;
+    text-decoration: none;
+    font-size: var(--text-meta);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: color var(--dur-2) var(--ease-out);
+
+    --ulink-fill: var(--color-ink);
+    --ulink-fill-ink: var(--color-paper);
+  }
+
+  /* Light type means a dark ground, so the pill and the label swap over. */
+  .band--ink .ulink,
+  .colophon .ulink,
+  .hero .ulink,
+  .masthead--over .ulink,
+  .pdp--trade .ulink,
+  .cartsheet .ulink {
+    --ulink-fill: var(--color-paper);
+    --ulink-fill-ink: var(--color-ink);
+  }
+
+  /* --------------------------------------------------------------------------
+     Media
+     The image scales inside a fixed frame; the frame itself never moves.
+     -------------------------------------------------------------------------- */
+
+  .frame {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-paper-deep);
+  }
+
+  .frame > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 900ms var(--ease-out);
+  }
+
+  .frame--32 { aspect-ratio: 3 / 2; }
+  .frame--45 { aspect-ratio: 4 / 5; }
+  .frame--34 { aspect-ratio: 3 / 4; }
+  .frame--11 { aspect-ratio: 1 / 1; }
+  .frame--23 { aspect-ratio: 2 / 3; }
+  .frame--169 { aspect-ratio: 16 / 9; }
+
+  a:hover > .frame > img,
+  .zoom:hover .frame > img { transform: scale(1.03); }
+
+  /* --------------------------------------------------------------------------
+     Forms
+     -------------------------------------------------------------------------- */
+
+  .field { display: grid; gap: var(--space-1); }
+
+  .field > label,
+  .label {
+    font-size: var(--text-meta);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted-text);
+  }
+
+  .input {
+    min-height: 2.75rem;
+    padding: 0.7rem 0.9rem;
+    border: var(--spacing-rule) solid var(--color-muted);
+    border-radius: 999px;
+    background: var(--color-white);
+    color: var(--color-ink);
+    font: inherit;
+  }
+
+  .input:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 0; }
+
+  /* A pill only reads as a field while the field is one line tall. */
+  textarea.input,
+  select[multiple].input { border-radius: var(--radius-card); }
+
+  .notice { font-size: var(--text-meta); letter-spacing: 0.08em; text-transform: uppercase; }
+  .notice--error { color: var(--color-ink); border-left: 2px solid var(--color-ink); padding-left: 0.6rem; }
+  .notice--ok { color: var(--color-muted-text); }
+
+  /* --------------------------------------------------------------------------
+     Motion
+     -------------------------------------------------------------------------- */
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Lenis owns the scroll while it is mounted. Inlined rather than imported so
+     nothing crosses into the admin bundle. Storefront only. */
+  html.lenis,
+  html.lenis body { height: auto; }
+
+  .lenis.lenis-smooth { scroll-behavior: auto !important; }
+  .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+  .lenis.lenis-stopped { overflow: clip; }
+  .lenis.lenis-smooth iframe { pointer-events: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Unlayered: the .ulink pill's interaction states
+   The rest of this file is layered so component sheets win over it, but that
+   is exactly the wrong way round here — `.mainnav__trigger { color: inherit }`
+   and its siblings are unlayered, so a layered `.ulink:hover { color }` lost to
+   them and the label stayed ink on an ink pill, i.e. invisible. These four
+   rules are the state machine of the control, not a default to be overridden,
+   so they sit outside the layer and win on merit.
+   -------------------------------------------------------------------------- */
+
+.ulink::after {
+  content: "";
+  position: absolute;
+  inset: -0.32em -0.75em;
+  z-index: -1;
+  border-radius: 999px;
+  background: var(--ulink-fill);
+  /* The same rising edge as .btn, on the same curve — see the note there for
+     why this is a clip and not a scale. */
+  clip-path: ellipse(140% 0% at 50% 100%);
+  transition: clip-path var(--dur-2) var(--ease-liquid);
+}
+
+.ulink:hover::after,
+.ulink:focus-visible::after,
+.ulink:active::after,
+.ulink[aria-current="page"]::after {
+  clip-path: ellipse(140% 165% at 50% 100%);
+}
+
+.ulink:hover,
+.ulink:focus-visible,
+.ulink:active,
+.ulink[aria-current="page"] { color: var(--ulink-fill-ink); }
+
+/* A disabled control must not animate on hover. */
+.ulink[disabled]::after,
+.ulink[aria-disabled="true"]::after { content: none; }
+
+.ulink[disabled]:hover,
+.ulink[disabled]:active,
+.ulink[aria-disabled="true"]:hover,
+.ulink[aria-disabled="true"]:active { color: inherit; }

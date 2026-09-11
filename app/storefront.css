@@ -1,0 +1,4809 @@
+/* ==========================================================================
+   Storefront
+   Editorial bands, not cards. Tokens come from globals.css; nothing here
+   invents a colour, a size or a duration.
+   ========================================================================== */
+
+.shell { position: relative; }
+
+.shell__stack {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--color-paper);
+}
+
+.shell__stack > main { flex: 1; }
+
+/* --------------------------------------------------------------------------
+   Overlay tiles
+   Photographs carrying their own text. Replaced a statement band and a
+   numbered-points band that were both mostly empty ground.
+   -------------------------------------------------------------------------- */
+
+.tiles { padding-block: var(--space-7); background: var(--color-paper); }
+
+.tiles__head { padding-bottom: var(--space-5); max-width: 34rem; }
+.tiles__title { padding-top: var(--space-2); }
+
+.tiles__grid { display: grid; gap: var(--spacing-rule); }
+
+@media (min-width: 48rem) {
+  .tiles__grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tiles__grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .tiles__grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 62rem) {
+  .tiles__grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.tiles__tile {
+  position: relative;
+  display: block;
+  color: var(--color-white);
+  text-decoration: none;
+}
+
+.tiles__frame {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--color-paper-deep);
+}
+
+.tiles__grid--tall .tiles__frame { aspect-ratio: 3 / 4; }
+
+/* A grid that is not inside a `.wrap` is full-bleed, so the same thing that
+   happens to the category doors happens here — see `.gateway__frame`. The
+   contained grids are already held to the measure and are left alone. */
+.tiles > .tiles__grid .tiles__frame { width: 100%; max-height: 100svh; }
+
+@media (min-width: 62rem) {
+  .tiles__grid--tall .tiles__frame { aspect-ratio: 4 / 5; }
+}
+
+.tiles__image {
+  object-fit: cover;
+  transition: transform var(--dur-4) var(--ease-out);
+}
+
+.tiles__tile--link:hover .tiles__image,
+.tiles__tile--link:focus-visible .tiles__image {
+  transform: scale(calc(var(--crop-z, 1) * 1.04));
+}
+
+/* Weighted to the foot, where the type is. A flat tint strong enough to carry
+   white text over a pale frame would grey out the whole photograph. */
+.tiles__wash {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(10, 10, 10, 0.78) 0%,
+    rgba(10, 10, 10, 0.5) 38%,
+    rgba(10, 10, 10, 0.16) 72%,
+    rgba(10, 10, 10, 0.08) 100%
+  );
+}
+
+.tiles__body {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+  padding: clamp(1.25rem, 2.5vw, 2.25rem);
+}
+
+.tiles__index {
+  font-size: var(--text-meta);
+  letter-spacing: 0.16em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.tiles__label {
+  font-size: var(--text-sub);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  max-width: 16ch;
+}
+
+.tiles__copy {
+  max-width: 32ch;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+/* The text block is anchored to the foot of the frame, so a one-line body
+   pushes its title lower than a two-line neighbour's and the row of titles
+   stops being a row. Reserving two lines keeps them level. */
+@media (min-width: 48rem) {
+  .tiles__grid--4 .tiles__copy { min-height: 3em; }
+}
+
+/* --------------------------------------------------------------------------
+   Image band
+   -------------------------------------------------------------------------- */
+
+.imageband {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 72svh;
+  padding-block: var(--space-7);
+  color: var(--color-white);
+  overflow: hidden;
+}
+
+.imageband__image { object-fit: cover; }
+.imageband__scrim { position: absolute; inset: 0; background: var(--color-scrim); }
+.imageband__inner { position: relative; width: 100%; }
+.imageband__eyebrow { color: var(--color-white); opacity: 0.9; }
+.imageband__glyph { padding-right: 0.5rem; font-size: 0.75rem; }
+.imageband__head { padding-top: var(--space-2); }
+.imageband__lede { padding-top: var(--space-3); color: var(--color-white); }
+
+/* The promise band is a supporting note on the home page, not its statement,
+   so its headline steps well down off the display scale. */
+.imageband--compact .imageband__head { font-size: clamp(1.125rem, 2.4vw, 1.625rem); }
+
+/* --------------------------------------------------------------------------
+   Quotes
+   -------------------------------------------------------------------------- */
+
+.quotes__head { padding-bottom: var(--space-6); }
+.quotes__title { padding-top: var(--space-2); max-width: 18ch; }
+
+.quotes__row { display: grid; gap: var(--space-5); }
+
+@media (min-width: 56.25rem) {
+  .quotes__row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
+}
+
+.quotes__item { border-top: var(--spacing-rule) solid var(--color-muted-text); }
+
+.quotes__figure { margin: 0; padding-top: var(--space-4); }
+
+/* Replaces the oversized serif quote mark, which sat behind the text and
+   collided with it at every width that mattered. */
+.quotes__index {
+  font-size: var(--text-meta);
+  letter-spacing: 0.16em;
+  color: var(--color-muted);
+}
+
+.quotes__text {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-sub);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.quotes__name { display: block; padding-top: var(--space-4); }
+
+/* --------------------------------------------------------------------------
+   Lookbook rail
+   Landscape frames, endlessly. Wider than the Instagram tiles on purpose: a
+   post has to be square, a lookbook frame does not, and the extra width is
+   what makes the band read as a campaign reel rather than a contact sheet.
+   -------------------------------------------------------------------------- */
+
+.lookbook {
+  padding-block: var(--space-7);
+  background: var(--color-paper);
+  overflow: hidden;
+}
+
+/* On the home page the rail runs straight into the two-up statement band and
+   then the promise photograph, with no paper gap between them — so the stack
+   closes the padding each of those bands otherwise carries on its own. */
+.home-visual-stack .lookbook { padding-bottom: 0; }
+.home-visual-stack .tiles { padding-block: 0; }
+
+.lookbook__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-5);
+}
+
+.lookbook__title { padding-top: var(--space-2); }
+.lookbook__more { flex: none; }
+
+.lookbook__rail {
+  display: flex;
+  width: max-content;
+  animation: lookbook-roll 72s linear infinite;
+}
+
+.lookbook__rail:hover { animation-play-state: paused; }
+
+.lookbook__half {
+  display: flex;
+  flex: none;
+  gap: var(--spacing-rule);
+  padding-right: var(--spacing-rule);
+}
+
+/* Phone and tablet get square frames: the landscape crop left the rail
+   looking like a strip of postage stamps on a narrow window, where the tile
+   cannot be wide enough for 3:2 to have any height. Desktop keeps the
+   landscape frame and simply takes a little more of it. */
+.lookbook__tile {
+  position: relative;
+  flex: none;
+  width: clamp(17rem, 52vw, 38rem);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--color-paper-deep);
+  text-decoration: none;
+}
+
+.lookbook__image {
+  object-fit: cover;
+  transition: transform var(--dur-4) var(--ease-out);
+}
+
+.lookbook__tile:hover .lookbook__image {
+  transform: scale(calc(var(--crop-z, 1) * 1.04));
+}
+
+/* The label sits on the photograph, so it carries its own ground rather than
+   relying on whatever happens to be in the bottom left of the frame. */
+.lookbook__label {
+  position: absolute;
+  left: var(--space-3);
+  bottom: var(--space-3);
+  padding: 0.35rem 0.7rem;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 62rem) {
+  .lookbook__tile { width: clamp(19rem, 52vw, 42rem); aspect-ratio: 3 / 2; }
+}
+
+@keyframes lookbook-roll {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+/* A rail that travels on its own is exactly what this query is for. Stopped,
+   it becomes an ordinary horizontal scroller and the clone comes out. */
+@media (prefers-reduced-motion: reduce) {
+  .lookbook__rail { animation: none; overflow-x: auto; width: 100%; }
+  .lookbook__half:nth-child(2) { display: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Instagram rail
+   -------------------------------------------------------------------------- */
+
+.iglane {
+  padding-block: var(--space-7) var(--space-6);
+  background: var(--color-paper);
+  overflow: hidden;
+}
+
+.iglane__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-5);
+}
+
+.iglane__title { padding-top: var(--space-2); }
+
+.iglane__handle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  text-transform: lowercase;
+}
+
+.iglane__handle:hover { text-decoration: underline; }
+
+.iglane__icon { width: 1.75rem; height: 1.75rem; }
+
+.iglane__note { color: var(--color-muted-text); }
+
+/* The rail is scrolled, not transformed — components/site/InstagramRail.tsx
+   drives `scrollLeft` and explains why. Everything the browser gives a scroll
+   container for free (touch swipe, trackpad, scrolling a focused tile into
+   view) comes with it; the drift on top is a frame loop. */
+.iglane__port {
+  overflow-x: auto;
+  /* A horizontal flick on a trackpad is a browser back-gesture unless the
+     scroller says otherwise. It is a footer band, not an exit. */
+  overscroll-behavior-x: contain;
+  cursor: grab;
+  /* A drag across photographs otherwise selects the whole band. */
+  user-select: none;
+  /* No bar under an editorial band. The tiles cut off at the edge say it
+     scrolls, and `grab` says it more loudly. */
+  scrollbar-width: none;
+}
+
+.iglane__port::-webkit-scrollbar { display: none; }
+
+.iglane__port.is-dragging { cursor: grabbing; }
+
+.iglane__track { display: flex; width: max-content; }
+
+.iglane__set { display: flex; flex: none; gap: var(--space-2); padding-right: var(--space-2); }
+
+.iglane__tile {
+  position: relative;
+  flex: none;
+  width: clamp(13rem, 26vw, 21rem);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--color-paper-deep);
+}
+
+/* No token, no posts. A band with a real invitation in it, rather than a band
+   of stock photography captioned as somebody's Instagram. */
+.iglane__empty {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: start;
+}
+
+/* The measure belongs to the sentence, not to the block. This element is also
+   a `.wrap`, and a narrower `max-width` on a `.wrap` does not indent it — it
+   centres it, so the invitation drifted right of the heading above it and the
+   gap grew with the window. */
+.iglane__emptylede { max-width: 44rem; color: var(--color-muted-text); }
+
+.iglane__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-4) var(--ease-out);
+  /* Without this a mouse drag picks the photograph up and carries a ghost of
+     it around instead of scrolling the rail. */
+  -webkit-user-drag: none;
+}
+
+.iglane__tile:hover .iglane__image { transform: scale(1.05); }
+
+.iglane__mark {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(10, 10, 10, 0.42);
+  color: var(--color-white);
+  opacity: 0;
+  transition: opacity var(--dur-2) var(--ease-out);
+}
+
+.iglane__mark svg { width: 1.75rem; height: 1.75rem; }
+
+.iglane__tile:hover .iglane__mark,
+.iglane__tile:focus-visible .iglane__mark { opacity: 1; }
+
+/* Reduced motion needs no rule here. The drift is a frame loop, not an
+   animation, so `InstagramRail` simply declines to run it — and the rail
+   stays scrollable by hand either way, which is the point: suppressing
+   unrequested movement should not also take the posts away. */
+
+/* --------------------------------------------------------------------------
+   Footer reveal
+   The page is a slab with rounded bottom corners that scrolls over a footer
+   pinned to the viewport. `--footer-h` is measured and published by
+   components/site/FooterReveal.
+
+   `overflow: clip` rather than `hidden` is load-bearing: `hidden` would make
+   this a scroll container and the sticky masthead inside it would stop
+   sticking. `clip` still clips to the radius and creates no scroll box.
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 62rem) {
+  .shell__stack {
+    border-bottom-left-radius: var(--radius-slab);
+    border-bottom-right-radius: var(--radius-slab);
+    margin-bottom: var(--footer-h, 0px);
+  }
+
+  .footerdock {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 0;
+  }
+
+  /* The cut corners have to reveal something. Behind the slab is the page
+     canvas, and paper-on-paper made a 40px radius invisible — so the canvas
+     goes ink and `body` stops painting over it. Overscrolling at the top of
+     the page shows the same ink, which is the right colour to land on. */
+  html { background-color: var(--color-ink); }
+  body { background-color: transparent; }
+}
+
+/* On a phone the footer is most of a screen tall; reserving that much space
+   under every page would mean scrolling through a hole to reach it, so the
+   reveal does not run and the footer is simply the last thing on the page.
+   The corners keep their radius on the off chance a wide phone lands in the
+   desktop branch mid-rotate. */
+.shell__stack {
+  border-bottom-left-radius: var(--radius-slab);
+  border-bottom-right-radius: var(--radius-slab);
+  overflow: clip;
+}
+
+/* ...and on a phone the stack stops being a box at all.
+   `position: sticky` is bounded by the element's own parent, and the masthead's
+   parent was this stack — which ends where the footer begins. Scroll into the
+   footer and the header simply ran out of parent and slid away, exactly where
+   a shopper is most likely to want the cart back.
+   `display: contents` promotes the stack's children to children of `.shell`,
+   which does span the footer, so the header sticks the whole way down. The box
+   this drops is not missed: the radius clipped paper against a paper canvas
+   (the ink canvas below is desktop-only), and the flexbox that kept short
+   pages full height simply moves up one level. */
+@media (max-width: 61.9375rem) {
+  .shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+
+  .shell__stack { display: contents; }
+}
+
+/* --------------------------------------------------------------------------
+   Announcement ticker
+   The track holds the message twice and travels exactly half its own width, so
+   copy two lands where copy one began and the loop has no seam.
+   -------------------------------------------------------------------------- */
+
+.announce {
+  overflow: hidden;
+  background: var(--color-ink);
+  color: var(--color-white);
+  font-size: var(--text-meta);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.announce__track {
+  display: flex;
+  width: max-content;
+  animation: announce-roll 46s linear infinite;
+}
+
+.announce__half { display: flex; flex: none; }
+
+.announce__item {
+  display: inline-flex;
+  align-items: center;
+  padding-block: 0.3rem;
+  white-space: nowrap;
+}
+
+.announce__dot { padding-inline: var(--space-4); opacity: 0.5; }
+
+@keyframes announce-roll {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+/* A line of type sliding forever is exactly what this media query is for. */
+@media (prefers-reduced-motion: reduce) {
+  .announce__track { animation: none; }
+  .announce__half:nth-child(2) { display: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Masthead
+   Three states, and they are independent: `--over` is transparency (homepage,
+   at rest, over the campaign); `--compact` is the shorter bar that arrives on
+   the first scroll; `--panel` forces the solid ground while a menu is down.
+   -------------------------------------------------------------------------- */
+
+.masthead {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--color-paper);
+  border-bottom: var(--spacing-rule) solid var(--color-muted);
+  transition:
+    background-color var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out),
+    color var(--dur-2) var(--ease-out);
+}
+
+.masthead--over {
+  background: transparent;
+  border-bottom-color: transparent;
+  color: var(--color-white);
+}
+
+/* An open panel always needs the solid ground, whatever the hero says. */
+.masthead--panel {
+  background: var(--color-paper);
+  border-bottom-color: var(--color-muted);
+  color: var(--color-ink);
+}
+
+.masthead__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 5.25rem;
+  transition: min-height var(--dur-2) var(--ease-out);
+}
+
+/* Spec §11: the bar tightens on the first scroll rather than at the foot of
+   the hero, so the change is something you cause rather than something you
+   wait for. */
+.masthead--compact .masthead__inner { min-height: 4rem; }
+
+.wordmark {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Phone: burger left, wordmark centred, utilities right. */
+.masthead__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-left: -0.75rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Three rules, not two. The outer pair are the pseudo-elements; the middle one
+   is a background gradient sized to the same rule weight and centred, which
+   avoids inventing a third element for a shape that is already only lines. */
+.masthead__bars {
+  position: relative;
+  display: block;
+  width: 1.25rem;
+  height: 0.8125rem;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 100% var(--spacing-rule);
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.masthead__bars::before,
+.masthead__bars::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: var(--spacing-rule);
+  background: currentColor;
+}
+
+.masthead__bars::before { top: 0; }
+.masthead__bars::after { bottom: 0; }
+
+.mainnav { display: none; }
+
+.mainnav ul {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.mainnav__item { position: relative; display: flex; align-items: center; }
+
+.mainnav__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  font-size: var(--text-meta);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.mainnav__chevron {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-right: var(--spacing-rule) solid currentColor;
+  border-bottom: var(--spacing-rule) solid currentColor;
+  transform: translateY(-0.1rem) rotate(45deg);
+  transition: transform var(--dur-2) var(--ease-out);
+}
+
+.mainnav__trigger[aria-expanded="true"] .mainnav__chevron {
+  transform: translateY(0.05rem) rotate(-135deg);
+}
+
+.masthead__utils {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin-left: auto;
+  margin-right: -0.6rem;
+}
+
+/* One target size for every utility, text or not: 44px is the smallest thing
+   a thumb can reliably hit, and the icons are 20px inside that. */
+.iconbtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity var(--dur-1) var(--ease-out);
+}
+
+.iconbtn svg { width: 1.25rem; height: 1.25rem; }
+
+.iconbtn:hover { opacity: 0.6; }
+
+.iconbtn[aria-expanded="true"] { opacity: 0.6; }
+
+/* The one text control in a row of icons. It reads as a label rather than
+   another glyph on purpose — it is a staff door, not a shopper's tool, and it
+   only ever renders for a signed-in admin. */
+.adminlink {
+  display: inline-flex;
+  align-items: center;
+  height: 1.9rem;
+  padding-inline: 0.6rem;
+  border: var(--spacing-rule) solid currentColor;
+  border-radius: 999px;
+  color: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity var(--dur-1) var(--ease-out);
+}
+
+.adminlink:hover { opacity: 0.6; }
+
+.masthead__admin { margin-right: 0.4rem; }
+
+/* Sits on the bag rather than beside it, so the row keeps its rhythm whether
+   the cart is empty or not. */
+.iconbtn__count {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.2rem;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding-inline: 0.2rem;
+  border-radius: 999px;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1.05rem;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+.masthead--over .iconbtn__count {
+  background: var(--color-white);
+  color: var(--color-ink);
+}
+
+/* Below the desktop breakpoint the wordmark centres itself between the burger
+   and the utilities, which is why it takes the free space rather than the nav. */
+.wordmark { margin-right: auto; }
+
+@media (max-width: 61.9375rem) {
+  .masthead__inner { justify-content: space-between; }
+  .wordmark { margin-inline: auto; }
+  .masthead__account { display: none; }
+  /* The drawer carries the admin door below this width, so the bar does not
+     have to squeeze a text pill in beside the wordmark. */
+  .masthead__admin { display: none; }
+}
+
+@media (min-width: 62rem) {
+  .mainnav { display: block; margin-left: var(--space-6); }
+  .masthead__toggle { display: none; }
+  .wordmark { margin-right: 0; }
+}
+
+/* --------------------------------------------------------------------------
+   Site search
+   -------------------------------------------------------------------------- */
+
+.sitesearch {
+  display: grid;
+  grid-template-rows: 0fr;
+  background: var(--color-paper);
+  transition: grid-template-rows var(--dur-3) var(--ease-out);
+}
+
+.sitesearch--open { grid-template-rows: 1fr; }
+
+.sitesearch__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 0;
+  overflow: hidden;
+  padding-block: 0;
+  transition: padding-block var(--dur-3) var(--ease-out);
+}
+
+.sitesearch--open .sitesearch__inner { padding-block: var(--space-4); }
+
+.sitesearch__input {
+  flex: 1;
+  min-width: 0;
+  min-height: 3rem;
+  padding: 0.5rem 0;
+  border: 0;
+  border-bottom: var(--spacing-rule) solid var(--color-muted);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font-size: var(--text-sub);
+  font-family: inherit;
+  letter-spacing: -0.02em;
+}
+
+.sitesearch__input::placeholder { color: var(--color-muted); }
+.sitesearch__input:focus-visible { outline: 0; border-bottom-color: var(--color-ink); }
+
+.sitesearch__go { flex: none; }
+.sitesearch__close { flex: none; border: 0; background: none; padding: 0; color: inherit; cursor: pointer; }
+
+@media (max-width: 40rem) {
+  .sitesearch__go span,
+  .sitesearch__close { display: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Desktop mega menu
+   Spec §12–13: a full-width editorial panel, not a dropdown. Hidden outright
+   below the desktop breakpoint — the drawer covers that job.
+   -------------------------------------------------------------------------- */
+
+.mega {
+  display: none;
+  grid-template-rows: 0fr;
+  background: var(--color-paper);
+  transition: grid-template-rows var(--dur-3) var(--ease-out);
+}
+
+@media (min-width: 62rem) { .mega { display: grid; } }
+
+.mega--open {
+  grid-template-rows: 1fr;
+  box-shadow: inset 0 var(--spacing-rule) 0 var(--color-muted);
+}
+
+.mega__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+  gap: var(--space-6);
+  align-items: start;
+  min-height: 0;
+  overflow: hidden;
+  padding-block: 0;
+  transition: padding-block var(--dur-3) var(--ease-out);
+}
+
+.mega--open .mega__inner { padding-block: var(--space-6); }
+
+.mega__columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.mega__coltitle {
+  display: block;
+  padding-bottom: var(--space-3);
+  border-bottom: var(--spacing-rule) solid var(--color-muted);
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.mega__links { display: grid; gap: var(--space-2); padding-top: var(--space-3); }
+
+.mega__link {
+  display: inline-block;
+  font-size: 1.0625rem;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  color: var(--color-muted-text);
+  transition: color var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out);
+}
+
+.mega__link:hover,
+.mega__link:focus-visible {
+  color: var(--color-ink);
+  transform: translateX(0.2rem);
+}
+
+.mega__features { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+
+.mega__feature { display: grid; gap: var(--space-2); text-decoration: none; }
+
+.mega__frame { background: var(--color-paper-deep); }
+
+.mega__featurefoot { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); }
+
+.mega__featurelabel {
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* The rows drift in a beat behind the panel so the eye lands on the first
+   column rather than on everything at once. */
+.mega__col,
+.mega__feature {
+  opacity: 0;
+  transform: translateY(0.75rem);
+  transition: opacity var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out);
+}
+
+.mega--open .mega__col,
+.mega--open .mega__feature { opacity: 1; transform: none; }
+
+.mega--open .mega__col:nth-child(1) { transition-delay: 80ms; }
+.mega--open .mega__col:nth-child(2) { transition-delay: 130ms; }
+.mega--open .mega__col:nth-child(3) { transition-delay: 180ms; }
+.mega--open .mega__feature:nth-child(1) { transition-delay: 200ms; }
+.mega--open .mega__feature:nth-child(2) { transition-delay: 240ms; }
+
+/* --------------------------------------------------------------------------
+   Mobile drawer
+   Spec §14: enters from the right, covers the viewport, dims the page behind
+   it and scrolls inside itself.
+   -------------------------------------------------------------------------- */
+
+.drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s linear var(--dur-3);
+}
+
+.drawer--open { pointer-events: auto; visibility: visible; transition-delay: 0s; }
+
+.drawer__scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgba(10, 10, 10, 0.5);
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity var(--dur-3) var(--ease-out);
+}
+
+.drawer--open .drawer__scrim { opacity: 1; }
+
+.drawer__panel {
+  position: absolute;
+  inset-block: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(26rem, 100%);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  border-top-left-radius: var(--radius-slab);
+  border-bottom-left-radius: var(--radius-slab);
+  transform: translateX(100%);
+  transition: transform var(--dur-3) var(--ease-out);
+}
+
+.drawer--open .drawer__panel { transform: none; }
+
+.drawer__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 5.25rem;
+  padding-inline: var(--space-4);
+  border-bottom: var(--spacing-rule) solid var(--color-muted);
+}
+
+.drawer__title { margin: 0; }
+
+.drawer__close {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  border: 0;
+  background: none;
+  padding: 0.5rem 0;
+  color: inherit;
+  font-size: var(--text-meta);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.drawer__closemark { position: relative; width: 0.75rem; height: 0.75rem; }
+
+.drawer__closemark::before,
+.drawer__closemark::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: var(--spacing-rule);
+  background: currentColor;
+}
+
+.drawer__closemark::before { transform: rotate(45deg); }
+.drawer__closemark::after { transform: rotate(-45deg); }
+
+/* The panel is fixed to the viewport, so this is the only scroller. */
+.drawer__scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-4) var(--space-4) var(--space-6);
+}
+
+.drawer__list { display: grid; }
+
+.drawer__item { border-bottom: var(--spacing-rule) solid var(--color-muted); }
+
+.drawer__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+
+.drawer__link {
+  flex: 1;
+  padding-block: var(--space-3);
+  font-size: var(--text-sub);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.drawer__expand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-right: -0.75rem;
+  border: 0;
+  background: none;
+  color: var(--color-muted-text);
+  cursor: pointer;
+}
+
+.drawer__plus { position: relative; width: 0.75rem; height: 0.75rem; }
+
+.drawer__plus::before,
+.drawer__plus::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+  transition: transform var(--dur-2) var(--ease-out);
+}
+
+.drawer__plus::before { top: 50%; left: 0; width: 100%; height: var(--spacing-rule); }
+.drawer__plus::after { left: 50%; top: 0; width: var(--spacing-rule); height: 100%; }
+
+.drawer__expand[aria-expanded="true"] .drawer__plus::after { transform: scaleY(0); }
+
+.drawer__sub {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--dur-2) var(--ease-out);
+}
+
+.drawer__sub--open { grid-template-rows: 1fr; }
+
+.drawer__subinner {
+  display: grid;
+  gap: var(--space-2);
+  min-height: 0;
+  overflow: hidden;
+  padding-left: var(--space-3);
+}
+
+.drawer__sub--open .drawer__subinner { padding-bottom: var(--space-4); }
+
+.drawer__sublink {
+  display: inline-block;
+  padding-block: 0.35rem;
+  color: var(--color-muted-text);
+  text-decoration: none;
+}
+
+.drawer__sublink:hover { color: var(--color-ink); }
+
+.drawer__foot { display: flex; flex-wrap: wrap; gap: var(--space-4); padding-top: var(--space-5); }
+
+/* --------------------------------------------------------------------------
+   Hero — campaign slider
+   -------------------------------------------------------------------------- */
+
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  /* Phone: 92% of the window, measured as what you actually see — the section
+     starts 5.25rem higher than the fold because it runs under the transparent
+     masthead, so that overlap is added back. `svh` rather than `vh`: a mobile
+     browser's toolbars must not be able to push the caption row off screen. */
+  min-height: calc(92svh + 5.25rem);
+  margin-top: -5.25rem; /* sits under the transparent masthead */
+  /* Height-relative rather than fixed. The content is bottom-aligned, so on a
+     short laptop window an 8rem top pad pushed the eyebrow and the top of the
+     headline off the top of the section. The bottom pad is what sets how high
+     the block sits: with the caption/dots row gone the type was sitting low in
+     the frame, so it carries roughly a line and a half more than it needs to
+     clear the edge, which lifts the whole block into the lower third. */
+  padding-block: clamp(var(--space-6), 14vh, var(--space-8)) clamp(var(--space-7), 12vh, var(--space-8));
+  color: var(--color-white);
+}
+
+/* Tablet: the same measure, floored so a short landscape window still has room
+   for the type. Below 48rem the frame is already taller than it is wide and the
+   phone treatment stands. */
+@media (min-width: 48rem) {
+  .hero { min-height: max(36rem, calc(94svh + 5.25rem)); }
+}
+
+/* Desktop: exactly one screen, masthead overlap included, so the hero ends at
+   the fold and the section below starts there. It never exceeds the window —
+   the headline is capped against viewport height further down, which is what
+   keeps a full-height hero from clipping its own type on a short laptop. */
+@media (min-width: 62rem) {
+  .hero { min-height: calc(100svh + 5.25rem); }
+}
+
+/* z-index:0 is load-bearing: it makes the stack its own stacking context, so
+   the rail cannot paint over the scrim and the headline. */
+.hero__stack {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* One row of full-width frames that slides sideways, phone-carousel style.
+   The rail carries a clone of the first frame after the last, so running off
+   the end slides forward onto the clone instead of rewinding; the component
+   then swaps back to the real first frame under `--silent`. */
+.hero__rail {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+  transition: transform var(--hero-slide) var(--ease-out);
+}
+
+/* The jump home. No transition, or the rail visibly scrolls backwards. */
+.hero__rail--silent { transition: none; }
+
+.hero__slide { position: relative; flex: 0 0 100%; height: 100%; }
+
+.hero__image {
+  object-fit: cover;
+  /* Bias above centre: the subject is in the upper half and the type occupies
+     the lower half of the frame anyway. Declared as the crop's fallback rather
+     than as a position, so a frame nobody has cropped still sits here and one
+     that has been cropped is not fighting a literal value below. */
+  --crop-pos-default: 50% 35%;
+}
+
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  /* Weighted to the foot of the frame, where the type is. A flat tint strong
+     enough for white text over pale concrete would grey out the whole
+     photograph; this keeps the top of the image clean and buys ~5:1 behind
+     the headline and ~8:1 behind the caption. */
+  background: linear-gradient(
+    to top,
+    rgba(10, 10, 10, 0.78) 0%,
+    rgba(10, 10, 10, 0.62) 34%,
+    rgba(10, 10, 10, 0.34) 62%,
+    rgba(10, 10, 10, 0.16) 100%
+  );
+}
+
+.hero__inner { position: relative; width: 100%; }
+
+.hero__eyebrow { color: var(--color-white); opacity: 0.9; }
+
+/* Capped against the viewport height as well as its width. A 120px headline
+   over two lines plus a lede, two buttons and the caption row is taller than a
+   768px laptop window, and the section is bottom-aligned, so the overflow came
+   off the top where the eyebrow and the first line live. */
+.hero__head {
+  margin-top: var(--space-3);
+  max-width: 16ch;
+  font-size: min(var(--text-display), 11.5vh);
+}
+
+.hero__lede {
+  margin-top: clamp(var(--space-2), 2vh, var(--space-4));
+  color: var(--color-white);
+  max-width: 34ch;
+}
+
+.hero__actions {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: clamp(var(--space-3), 3vh, var(--space-5));
+}
+
+@media (min-width: 30rem) {
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+}
+
+/* The hero's pair of calls to action are the one place buttons are drawn with
+   a radius: they sit on a photograph, where a hard rectangle reads as a panel
+   rather than as a control. */
+.hero__actions .btn { border-radius: 999px; }
+
+/* Phone: caption over dots, on two rows. Side by side there is roughly 190px
+   left for the caption once four dots have taken their 10rem, and the longer
+   frame names ("Heavyweight Tee - Black") were being cut off at the ellipsis
+   on exactly the third and fourth slides. Stacking gives the caption the full
+   measure; the row returns as soon as there is width for it. */
+.hero__foot {
+  position: relative;
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  margin-top: clamp(var(--space-3), 3vh, var(--space-5));
+}
+
+@media (min-width: 30rem) {
+  .hero__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: clamp(var(--space-4), 4vh, var(--space-6));
+  }
+}
+
+.hero__caption {
+  margin: 0;
+  min-width: 0;
+  min-height: 1.25rem;
+  font-size: var(--text-meta);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-white);
+}
+
+/* Only once the row can hold it: on one line, clipped rather than wrapping
+   the foot open to two rows mid-transition. */
+@media (min-width: 30rem) {
+  .hero__caption {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.hero__captiontext { display: inline-block; }
+
+.hero__dots { display: flex; align-items: center; gap: var(--space-2); }
+
+.hero__dot {
+  position: relative;
+  display: block;
+  width: 2.5rem;
+  height: 2.75rem;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* The track. The fill on top of it doubles as the hold timer. */
+.hero__dot::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: var(--spacing-rule);
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.hero__dotfill {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: var(--spacing-rule);
+  background: var(--color-white);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.hero__dot--on .hero__dotfill { animation: hero-hold linear forwards; }
+
+@keyframes hero-hold {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Reduced motion holds one frame: no cross-dissolve, no drift, no timer bar. */
+@media (prefers-reduced-motion: reduce) {
+  .hero__rail { transition: none; }
+  .hero__dot--on .hero__dotfill { animation: none; transform: scaleX(1); }
+}
+
+.hero__sentinel { position: absolute; bottom: 0; left: 0; height: 1px; width: 100%; }
+
+/* --------------------------------------------------------------------------
+   Category gateways
+   Spec §9: two campaign blocks, side by side, the whole tile clickable.
+   -------------------------------------------------------------------------- */
+
+.gateway { background: var(--color-paper); }
+
+.gateway__grid { display: grid; }
+
+@media (min-width: 48rem) {
+  .gateway__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.gateway__tile {
+  position: relative;
+  display: block;
+  text-decoration: none;
+  color: var(--color-white);
+}
+
+.gateway__frame {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  /* The grid is full-bleed, so the frame's height is half the viewport's
+     WIDTH — on a wide window, or a zoomed-out one, a 4:5 tile is taller than
+     the window and its label falls off the bottom of the screen. Capping at
+     the window's own height keeps the door one screen tall however wide the
+     screen gets, and never bites below that: at every size the design was
+     drawn for, the ratio still decides. `width` is stated because a box with
+     an `aspect-ratio` and an `auto` width reads its width back off the capped
+     height — which would leave a strip of ground beside each door instead of
+     cropping the photograph. */
+  width: 100%;
+  max-height: 100svh;
+  overflow: hidden;
+  background: var(--color-paper-deep);
+}
+
+@media (min-width: 48rem) {
+  .gateway__frame { aspect-ratio: 3 / 4; }
+}
+
+@media (min-width: 75rem) {
+  .gateway__frame { aspect-ratio: 4 / 5; }
+}
+
+.gateway__image {
+  object-fit: cover;
+  transition: transform var(--dur-4) var(--ease-out);
+}
+
+.gateway__tile:hover .gateway__image,
+.gateway__tile:focus-visible .gateway__image {
+  transform: scale(calc(var(--crop-z, 1) * 1.04));
+}
+
+/* Same reasoning as the hero: the label and its "3 styles" caption sit at the
+   bottom of the frame, so that is where the weight goes. */
+.gateway__wash {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(10, 10, 10, 0.74) 0%,
+    rgba(10, 10, 10, 0.42) 38%,
+    rgba(10, 10, 10, 0.12) 72%,
+    rgba(10, 10, 10, 0.08) 100%
+  );
+  transition: opacity var(--dur-2) var(--ease-out);
+}
+
+.gateway__tile:hover .gateway__wash { opacity: 0.82; }
+
+.gateway__body {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+  padding: clamp(1.25rem, 4vw, 3rem);
+}
+
+.gateway__label { color: var(--color-white); }
+.gateway__meta { color: rgba(255, 255, 255, 0.92); }
+
+.gateway__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.2rem;
+  border-bottom: var(--spacing-rule) solid currentColor;
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.gateway__arrow { transition: transform var(--dur-2) var(--ease-out); }
+
+.gateway__tile:hover .gateway__arrow,
+.gateway__tile:focus-visible .gateway__arrow { transform: translateX(0.3rem); }
+
+/* --------------------------------------------------------------------------
+   Product rails
+   -------------------------------------------------------------------------- */
+
+.rail__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-5);
+}
+
+.rail__more { flex: none; }
+
+/* --------------------------------------------------------------------------
+   Product grid and cards
+   Spec §15-18: the image is the card. Name and price are captions under it.
+   -------------------------------------------------------------------------- */
+
+/* One product at a time on a phone. Two-up meant every photograph was drawn at
+   roughly 170px wide on the commonest screen there is, which is a thumbnail of
+   a garment rather than a picture of one — and the whole grid is built on the
+   premise that the photograph does the selling. One column costs a scroll and
+   buys twice the width. */
+.pgrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+}
+
+@media (min-width: 48rem) {
+  .pgrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5) var(--space-2);
+  }
+}
+
+@media (min-width: 75rem) {
+  .pgrid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pgrid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.pcard { position: relative; display: grid; gap: var(--space-2); }
+
+.pcard__media {
+  position: relative;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: var(--color-paper-deep);
+}
+
+/* The reel. Everything the frames do — swipe, trackpad, drag, arrow keys,
+   momentum, snap — is this rule plus the one under it. */
+.pcard__reel {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+/* A scrollbar under a photograph is a seam in it. */
+.pcard__reel::-webkit-scrollbar { display: none; }
+
+.pcard__reel:focus-visible { outline: 2px solid var(--color-ink); outline-offset: -2px; }
+
+/* While a mouse is dragging, snapping has to be out of the way or every
+   `scrollLeft` write gets pulled back to the nearest frame and the card judders
+   instead of following the pointer. Restored on release, which is when
+   ProductCard scrolls to the frame the drag landed nearest. */
+.pcard__reel--drag {
+  scroll-snap-type: none;
+  scroll-behavior: auto;
+  cursor: grabbing;
+  user-select: none;
+}
+
+.pcard__frame {
+  position: relative;
+  flex: 0 0 100%;
+  aspect-ratio: 2 / 3;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow: hidden;
+  background: var(--color-paper-deep);
+  text-decoration: none;
+  -webkit-user-drag: none;
+}
+
+.pcard__frame img {
+  object-fit: cover;
+  transition: transform var(--dur-4) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .pcard__reel { cursor: grab; }
+  .pcard:hover .pcard__frame img { transform: scale(calc(var(--crop-z, 1) * 1.03)); }
+}
+
+/* --- corners ------------------------------------------------------------- */
+
+/* Everything that sits on the photograph shares one radius and one recipe: a
+   translucent ground with the picture blurred behind it, so the label stays
+   legible over a white wall and over a black tee without either inventing a
+   solid block or being lost in the frame. */
+.pcard__rating,
+.pcard__flag,
+.pcard__preview {
+  border-radius: 999px;
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+}
+
+/* --- rating -------------------------------------------------------------- */
+
+.pcard__rating {
+  position: absolute;
+  z-index: 2;
+  top: var(--space-2);
+  left: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.55rem 0.25rem 0.45rem;
+  background: rgba(245, 244, 240, 0.82);
+  color: var(--color-ink);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  /* A label, not a control. Left clickable it would swallow drags that began
+     in the top-left corner of the photograph. */
+  pointer-events: none;
+}
+
+.pcard__star { width: 0.75rem; height: 0.75rem; }
+
+/* --- quick view ---------------------------------------------------------- */
+
+/* An eye, and only where there is a pointer to reveal it with. On a phone this
+   was a button permanently parked on the photograph offering a miniature of
+   the page that tapping the photograph already opens. */
+.pcard__preview { display: none; }
+
+@media (hover: hover) and (pointer: fine) {
+  .pcard__preview {
+    position: absolute;
+    z-index: 2;
+    top: var(--space-2);
+    right: var(--space-2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.125rem;
+    height: 2.125rem;
+    border: 0;
+    padding: 0;
+    background: rgba(245, 244, 240, 0.82);
+    color: var(--color-ink);
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(-0.35rem);
+    transition:
+      opacity var(--dur-2) var(--ease-out),
+      transform var(--dur-2) var(--ease-out),
+      background-color var(--dur-1) var(--ease-out),
+      color var(--dur-1) var(--ease-out);
+  }
+
+  .pcard__preview svg { width: 1.0625rem; height: 1.0625rem; }
+
+  .pcard__preview:hover { background: var(--color-ink); color: var(--color-paper); }
+
+  .pcard:hover .pcard__preview,
+  .pcard:focus-within .pcard__preview { opacity: 1; transform: none; }
+}
+
+/* --- status and position, along the bottom edge -------------------------- */
+
+/* Both live in one bottom-anchored stack so they can never collide: the flag
+   is the news, the ticks are the position, and the ticks stay closest to the
+   edge because that is where a scroll indicator belongs. */
+.pcard__foot--over {
+  position: absolute;
+  z-index: 2;
+  inset-inline: var(--space-3);
+  bottom: var(--space-3);
+  display: grid;
+  gap: var(--space-2);
+  justify-items: center;
+  pointer-events: none;
+}
+
+.pcard__flag {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Sold out is an absence, so it is the quieter of the two: the frame stays
+   visible through it rather than being stamped over. */
+.pcard__flag--sold {
+  background: rgba(10, 10, 10, 0.55);
+  color: var(--color-white);
+}
+
+/* A new arrival is news, and gets the solid ground to say so. */
+.pcard__flag--new {
+  background: rgba(245, 244, 240, 0.92);
+  color: var(--color-ink);
+}
+
+.pcard__ticks { display: flex; gap: 0.25rem; }
+
+.pcard__tick {
+  width: 1rem;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(245, 244, 240, 0.5);
+  transition: background-color var(--dur-1) var(--ease-out);
+}
+
+.pcard__tick--on { background: var(--color-paper); }
+
+/* --- captions ------------------------------------------------------------ */
+
+/* Name left, price right, at every width. Stacking them on a phone put the
+   price under the name where it read as a second line of the title rather than
+   as the number you are looking for. */
+.pcard__foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-2);
+  align-items: baseline;
+  min-width: 0;
+}
+
+/* Deliberately quiet. The photograph is doing the selling. */
+.pcard__title {
+  min-width: 0;
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.pcard__link { text-decoration: none; }
+.pcard__link:hover { text-decoration: underline; text-underline-offset: 0.3em; }
+
+.pcard__price {
+  justify-self: end;
+  text-align: right;
+  white-space: nowrap;
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--color-muted-text);
+}
+
+/* The trade sheet runs the same card on an ink ground, where the shop's muted
+   ink reads as a smudge. */
+.band--ink .pcard__price { color: var(--color-muted); }
+
+.pcard__colors { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+
+
+.swatchdot {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 0.875rem;
+  height: 0.875rem;
+  padding: 0;
+  border: var(--spacing-rule) solid var(--color-muted);
+  border-radius: 50%;
+  background: var(--dot, var(--color-paper-deep));
+  cursor: pointer;
+  transition: box-shadow var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
+}
+
+.swatchdot--on {
+  border-color: var(--color-ink);
+  box-shadow: 0 0 0 2px var(--color-paper), 0 0 0 3px var(--color-ink);
+}
+
+/* One palette, shared by the card dots, the picker swatches and quick view.
+   Colour is never the only carrier: every dot sits beside or is labelled by
+   the colour name. */
+.dot--black    { --dot: #0a0a0a; }
+.dot--white    { --dot: #ffffff; }
+.dot--bone     { --dot: #e8e4da; }
+.dot--charcoal { --dot: #4a4a48; }
+.dot--heather  { --dot: #b6b8ba; }
+.dot--olive    { --dot: #6b6a4f; }
+.dot--teal     { --dot: #2f4f52; }
+
+/* --------------------------------------------------------------------------
+   Quick view
+   Spec §19: a miniature product page. Backdrop fades, panel scales 96% → 100%.
+   -------------------------------------------------------------------------- */
+
+.quick {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3);
+}
+
+.quick__scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgba(10, 10, 10, 0.55);
+  cursor: pointer;
+}
+
+.quick__panel {
+  position: relative;
+  display: grid;
+  width: min(64rem, 100%);
+  max-height: min(92svh, 56rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: var(--radius-slab);
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+@media (min-width: 48rem) {
+  .quick__panel { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); }
+}
+
+.quick__close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: var(--spacing-rule) solid var(--color-ink);
+  border-radius: 999px;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  cursor: pointer;
+  transition: background-color var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
+}
+
+.quick__close:hover { background: var(--color-ink); color: var(--color-paper); }
+
+.quick__closemark { position: relative; width: 0.8rem; height: 0.8rem; }
+
+.quick__closemark::before,
+.quick__closemark::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: var(--spacing-rule);
+  background: currentColor;
+}
+
+.quick__closemark::before { transform: rotate(45deg); }
+.quick__closemark::after { transform: rotate(-45deg); }
+
+.quick__media { position: relative; }
+.quick__media .frame { background: var(--color-paper-deep); }
+
+/* Side by side, the purchase column is the taller of the two, so a fixed 4:5
+   frame leaves a slab of empty paper under the photograph. Let the media
+   column take the panel's height and crop to fit it instead. */
+@media (min-width: 48rem) {
+  .quick__media .frame { height: 100%; aspect-ratio: auto; }
+}
+
+.quick__body {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.quick__title { text-transform: uppercase; }
+.quick__price { font-size: var(--text-sub); font-weight: 500; }
+.quick__copy { max-width: 44ch; color: var(--color-muted-text); }
+
+.quick__group { display: grid; gap: var(--space-2); }
+.quick__legend { display: block; }
+
+.quick__actions { display: grid; gap: var(--space-2); }
+.quick__full { justify-self: start; }
+
+/* --------------------------------------------------------------------------
+   Statement
+   -------------------------------------------------------------------------- */
+
+.statement__inner { display: grid; gap: var(--space-5); }
+
+.statement__head { max-width: 14ch; }
+
+.statement__support { justify-self: start; }
+
+@media (min-width: 56.25rem) {
+  .statement__inner {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    align-items: end;
+    gap: var(--space-6);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Promise
+   -------------------------------------------------------------------------- */
+
+.promise__head { max-width: 16ch; }
+.promise__support { margin-top: var(--space-4); color: var(--color-muted); }
+.promise__cta { margin-top: var(--space-5); }
+
+/* --------------------------------------------------------------------------
+   Split feature
+   -------------------------------------------------------------------------- */
+
+.split { display: grid; }
+
+.split__body {
+  display: grid;
+  align-content: center;
+  padding: var(--space-6) clamp(1.25rem, 4vw, 4.5rem);
+}
+
+.split__head { padding-top: var(--space-2); }
+.split__lede { padding-top: var(--space-4); }
+.split__cta { margin-top: var(--space-5); justify-self: start; }
+
+@media (min-width: 56.25rem) {
+  .split { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); align-items: stretch; }
+  .split--flip .split__media { order: 2; }
+  .split__media .frame { height: 100%; aspect-ratio: auto; }
+}
+
+/* --------------------------------------------------------------------------
+   Why — numbered points
+   -------------------------------------------------------------------------- */
+
+.why__head { padding-block: var(--space-3) var(--space-6); max-width: 16ch; }
+
+.why__grid { display: grid; gap: var(--space-5); }
+
+.why__number {
+  font-size: var(--text-meta);
+  letter-spacing: 0.16em;
+  color: var(--color-muted-text);
+}
+
+.why__title { padding-top: var(--space-2); text-transform: uppercase; }
+.why__body { padding-top: var(--space-2); max-width: 34ch; color: var(--color-muted-text); }
+.why__media { align-self: start; }
+
+@media (min-width: 56.25rem) {
+  .why__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-6) var(--space-4);
+  }
+
+  .why__media--a { grid-column: 3 / span 2; grid-row: 1 / span 2; }
+  .why__media--b { grid-column: 1 / span 2; grid-row: 3 / span 2; }
+}
+
+/* --------------------------------------------------------------------------
+   Image band
+   -------------------------------------------------------------------------- */
+
+.imageband {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 72svh;
+  padding-block: var(--space-7);
+  color: var(--color-white);
+  overflow: hidden;
+}
+
+.imageband__image { object-fit: cover; }
+.imageband__scrim { position: absolute; inset: 0; background: var(--color-scrim); }
+.imageband__inner { position: relative; width: 100%; }
+.imageband__eyebrow { color: var(--color-white); opacity: 0.9; }
+.imageband__glyph { padding-right: 0.5rem; font-size: 0.75rem; }
+.imageband__head { padding-top: var(--space-2); }
+.imageband__lede { padding-top: var(--space-3); color: var(--color-white); }
+
+/* --------------------------------------------------------------------------
+   Quotes
+   -------------------------------------------------------------------------- */
+
+.quotes__row { display: grid; gap: var(--space-5); padding-top: var(--space-5); }
+
+@media (min-width: 56.25rem) {
+  .quotes__row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
+}
+
+.quotes__item { border-top: var(--spacing-rule) solid var(--color-muted); padding-top: var(--space-4); }
+
+.quotes__figure { position: relative; margin: 0; }
+
+.quotes__mark {
+  position: absolute;
+  top: -1.5rem;
+  left: -0.5rem;
+  font-size: 5rem;
+  color: var(--color-warm);
+  pointer-events: none;
+}
+
+.quotes__text { position: relative; margin: 0; font-size: var(--text-sub); line-height: 1.35; letter-spacing: -0.015em; }
+
+.quotes__name { display: block; padding-top: var(--space-3); }
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+
+/* Flat black behind the colophon — no photograph, no veil. The type sits on
+   solid ink, which is what the contrast ratios are calculated against. */
+.colophon {
+  position: relative;
+  isolation: isolate;
+  margin-top: auto;
+  overflow: hidden;
+  background: #000000;
+}
+
+/* The colophon runs at roughly half the height it used to. Everything inside
+   it steps down with the frame — type, controls and rhythm — so the shorter
+   footer reads as drawn small rather than as the old one cropped. */
+.colophon .head { font-size: clamp(1.25rem, 2.6vw, 1.875rem); }
+.colophon .lede { font-size: 0.875rem; line-height: 1.5; }
+
+.colophon .eyebrow,
+.colophon .meta,
+.colophon .ulink { font-size: 0.6875rem; }
+
+.colophon .btn {
+  min-height: 2.125rem;
+  padding: 0.4rem 1.25rem;
+  font-size: 0.6875rem;
+}
+
+.colophon .signup { gap: var(--space-1); }
+
+.colophon .signup__input {
+  min-height: 1.875rem;
+  padding: 0.3rem 0;
+}
+
+/* --------------------------------------------------------------------------
+   The footer is pinned to the bottom of the viewport and the page slides over
+   it, so it can only ever show its last viewport-worth of itself: whatever
+   does not fit sits above the top edge and no amount of scrolling brings it
+   back. Rather than give the reveal up on short windows, the footer is built
+   to fit one. Every vertical measure below is viewport-relative and floors at
+   something tight, so the whole colophon lands inside the window from a 13"
+   laptop up, and `min-height` keeps it from looking like a strip on a tall
+   monitor where there is room to spare.
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 62rem) {
+  .colophon {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: min(17rem, 100svh);
+    max-height: 100svh;
+    padding-block: clamp(var(--space-2), 3vh, var(--space-5));
+  }
+
+  /* The signup heading is the tallest single element down here. */
+  .colophon .head { font-size: min(clamp(1.25rem, 2.6vw, 1.875rem), 4vh); }
+
+  .colophon__grid { gap: clamp(var(--space-1), 2vh, var(--space-4)); }
+  .colophon__signup { gap: clamp(var(--space-1), 1.5vh, var(--space-3)); }
+}
+
+.colophon__signup { display: grid; gap: var(--space-3); padding-bottom: var(--space-5); }
+
+/* One orange bar with the field and the button inside it, rather than a rule
+   and a separate control. The pill is the whole signup, so it reads as a slot
+   to type into on a black footer. */
+.signup {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-2);
+  align-items: center;
+  width: 100%;
+  /* Roughly 30% of the old full-measure bar, and pinned to the start edge
+     rather than stretched — a short, deliberate field, not a banner. */
+  max-width: 30%;
+  padding: 0.3rem 0.3rem 0.3rem var(--space-3);
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+
+@media (max-width: 36rem) {
+  .signup { max-width: 100%; }
+}
+
+.signup__input {
+  min-width: 0;
+  min-height: 2.25rem;
+  padding: 0.4rem 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+}
+
+/* Long enough copy that it needs the room; clipped rather than allowed to
+   push the bar open on a narrow window. */
+.signup__input::placeholder { color: var(--color-ink); opacity: 0.72; text-overflow: ellipsis; }
+.signup__input:focus-visible { outline: 0; }
+
+.signup__submit { border-radius: 999px; }
+
+
+.colophon__grid { display: grid; gap: var(--space-4); }
+
+@media (min-width: 56.25rem) {
+  .colophon__grid { grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); }
+}
+
+.colophon__mark {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.colophon__bio { padding-top: var(--space-1); color: var(--color-muted); max-width: 34ch; }
+
+.colophon__cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+@media (min-width: 48rem) {
+  .colophon__cols { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.colophon__links {
+  display: grid;
+  gap: 0.15rem;
+  justify-items: start;
+  padding-top: var(--space-1);
+  line-height: 1.35;
+}
+
+.colophon__legal { padding-top: var(--space-4); }
+
+/* --------------------------------------------------------------------------
+   Shop
+   -------------------------------------------------------------------------- */
+
+.shoppage__head { padding-bottom: var(--space-6); max-width: 52rem; }
+.shoppage__title { padding-block: var(--space-2) var(--space-3); }
+.shoppage__intro { color: var(--color-muted-text); }
+
+/* --------------------------------------------------------------------------
+   Collection layout
+   Filters in a column beside the grid. A bar across the top pushed the first
+   row of products most of the way down the page.
+   -------------------------------------------------------------------------- */
+
+.shoplayout { display: block; }
+
+.shoplayout__main { min-width: 0; }
+
+/* Phone: the filters are a sheet, not a column.
+
+   Stacked into the flow they put a search box, five size chips, a colour list
+   and a price slider above the first photograph, so a collection opened onto a
+   form. Out of flow, the only thing left above the grid is the word
+   "Filters", and the controls arrive over the page when they are asked for. */
+@media (max-width: 61.9375rem) {
+  .shoplayout__scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    border: 0;
+    padding: 0;
+    background: var(--color-scrim);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--dur-3) var(--ease-out), visibility 0s linear var(--dur-3);
+  }
+
+  .shoplayout--sheet .shoplayout__scrim {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .shoplayout__aside {
+    position: fixed;
+    z-index: 61;
+    inset-inline: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    max-height: 88dvh;
+    background: var(--color-paper);
+    /* The sheet is paper regardless of the page it opened from — an ink page
+       (the trade line sheet) would otherwise leave this text white-on-paper. */
+    color: var(--color-ink);
+    border-top-left-radius: var(--radius-slab);
+    border-top-right-radius: var(--radius-slab);
+    box-shadow: 0 -1rem 3rem rgba(10, 10, 10, 0.3);
+    transform: translate3d(0, 100%, 0);
+    visibility: hidden;
+    transition:
+      transform var(--dur-3) var(--ease-out),
+      visibility 0s linear var(--dur-3);
+  }
+
+  .shoplayout--sheet .shoplayout__aside {
+    transform: none;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .shoplayout__sheetbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-4) clamp(1.25rem, 4vw, 4.5rem) var(--space-3);
+    border-bottom: var(--spacing-rule) solid var(--color-muted);
+  }
+
+  .shoplayout__asidescroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--space-5) clamp(1.25rem, 4vw, 4.5rem);
+  }
+
+  .shoplayout__sheetfoot {
+    padding: var(--space-3) clamp(1.25rem, 4vw, 4.5rem)
+      calc(var(--space-4) + env(safe-area-inset-bottom));
+    border-top: var(--spacing-rule) solid var(--color-muted);
+  }
+
+  /* The sheet is the full width of the phone; the column's fixed measure is a
+     desktop constraint. */
+  .filters__inner { width: 100%; }
+
+  .filters__wide { display: none; }
+}
+
+/* Desktop: back to a column beside the grid, and back to collapsing it. */
+@media (min-width: 62rem) {
+  .shoplayout {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: var(--space-6);
+    align-items: start;
+    transition:
+      grid-template-columns var(--dur-3) var(--ease-out),
+      gap var(--dur-3) var(--ease-out);
+  }
+
+  /* Shutting the column hands every pixel of it to the grid. */
+  .shoplayout--shut { grid-template-columns: 0 minmax(0, 1fr); gap: 0; }
+
+  .shoplayout__aside { min-height: 0; min-width: 0; overflow: hidden; }
+
+  .shoplayout__scrim,
+  .shoplayout__sheetbar,
+  .shoplayout__sheetfoot { display: none; }
+
+  .filters__narrow { display: none; }
+}
+
+.shoplayout__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+}
+
+.filters__toggle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: var(--text-meta);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Three rules that fold to a cross when the column is open. */
+.filters__togglemark {
+  position: relative;
+  display: block;
+  width: 0.875rem;
+  height: 0.625rem;
+}
+
+.filters__togglemark::before,
+.filters__togglemark::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: var(--spacing-rule);
+  background: currentColor;
+  transition: transform var(--dur-2) var(--ease-out), top var(--dur-2) var(--ease-out);
+}
+
+.filters__togglemark::before { top: 0; }
+.filters__togglemark::after { top: calc(0.625rem - var(--spacing-rule)); }
+
+.filters__toggle[aria-expanded="true"] .filters__togglemark::before {
+  top: calc(50% - var(--spacing-rule) / 2);
+  transform: rotate(45deg);
+}
+
+.filters__toggle[aria-expanded="true"] .filters__togglemark::after {
+  top: calc(50% - var(--spacing-rule) / 2);
+  transform: rotate(-45deg);
+}
+
+/* A filter is on but the column is shut — say so, or the shopper wonders why
+   half the catalogue is missing. */
+.filters__dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: var(--color-ink);
+}
+
+.filters { display: block; }
+
+.filters__inner {
+  display: grid;
+  gap: var(--space-5);
+  width: 15rem;
+  max-width: 100%;
+}
+
+@media (min-width: 62rem) {
+  .shoplayout__aside { position: sticky; top: 5.5rem; }
+}
+
+.filters__group { display: grid; gap: var(--space-2); }
+.filters__legend { display: block; }
+
+.filters__search { display: flex; align-items: center; gap: var(--space-2); }
+
+.filters__input {
+  flex: 1;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0.5rem 0;
+  border: 0;
+  border-bottom: var(--spacing-rule) solid var(--color-muted);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+}
+
+.filters__input:focus-visible { outline: 0; border-bottom-color: var(--color-ink); }
+.filters__go { flex: none; border: 0; background: none; padding: 0; color: inherit; cursor: pointer; }
+
+.filters__colors { display: grid; gap: var(--space-1); }
+
+.filters__color {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.25rem;
+  font-size: var(--text-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted-text);
+  cursor: pointer;
+}
+
+.filters__color--on { color: var(--color-ink); }
+.filters__color .swatchdot { cursor: pointer; }
+.filters__color:has(:focus-visible) { outline: 2px solid var(--color-ink); outline-offset: 2px; }
+
+.filters__price { font-size: var(--text-meta); letter-spacing: 0.06em; }
+
+.filters__range {
+  width: 100%;
+  height: 2.75rem;
+  accent-color: var(--color-ink);
+  cursor: pointer;
+}
+
+.filters__hint {
+  font-size: var(--text-meta);
+  letter-spacing: 0.04em;
+  color: var(--color-muted-text);
+  text-transform: none;
+}
+
+.filters__select {
+  min-height: 2.75rem;
+  padding: 0.5rem 2rem 0.5rem 0.6rem;
+  border: var(--spacing-rule) solid var(--color-muted);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font-size: var(--text-meta);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.filters__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: var(--spacing-rule) solid var(--color-muted);
+}
+
+.chiprow { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border: var(--spacing-rule) solid var(--color-muted);
+  border-radius: 999px;
+  font-size: var(--text-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color var(--dur-1) var(--ease-out),
+    background-color var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
+}
+
+/* Hover only where there is a pointer to hover with. On a touchscreen the
+   hover state latches after a tap, so a sold-out size that could not be
+   selected still lit up as though it had been — then Add to cart answered
+   "choose a size" and the whole thing read as a glitch. */
+@media (hover: hover) {
+  .chip:hover:not(.chip--sold) { border-color: var(--color-ink); }
+}
+.chip--on { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-white); }
+
+/* Sold out stays visible and struck through — a size run with holes in it
+   still reads as a complete run. */
+.chip--sold {
+  border-style: dashed;
+  border-color: var(--color-muted);
+  background: var(--color-paper-deep);
+  color: var(--color-muted-text);
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+/* Nothing about a sold-out chip should move under a finger or a cursor. */
+.chip--sold:active { border-color: var(--color-muted); }
+
+.chip:has(:focus-visible) { outline: 2px solid var(--color-ink); outline-offset: 2px; }
+
+.shoppage__empty { padding-block: var(--space-5); }
+
+/* --------------------------------------------------------------------------
+   Product detail
+   -------------------------------------------------------------------------- */
+
+.pdp { padding-top: var(--space-5); }
+
+.pdp__crumbs { padding-bottom: var(--space-4); }
+
+.crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+
+.crumbs__sep { color: var(--color-muted); }
+
+.pdp__grid { display: grid; gap: var(--space-5); }
+
+.pdp__accordion { margin-top: var(--space-5); }
+
+.pdp__related { margin-top: var(--space-7); }
+
+.pdp__gallery { display: grid; gap: var(--space-3); }
+
+@media (min-width: 56.25rem) {
+  .pdp__grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-6); }
+  .pdp__sticky { position: sticky; top: 5.5rem; }
+}
+
+.pdp__title { padding-block: var(--space-2) var(--space-4); }
+
+.pdp__description {
+  padding-top: var(--space-4);
+  max-width: 44ch;
+  color: var(--color-muted-text);
+}
+
+.picker { display: grid; gap: var(--space-4); }
+
+.picker__price { font-size: var(--text-sub); font-weight: 500; }
+
+/* --------------------------------------------------------------------------
+   Product story
+   Directly under the price: a paragraph, a list of the things a shopper checks
+   before buying, and a short line to close. Small and dense on purpose — the
+   photograph has already made the case, and this is the reading you do after
+   you are half convinced.
+   -------------------------------------------------------------------------- */
+
+.story {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  max-width: 52ch;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--color-muted-text);
+}
+
+.story__list { display: grid; gap: 0.4rem; }
+
+/* Hanging bullets: the rule of the list is the left edge of the text, not the
+   left edge of the marks. */
+.story__item {
+  position: relative;
+  padding-left: 1.1rem;
+}
+
+.story__item::before {
+  content: "";
+  position: absolute;
+  top: 0.62em;
+  left: 0.1rem;
+  width: 0.3rem;
+  height: var(--spacing-rule);
+  background: var(--color-muted-text);
+}
+
+.picker__spec {
+  display: grid;
+  gap: 0.35rem;
+  font-size: var(--text-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted-text);
+}
+
+.picker__group { display: grid; gap: var(--space-2); }
+.picker__legend { display: block; }
+
+.swatchrow { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+
+.swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+  border: var(--spacing-rule) solid transparent;
+  border-radius: 999px;
+  font-size: var(--text-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.swatch--on { border-color: var(--color-ink); }
+
+/* Colour is never the only carrier of meaning — the name sits beside the dot.
+   The value itself comes from the shared `.dot--*` palette further up. */
+.swatch__dot {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: var(--spacing-rule) solid var(--color-muted);
+  border-radius: 50%;
+  background: var(--dot, var(--color-paper-deep));
+}
+
+.swatch:has(:focus-visible) { outline: 2px solid var(--color-ink); outline-offset: 2px; }
+
+/* The stepper's own rule pads its top for the cart lines; inside a labelled
+   group here the legend has already done that. */
+.picker__qty { padding-top: 0; }
+
+.picker__stock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding-left: var(--space-2);
+  font-size: var(--text-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted-text);
+}
+
+/* Green, and said with a dot in front of it: a size you can actually buy is
+   the one piece of good news in this column. */
+.picker__stock--in {
+  color: var(--color-instock);
+  font-weight: 700;
+}
+
+.picker__stock--in::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-instock-dot);
+}
+
+.picker__actions { display: grid; gap: var(--space-2); padding-top: var(--space-2); }
+
+/* Both purchase actions carry weight. They are the only two controls on the
+   page anyone came here to press. */
+.picker__actions .btn { font-weight: 700; }
+
+/* --------------------------------------------------------------------------
+   Sold out
+   What a colourway with nothing in it shows instead of sizes, a quantity and
+   two buttons. The word is set at display size because it is the entire
+   message; the form under it is the only thing left worth asking for.
+   -------------------------------------------------------------------------- */
+
+.restock {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: var(--spacing-rule) solid var(--color-ink);
+}
+
+.restock__mark {
+  font-size: clamp(3rem, 12vw, 5rem);
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+
+.restock__lede,
+.restock__done {
+  max-width: 44ch;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-muted-text);
+}
+
+.restock__done { color: var(--color-ink); font-weight: 500; }
+
+.restock__form { align-items: stretch; }
+
+/* The footer's signup input is white-on-ink; this one sits on paper. */
+.restock__input {
+  border-bottom: var(--spacing-rule) solid var(--color-ink);
+  color: var(--color-ink);
+}
+
+.restock__input::placeholder { color: var(--color-muted-text); }
+
+.restock__submit { padding-inline: var(--space-4); }
+
+
+.pdp__detail { padding-top: var(--space-7); }
+
+.accordion { display: grid; border-top: var(--spacing-rule) solid var(--color-muted); }
+
+.accordion__item { border-bottom: var(--spacing-rule) solid var(--color-muted); }
+
+.accordion__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block: var(--space-4);
+  font-size: var(--text-meta);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+}
+
+.accordion__summary::-webkit-details-marker { display: none; }
+
+.accordion__mark { position: relative; width: 0.75rem; height: 0.75rem; flex: none; }
+
+.accordion__mark::before,
+.accordion__mark::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+  transition: transform 240ms var(--ease-out);
+}
+
+.accordion__mark::before { top: 50%; left: 0; width: 100%; height: 1px; }
+.accordion__mark::after { left: 50%; top: 0; width: 1px; height: 100%; }
+
+.accordion__item[open] .accordion__mark::after { transform: scaleY(0); }
+
+.accordion__body {
+  padding-bottom: var(--space-4);
+  max-width: 60ch;
+  color: var(--color-muted-text);
+}
+
+/* --------------------------------------------------------------------------
+   Cart
+   -------------------------------------------------------------------------- */
+
+.cartpage__head { padding-block: var(--space-2) var(--space-5); }
+.cartpage__cta { margin-top: var(--space-3); }
+
+.cartlayout { display: grid; gap: var(--space-6); }
+
+@media (min-width: 56.25rem) {
+  .cartlayout { grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: var(--space-7); }
+}
+
+.cartlines ul { border-top: var(--spacing-rule) solid var(--color-muted); }
+
+.cartline {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr) auto;
+  gap: var(--space-4);
+  padding-block: var(--space-4);
+  border-bottom: var(--spacing-rule) solid var(--color-muted);
+}
+
+@media (min-width: 48rem) {
+  .cartline { grid-template-columns: 10rem minmax(0, 1fr) auto; }
+}
+
+.cartline__plate { display: block; }
+
+.cartline__title {
+  font-size: var(--text-body);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cartline__title a { text-decoration: none; }
+
+.cartline__body { display: grid; gap: 0.35rem; align-content: start; }
+
+.stepper { display: flex; align-items: center; gap: var(--space-2); padding-top: var(--space-2); }
+
+.stepper__button {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: var(--spacing-rule) solid var(--color-muted);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 200ms var(--ease-out);
+}
+
+.stepper__button:hover:not(:disabled) { border-color: var(--color-ink); }
+.stepper__button:disabled { color: var(--color-muted); cursor: not-allowed; }
+
+.stepper__value { min-width: 2rem; text-align: center; }
+
+.cartline__remove {
+  border: 0;
+  background: none;
+  padding: 0 0 0 var(--space-3);
+  color: var(--color-muted-text);
+  cursor: pointer;
+}
+
+.cartline__total { align-self: start; font-weight: 500; }
+
+.summary { align-self: start; }
+
+@media (min-width: 56.25rem) {
+  .summary { position: sticky; top: 5.5rem; }
+}
+
+.summary__rule { margin-block: var(--space-3); }
+
+.summary__rows {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-2) var(--space-4);
+}
+
+.summary__rows dt { color: var(--color-muted-text); }
+.summary__rows dd { margin: 0; text-align: right; }
+
+.summary__pending {
+  color: var(--color-muted-text);
+  font-size: var(--text-meta);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.summary__cta { margin-top: var(--space-3); }
+.summary__back { display: inline-block; margin-top: var(--space-4); }
+
+/* --------------------------------------------------------------------------
+   Toaster
+   Replies to something the shopper just did. Ink ground, paper type, uppercase
+   meta at the store's letter-spacing — the same inversion `.btn` uses, so the
+   store answers in its own voice rather than in a notification library's.
+
+   Top centre rather than a corner: the cart sheet owns the bottom of the
+   window at every width, and a reply about the cart that appears underneath
+   the cart is not a reply.
+   -------------------------------------------------------------------------- */
+
+.toaster {
+  position: fixed;
+  z-index: 90;
+  top: 0;
+  left: 50%;
+  display: grid;
+  gap: var(--space-2);
+  width: min(26rem, calc(100vw - 2 * var(--space-3)));
+  padding-top: calc(var(--space-3) + env(safe-area-inset-top));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  position: relative;
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  box-shadow: 0 1rem 2.5rem rgba(10, 10, 10, 0.28);
+  pointer-events: auto;
+  animation: toast-in var(--dur-3) var(--ease-out) both;
+}
+
+/* The one mark that separates a confirmation from a refusal, and it is a rule
+   rather than a colour — the palette has no red in it, and adding one for a
+   two-word message would put a colour on the site that appears nowhere else.
+   The words carry the meaning; this carries the glance. */
+.toast__rule {
+  position: absolute;
+  left: 0;
+  top: var(--space-3);
+  bottom: var(--space-3);
+  width: 2px;
+  border-radius: 2px;
+  background: var(--color-muted-text);
+}
+
+.toast--ok .toast__rule { background: var(--color-paper); }
+.toast--error .toast__rule { background: var(--color-warm); }
+
+.toast__text {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+.toast__close {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: -0.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out);
+}
+
+.toast__close:hover { color: var(--color-paper); }
+
+/* A cross drawn from one box, the same way the filter toggle draws one. */
+.toast__closemark {
+  position: relative;
+  display: block;
+  width: 0.625rem;
+  height: 0.625rem;
+}
+
+.toast__closemark::before,
+.toast__closemark::after {
+  content: "";
+  position: absolute;
+  top: calc(50% - var(--spacing-rule) / 2);
+  left: 0;
+  width: 100%;
+  height: var(--spacing-rule);
+  background: currentColor;
+}
+
+.toast__closemark::before { transform: rotate(45deg); }
+.toast__closemark::after { transform: rotate(-45deg); }
+
+.toast :focus-visible { outline: 2px solid var(--color-paper); outline-offset: 2px; }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translate3d(0, -0.75rem, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Arriving from nowhere is the whole point of the component; arriving by
+   sliding is not. Reduced motion keeps the message and drops the travel. */
+@media (prefers-reduced-motion: reduce) {
+  .toast { animation: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Cart sheet
+   A surface of its own, on purpose. The rest of the storefront is ink on
+   paper; this is flat black with white type and orange for the asides, so the
+   sheet reads as something laid over the shop rather than as another panel of
+   it — and so its one primary action cannot be confused with the page's own
+   buttons. The palette is declared once, here, and used nowhere else.
+   -------------------------------------------------------------------------- */
+
+.cartsheet {
+  --cart-ground: #000000;
+  --cart-raised: #000000;
+  --cart-line:   #3a3a3a;
+  --cart-type:   #ffffff;
+  --cart-dim:    #ff8a3d;
+  --cart-spot:   #ffffff;
+  --cart-mute:   #6d6d6d;
+
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s linear var(--dur-3);
+}
+
+.cartsheet--open { pointer-events: auto; visibility: visible; transition-delay: 0s; }
+
+.cartsheet__scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgba(10, 10, 10, 0.55);
+  opacity: 0;
+  transition: opacity var(--dur-3) var(--ease-out);
+}
+
+.cartsheet--open .cartsheet__scrim { opacity: 1; }
+
+/* Rises from the foot of the window at every width and takes the lower half of
+   it — full-bleed on a phone, a tablet and a monitor alike. The list inside
+   scrolls, so a long cart costs the sheet no height. */
+.cartsheet__panel {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  height: 50dvh;
+  max-height: 50dvh;
+  background: var(--cart-ground);
+  color: var(--cart-type);
+  border-top-left-radius: var(--radius-slab);
+  border-top-right-radius: var(--radius-slab);
+  box-shadow: 0 -1.5rem 4rem rgba(10, 10, 10, 0.55);
+  transform: translate3d(0, 100%, 0);
+  transition: transform var(--dur-3) var(--ease-out);
+}
+
+.cartsheet--open .cartsheet__panel { transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cartsheet__panel { transition: none; }
+}
+
+/* The handle. Says "this came up and can go back down" before anything else in
+   the sheet has been read. */
+.cartsheet__grip {
+  width: 2.5rem;
+  height: 0.25rem;
+  margin: var(--space-2) auto 0;
+  border-radius: 999px;
+  background: var(--cart-line);
+}
+
+.cartsheet__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5) var(--space-3);
+  border-bottom: var(--spacing-rule) solid var(--cart-line);
+}
+
+.cartsheet__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.cartsheet__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding-inline: 0.4rem;
+  border-radius: 999px;
+  background: var(--cart-spot);
+  color: var(--cart-ground);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+}
+
+.cartsheet__close {
+  flex: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--cart-dim);
+  font: inherit;
+  font-size: var(--text-meta);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out);
+}
+
+.cartsheet__close:hover { color: var(--cart-type); }
+
+.cartsheet__lines {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-inline: var(--space-5);
+}
+
+.cartsheet__line {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  padding-block: var(--space-4);
+  border-bottom: var(--spacing-rule) solid var(--cart-line);
+}
+
+.cartsheet__lines > .cartsheet__line:last-child { border-bottom: 0; }
+
+.cartsheet__plate { display: block; background: #141414; }
+
+.cartsheet__thumb { width: 100%; height: auto; object-fit: cover; }
+
+.cartsheet__body { display: grid; gap: 0.3rem; align-content: start; min-width: 0; }
+
+.cartsheet__name {
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.cartsheet__name a { color: inherit; text-decoration: none; }
+.cartsheet__name a:hover { text-decoration: underline; }
+
+.cartsheet__spec {
+  font-size: var(--text-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cart-dim);
+}
+
+.cartsheet__stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+.cartsheet__stepper button {
+  min-width: 2rem;
+  height: 2rem;
+  border: var(--spacing-rule) solid var(--cart-line);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
+}
+
+.cartsheet__stepper button:hover:not(:disabled) { border-color: var(--cart-spot); }
+.cartsheet__stepper button:disabled { color: var(--cart-mute); border-color: var(--cart-mute); cursor: not-allowed; }
+
+/* Not a stepper control, so it drops the box the three beside it wear. */
+.cartsheet__stepper .cartsheet__remove {
+  min-width: 0;
+  height: auto;
+  border: 0;
+  padding: 0 0 0 var(--space-2);
+  color: var(--cart-dim);
+  font-size: var(--text-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.cartsheet__stepper .cartsheet__remove:hover:not(:disabled) { color: var(--cart-type); }
+
+.cartsheet__linetotal { align-self: start; font-weight: 500; }
+
+.cartsheet__foot {
+  flex: none;
+  padding: var(--space-4) var(--space-5)
+    calc(var(--space-5) + env(safe-area-inset-bottom));
+  border-top: var(--spacing-rule) solid var(--cart-line);
+  background: var(--cart-raised);
+}
+
+
+.cartsheet__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--text-sub);
+  font-weight: 500;
+}
+
+.cartsheet__note {
+  padding-top: var(--space-1);
+  font-size: var(--text-meta);
+  letter-spacing: 0.08em;
+  color: var(--cart-dim);
+}
+
+/* The sheet's own button, not the storefront's — inverted against the dark
+   ground the way .btn is inverted against paper. */
+.cartsheet__cta {
+  display: block;
+  margin-top: var(--space-4);
+  padding: 1rem var(--space-4);
+  background: var(--cart-spot);
+  color: var(--cart-ground);
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color var(--dur-1) var(--ease-out);
+}
+
+.cartsheet__cta:hover { background: var(--cart-dim); }
+
+.cartsheet__keep {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-3);
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--cart-dim);
+  font: inherit;
+  font-size: var(--text-meta);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out);
+}
+
+.cartsheet__keep:hover { color: var(--cart-type); }
+
+.cartsheet__empty {
+  padding: var(--space-6) var(--space-5)
+    calc(var(--space-6) + env(safe-area-inset-bottom));
+  text-align: center;
+
+  /* The sheet is a fixed half-viewport now; on a short screen even this can
+     run past it. */
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.cartsheet__emptyhead { font-size: var(--text-sub); font-weight: 500; }
+
+.cartsheet__emptylede {
+  padding-top: var(--space-2);
+  margin-inline: auto;
+  max-width: 30ch;
+  color: var(--cart-dim);
+}
+
+.cartsheet__empty .cartsheet__cta { margin-top: var(--space-5); }
+
+/* On a desktop the half-height sheet put the one thing a shopper came to press
+   below the fold. At 62rem and up it takes the whole viewport instead: the
+   lines (or the empty state) scroll inside it, and the foot — subtotal,
+   checkout — stays where it lands. */
+@media (min-width: 62rem) {
+  .cartsheet__panel {
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+
+  .cartsheet__grip { display: none; }
+
+  .cartsheet__lines,
+  .cartsheet__empty {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 56rem;
+  }
+
+  /* The empty state has room to breathe now, and "Shop tees" sits well inside
+     the first screen. */
+  .cartsheet__empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cartsheet__foot > * { margin-inline: auto; max-width: 56rem; }
+}
+
+/* The global focus ring is ink, which is invisible here. */
+.cartsheet :focus-visible { outline: 2px solid var(--cart-spot); outline-offset: 2px; }
+
+/* The drawer's cart row is a button now rather than a link to /cart. */
+.drawer__cart {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------------------
+   FAQ
+   A single continuous list rather than the PDP's grouped `<details>` spec
+   sheet, so it gets its own class names (`.faqlist*`) instead of reusing
+   `.accordion*` — that class is still load-bearing on the product page.
+   -------------------------------------------------------------------------- */
+
+.faqlist { max-width: 42rem; margin-inline: auto; border-top: var(--spacing-rule) solid var(--color-muted); }
+
+.faqlist__item { border-bottom: var(--spacing-rule) solid var(--color-muted); }
+
+.faqlist__row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-block: var(--space-4);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out);
+}
+
+.faqlist__row:hover,
+.faqlist__row:focus-visible { color: var(--color-muted-text); }
+
+.faqlist__mark { position: relative; width: 0.75rem; height: 0.75rem; flex: none; }
+
+.faqlist__mark::before,
+.faqlist__mark::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+  transition: transform 280ms var(--ease-out);
+}
+
+.faqlist__mark::before { top: 50%; left: 0; width: 100%; height: 1px; transform: rotate(0deg); }
+.faqlist__mark::after { left: 50%; top: 0; width: 1px; height: 100%; transform: rotate(0deg); }
+
+.faqlist__mark[data-open="true"]::before,
+.faqlist__mark[data-open="true"]::after { transform: rotate(45deg); }
+
+.faqlist__panel { overflow: hidden; }
+
+.faqlist__answer { max-width: 60ch; padding-bottom: var(--space-4); color: var(--color-muted-text); }
+
+
+/* --------------------------------------------------------------------------
+   Account, auth, errors
+   -------------------------------------------------------------------------- */
+
+/* Account and auth sit in a column at the page's left edge. Centring a 48rem
+   block inside a 100rem measure left it stranded in the middle of nowhere —
+   aligned to neither the gutter nor the page. */
+.accountpane { max-width: 34rem; }
+
+.narrow { max-width: 48rem; }
+
+.pagehead { padding-bottom: var(--space-5); }
+.pagehead__title { padding-block: var(--space-2) var(--space-4); max-width: 20ch; }
+.pagehead__lede { color: var(--color-muted-text); }
+
+/* Our Story and Why Shrinkless read as a centred editorial column rather
+   than the left-aligned spec-sheet pageheads elsewhere. */
+.pagehead--center { text-align: center; }
+.pagehead--center .pagehead__title,
+.pagehead--center .pagehead__lede { margin-inline: auto; }
+
+/* A hairline above repeated pagehead blocks stacked with no photography
+   between them, so consecutive statements still read as distinct beats. */
+.pagehead--rule { padding-top: var(--space-6); border-top: var(--spacing-rule) solid var(--color-muted); }
+
+/* Our Story is one film, run as a hero: no measure, no frame, no radius — it
+   spans the viewport edge to edge. Width is the only dimension ever set, so the
+   picture keeps its own proportions and is never squeezed on one axis. Desktop
+   centres the copy on the film; narrower screens set it underneath, and only a
+   phone trims the sides (about 17.5% each, from the centre). */
+.storyfilm { padding-block: 0; }
+
+.storyfilm__stage { position: relative; }
+
+.storyfilm__video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.storyfilm__copy {
+  padding: var(--space-6) clamp(1.25rem, 4vw, 4.5rem);
+  text-align: center;
+}
+
+.storyfilm__column { max-width: 74ch; margin-inline: auto; }
+
+.storyfilm__title {
+  font-size: var(--text-head);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-white);
+}
+
+.storyfilm__body {
+  padding-top: var(--space-4);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: var(--color-paper);
+}
+
+/* A phone crops rather than shrinks: the picture is widened past the viewport
+   and pulled back by half the difference, so its centre is what survives. */
+@media (max-width: 47.999rem) {
+  .storyfilm__stage { overflow: hidden; }
+
+  .storyfilm__video {
+    width: 154%;
+    margin-inline-start: -27%;
+  }
+}
+
+/* Desktop: the copy sits centred on the film, under a scrim that carries the
+   text without touching the video itself. */
+@media (min-width: 62rem) {
+  .storyfilm__copy {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: auto;
+    padding: clamp(2rem, 1rem + 3vw, 5rem);
+    background: linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0.20) 0%,
+      rgb(0 0 0 / 0.55) 50%,
+      rgb(0 0 0 / 0.20) 100%
+    );
+    text-shadow: 0 1px 3px rgb(0 0 0 / 0.55);
+  }
+
+  .storyfilm__title { font-size: var(--text-display); }
+
+  .storyfilm__body {
+    padding-top: var(--space-5);
+    font-size: clamp(1rem, 0.9rem + 0.25vw, 1.1875rem);
+    line-height: 1.7;
+  }
+}
+
+.shopcta { padding-block: var(--space-2) var(--space-6); text-align: center; }
+
+.authform { display: grid; gap: var(--space-4); max-width: 26rem; padding-top: var(--space-5); }
+
+.authform .field > input,
+.authform .field { display: grid; gap: var(--space-1); }
+
+.authform__submit { margin-top: var(--space-2); }
+
+/* The second factor. The prompt has to explain itself — an unexpected code
+   field is how people decide a site is broken. */
+.authform__step {
+  font-size: var(--text-meta);
+  line-height: 1.6;
+  color: var(--color-muted-text);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.authform__step strong { color: var(--color-ink); font-weight: 600; }
+
+/* Six digits, spaced like the mail shows them, at a size you can check
+   against a phone without leaning in. */
+.codeinput {
+  font-size: 1.5rem;
+  letter-spacing: 0.35em;
+  text-align: center;
+  padding-block: 0.6rem;
+}
+
+.codeinput::placeholder { color: var(--color-muted); letter-spacing: 0.35em; }
+
+.authform__aside {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--text-meta);
+}
+
+.authform__aside button { background: none; border: 0; padding: 0; cursor: pointer; }
+.authform__aside button[disabled] { opacity: 0.4; cursor: default; }
+
+/* The swap is a separate offer, not the last line of the form: it gets a rule
+   and real space above it so it reads as one. */
+.authswap {
+  max-width: 26rem;
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: var(--spacing-rule) solid var(--color-muted);
+  font-size: var(--text-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted-text);
+}
+
+/* Used both as a single paragraph and as a block of two offers; the grid keeps
+   the second case from inheriting a paragraph's default margins. */
+.authswap p { margin: 0; }
+.authswap p + p { margin-top: var(--space-2); }
+
+.deflist {
+  display: grid;
+  grid-template-columns: 8rem minmax(0, 1fr);
+  gap: var(--space-2) var(--space-4);
+  padding-block: var(--space-4);
+  border-top: var(--spacing-rule) solid var(--color-muted);
+}
+
+.deflist dt {
+  font-size: var(--text-meta);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted-text);
+}
+
+.deflist dd { margin: 0; }
+
+.spread {
+  display: grid;
+  gap: var(--space-3);
+  padding-block: var(--space-5);
+  border-top: var(--spacing-rule) solid var(--color-muted);
+}
+
+@media (min-width: 48rem) {
+  .spread { grid-template-columns: 10rem minmax(0, 1fr); gap: var(--space-4); }
+}
+
+.spread__label {
+  font-size: var(--text-meta);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted-text);
+}
+
+.spread__body { min-width: 0; }
+
+.orderlist { display: grid; }
+
+.orderlist__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-1) var(--space-3);
+  padding-block: var(--space-3);
+  border-bottom: var(--spacing-rule) solid var(--color-muted);
+}
+
+.orderlist__num { font-weight: 500; letter-spacing: 0.06em; }
+
+.accountfoot { display: flex; flex-wrap: wrap; gap: var(--space-3); padding-top: var(--space-5); }
+
+.price { font-weight: 500; }
+
+.errorpage { padding-block: var(--space-8); }
+.errorpage .lede { padding-top: var(--space-4); }
+.errorpage .btn { margin-top: var(--space-5); }
+
+.errorpage__detail {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  border: var(--spacing-rule) solid var(--color-muted);
+  background: var(--color-paper-deep);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  color: var(--color-muted-text);
+}
+
+
+/* --------------------------------------------------------------------------
+   Admin — inline checkbox
+   The product editor stacks label-over-input everywhere else; a checkbox has
+   to sit beside its label or it reads as a stray control.
+   -------------------------------------------------------------------------- */
+
+.checkfield {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.checkfield input { margin-top: 0.3rem; width: 1rem; height: 1rem; flex: none; }
+
+.checkfield small,
+.admin label > small {
+  display: block;
+  color: var(--color-muted-text);
+  font-size: var(--text-meta);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.admin label > small { padding-top: 0.3rem; }
+
+
+/* --------------------------------------------------------------------------
+   Checkout
+   The last page before money changes hands, so it borrows the cart's two-column
+   shape rather than inventing one: goods on the right where they were a moment
+   ago, the work on the left. Stripe's own elements sit inside `.checkoutform`
+   and are themed through the Appearance API in CheckoutFlow, so the only job
+   here is the frame around them.
+   -------------------------------------------------------------------------- */
+
+.checkout__head { padding-block: var(--space-2) var(--space-5); }
+
+.checkout__layout { display: grid; gap: var(--space-6); }
+
+@media (min-width: 56.25rem) {
+  .checkout__layout {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    gap: var(--space-7);
+  }
+}
+
+.checkout__main { min-width: 0; }
+
+.checkout__unavailable { max-width: 34rem; }
+
+.checkout__items {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.checkout__item {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--text-meta);
+}
+
+.checkout__itemname { display: block; }
+
+.checkout__itemspec {
+  display: block;
+  padding-top: 0.2rem;
+  color: var(--color-muted-text);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* The one line on the page that has to survive a glance. */
+.checkout__total dt,
+.checkout__total dd {
+  font-size: var(--text-body);
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+.checkout__terms {
+  padding-top: var(--space-3);
+  font-size: var(--text-meta);
+  line-height: 1.6;
+  color: var(--color-muted-text);
+}
+
+.checkoutform { display: grid; gap: var(--space-5); }
+
+/* Sections rather than one long stack: contact, address and payment are three
+   different questions, and a rule between them is cheaper than a heading
+   nobody reads. */
+.checkoutform__section {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: var(--spacing-rule) solid var(--color-muted);
+}
+
+.checkoutform__section:first-child { padding-top: 0; border-top: 0; }
+
+.checkoutform__legend { color: var(--color-muted-text); }
+
+.checkoutform__hint {
+  display: block;
+  padding-top: 0.3rem;
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  color: var(--color-muted-text);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.checkoutform__back { justify-self: center; }
+
+
+/* --------------------------------------------------------------------------
+   Order confirmation
+   Narrow and quiet. The shopper has finished; the page's whole job is to prove
+   it happened and then get out of the way.
+   -------------------------------------------------------------------------- */
+
+.confirm { max-width: 44rem; }
+
+.confirm__head { padding-block: var(--space-2) var(--space-4); }
+
+.confirm__note {
+  max-width: 46ch;
+  color: var(--color-muted-text);
+}
+
+.confirm__facts {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  padding-top: var(--space-5);
+  font-size: var(--text-meta);
+}
+
+.confirm__facts dt {
+  color: var(--color-muted-text);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.confirm__facts dd { margin: 0; }
+
+.confirm__rule { margin-block: var(--space-5); }
+
+.confirm__items {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.confirm__item { font-size: var(--text-meta); }
+
+.confirm__itemname { display: block; font-weight: 500; }
+
+.confirm__itemspec {
+  display: block;
+  padding-top: 0.2rem;
+  color: var(--color-muted-text);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.confirm__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-6);
+}
+
+/* --------------------------------------------------------------------------
+   The admin's crop
+
+   An editable photograph carries up to four custom properties, written by
+   `cropStyle` in `lib/media/crop.ts`: a position and a zoom for the desk, and
+   the same pair for the phone. Which applies is a question about the viewport,
+   which the server cannot answer — so both travel down and the switch happens
+   here, at the 48rem the layouts themselves turn at.
+
+   Everything downstream reads the resolved pair, `--crop-p` and `--crop-z`, so
+   the hover scales above multiply the crop that is actually showing rather
+   than the desktop one. A frame nobody has cropped sets none of the four and
+   falls all the way through to `--crop-pos-default`, which is how the hero
+   keeps sitting its frames above centre.
+   -------------------------------------------------------------------------- */
+
+.hero__image,
+.tiles__image,
+.gateway__image,
+.lookbook__image,
+.imageband__image,
+.pdp__shot img,
+.pcard__frame img,
+.sheetrow__frame img,
+.tradecard__frame img,
+.tradestyle__shot img {
+  --crop-p: var(--crop-pos, var(--crop-pos-default, 50% 50%));
+  --crop-z: var(--crop-zoom, 1);
+
+  object-position: var(--crop-p);
+  transform: scale(var(--crop-z));
+  transform-origin: var(--crop-p);
+}
+
+/* The phone. Each half falls back on its own: a photograph given a mobile
+   position but no mobile zoom keeps the desktop zoom, rather than losing it. */
+@media (max-width: 47.999rem) {
+  .hero__image,
+  .tiles__image,
+  .gateway__image,
+  .lookbook__image,
+  .imageband__image,
+  .pdp__shot img,
+  .pcard__frame img,
+  .sheetrow__frame img,
+  .tradecard__frame img,
+  .tradestyle__shot img {
+    --crop-p: var(--crop-pos-m, var(--crop-pos, var(--crop-pos-default, 50% 50%)));
+    --crop-z: var(--crop-zoom-m, var(--crop-zoom, 1));
+  }
+}
+
+/* ==========================================================================
+   Flagged navigation
+   Wholesale is not another way into the same shop, so it is not drawn as
+   another link into it. A solid orange pill at the end of the bar.
+
+   The one place on the storefront outside the Buy now button where the accent
+   is allowed out. It earns it for the same reason that button does: the entry
+   has to be told apart from its neighbours at a glance, and in a monochrome
+   bar there is nothing left to say it with. Black on this orange is 10.4:1 —
+   higher than white on it — which is why the label is ink.
+
+   Fixed colours rather than `currentColor`, unlike everything else in the
+   masthead. The pill is the same orange over the homepage photography as it
+   is on the paper bar, because a flag that changed with its ground would stop
+   reading as one fixed destination.
+   ========================================================================== */
+
+.navflag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.9rem;
+  border: var(--spacing-rule) solid var(--color-accent);
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-ink);
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out);
+}
+
+/* Lifts rather than darkens. The label stays ink, so the hover has to move
+   away from black to keep the contrast it started with.
+
+   The current page is deliberately NOT included. Every other entry in the bar
+   marks itself with a rule when you are on it, but this one is already the
+   loudest thing in the masthead — and the lift is a paler orange, so wearing
+   it on /wholesale left the flag washed out on the one page it should be at
+   full strength. Being where you are is not a hover state. */
+.navflag:hover,
+.navflag:focus-visible {
+  border-color: var(--color-accent-deep);
+  background: var(--color-accent-deep);
+}
+
+/* The ink focus ring sits on an orange ground here, where its default
+   offset puts it half on the pill. Pushed clear instead. */
+.navflag:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+}
+
+/* ==========================================================================
+   Wholesale — the trade line sheet
+   The one page in the storefront that is a document rather than a display.
+
+   Retail leads with photography and files the numbers behind a filter panel,
+   because a shopper is choosing a thing to wear. A wholesale buyer is reading
+   down a column, comparing ten styles against five order sizes, so the
+   priorities invert: the frame shrinks to a thumbnail, the figures come
+   forward, and everything sits in tabular numerals so the decimal points line
+   up between one row and the next.
+
+   Two grounds, and the split is the whole idea. The sheet is ink — the
+   catalogue you were sent — and the enquiry panel is paper, the order form
+   clipped to the front of it. Nothing else in the storefront puts the two
+   next to each other, which is exactly why this page does not read as the
+   shop with a different heading on it.
+   ========================================================================== */
+
+.tradesheet {
+  /* The gutter between the sheet and the panel, and the rhythm inside a row.
+     Declared once here so the two halves stay in step at every width. */
+  --trade-gap: var(--space-5);
+  --trade-rule: var(--spacing-rule) solid rgba(245, 244, 240, 0.16);
+}
+
+.tradesheet__head {
+  max-width: 60rem;
+  padding-bottom: var(--space-5);
+  border-bottom: var(--trade-rule);
+}
+
+.tradesheet__title {
+  margin-top: var(--space-2);
+}
+
+.tradesheet__intro {
+  margin-top: var(--space-4);
+  max-width: 52ch;
+  color: var(--color-paper);
+}
+
+/* Four facts a buyer checks before they read a single price. A definition
+   list because that is what they are, and a grid because a stack of eight
+   lines would push the line sheet itself below the fold. */
+.tradesheet__terms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3) var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.tradesheet__term dt {
+  font-size: var(--text-meta);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.tradesheet__term dd {
+  margin-top: 0.35rem;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+
+.tradesheet__empty {
+  margin-top: var(--space-6);
+  color: var(--color-muted);
+}
+
+@media (min-width: 48rem) {
+  .tradesheet__terms { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* The "a filter is on" dot sits on the toggle button, which is always on the
+   ink band directly (never inside the sheet's own paper surface). */
+.tradesheet .filters__dot { background: var(--color-paper); }
+
+/* The rest of the filter column sits on ink rather than paper only when it
+   is the desktop column — same technique as the trade product page's own
+   chips (.pdp--trade). The phone sheet is always its own paper surface
+   regardless of the page it opened from, so it is left alone. */
+@media (min-width: 62rem) {
+  .tradesheet .filters__input { color: var(--color-paper); }
+
+  .tradesheet .filters__input:focus-visible { border-bottom-color: var(--color-paper); }
+
+  .tradesheet .filters__color,
+  .tradesheet .filters__hint { color: rgba(245, 244, 240, 0.6); }
+
+  .tradesheet .filters__color--on { color: var(--color-paper); }
+
+  .tradesheet .filters__color:has(:focus-visible) { outline-color: var(--color-paper); }
+
+  .tradesheet .filters__range { accent-color: var(--color-paper); }
+
+  /* The native menu paints on the system ground, same caveat as the trade
+     product page's own select (.pdp--trade .picker__select). */
+  .tradesheet .filters__select option { background: var(--color-paper); color: var(--color-ink); }
+
+  .tradesheet .shoplayout__aside .chip {
+    border-color: rgba(245, 244, 240, 0.25);
+    color: var(--color-paper);
+  }
+
+  .tradesheet .shoplayout__aside .chip--on {
+    background: var(--color-paper);
+    border-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  .tradesheet .shoplayout__aside .chip:has(:focus-visible) { outline-color: var(--color-paper); }
+}
+
+/* --------------------------------------------------------------------------
+   The contents of the sheet
+   One card per style: the frame, the name, the opening figure. A buyer at this
+   stage is choosing which style to price, not pricing it — the ladder, the
+   spec and the enquiry are one click away on the style's own page, where the
+   figures have the room to be read as a column rather than as a row.
+   -------------------------------------------------------------------------- */
+
+.tradecards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5) var(--space-4);
+  margin-top: var(--space-6);
+  list-style: none;
+  padding: 0;
+}
+
+@media (min-width: 62rem) {
+  .tradecards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* The whole card is the anchor, so the hit area is the picture and the price
+   as well as the name — and the frame's own hover scale, which globals.css
+   hangs off `a:hover > .frame > img`, comes along without a second rule. */
+.tradecard {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.tradecard__frame {
+  aspect-ratio: 2 / 3;
+  background: rgba(245, 244, 240, 0.08);
+}
+
+.tradecard__title {
+  margin-top: var(--space-3);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.tradecard:hover .tradecard__title { text-decoration: underline; }
+
+.tradecard__price {
+  margin-top: 0.35rem;
+  font-size: 0.9375rem;
+  color: var(--color-paper);
+}
+
+/* The two qualifiers the figure needs and cannot be read without — kept quiet
+   so the money is what the eye lands on first. */
+.tradecard__from,
+.tradecard__per {
+  font-size: var(--text-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.tradecard__from { margin-right: 0.4rem; }
+
+.tradecard__per {
+  display: block;
+  margin-top: 0.25rem;
+  letter-spacing: 0.08em;
+}
+
+/* --------------------------------------------------------------------------
+   Board — the sheet and the order form beside it
+   -------------------------------------------------------------------------- */
+
+.tradeboard {
+  display: grid;
+  gap: var(--trade-gap);
+  margin-top: var(--space-5);
+  align-items: start;
+}
+
+/* The panel only earns its own column once there is room for the sheet to
+   keep its five tier buttons in a row beside it. Below that it follows the
+   sheet down the page, which is the right order to read them in anyway. */
+@media (min-width: 68rem) {
+  .tradeboard {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    gap: var(--space-6);
+  }
+}
+
+.tradeboard__legend {
+  display: none;
+  justify-content: space-between;
+  padding-bottom: var(--space-2);
+  border-bottom: var(--trade-rule);
+  font-size: var(--text-meta);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+@media (min-width: 62rem) {
+  .tradeboard__legend { display: flex; }
+}
+
+.tradeboard__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   One style
+   -------------------------------------------------------------------------- */
+
+.sheetrow {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr);
+  grid-template-areas:
+    "frame body"
+    "tiers tiers";
+  gap: var(--space-3);
+  padding-block: var(--space-4);
+  border-bottom: var(--trade-rule);
+  transition: background var(--dur-2) var(--ease-out);
+}
+
+/* A chosen row lifts a shade out of the ground, and the bleed takes the wash
+   past the text so it reads as the row being marked rather than as a box
+   drawn around it. */
+.sheetrow--chosen {
+  background: rgba(245, 244, 240, 0.05);
+  box-shadow: -0.75rem 0 0 rgba(245, 244, 240, 0.05), 0.75rem 0 0 rgba(245, 244, 240, 0.05);
+}
+
+.sheetrow__frame {
+  grid-area: frame;
+  aspect-ratio: 2 / 3;
+  background: rgba(245, 244, 240, 0.08);
+}
+
+.sheetrow__body { grid-area: body; min-width: 0; }
+
+.sheetrow__title {
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.sheetrow__spec {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  font-size: var(--text-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+/* The gender is a placeholder assignment and will be corrected in the admin,
+   so it is drawn as a chip rather than folded in with the sizes — visible
+   enough to be spotted and changed, quiet enough not to lead the row. */
+.sheetrow__gender {
+  padding: 0.15rem 0.5rem;
+  border: var(--spacing-rule) solid rgba(245, 244, 240, 0.28);
+  border-radius: 999px;
+  color: var(--color-paper);
+}
+
+.sheetrow__fact::before {
+  content: "";
+  display: inline-block;
+  width: 0.75rem;
+  margin-right: 0.5rem;
+  border-top: var(--spacing-rule) solid currentColor;
+  vertical-align: 0.25em;
+}
+
+.sheetrow__copy {
+  margin-top: var(--space-2);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  max-width: 60ch;
+  color: rgba(245, 244, 240, 0.72);
+
+  /* The lead paragraph, clamped. The full copy belongs on a product page and
+     these rows have to stay comparable down the column — a row that ran four
+     lines while its neighbour ran two would break the scan the sheet exists
+     for. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   The five tiers
+   -------------------------------------------------------------------------- */
+
+.sheetrow__tiers {
+  grid-area: tiers;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--spacing-rule);
+  margin-top: var(--space-2);
+}
+
+.tierbtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.6rem 0.35rem;
+  border: var(--spacing-rule) solid rgba(245, 244, 240, 0.2);
+  background: none;
+  color: var(--color-paper);
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out);
+}
+
+/* Three figures, three weights, so the eye can pick one line and run down it.
+   The quantity is what a buyer scans for, the unit price is what they compare,
+   and the line total is the consequence — in that order of prominence. */
+.tierbtn__qty {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.tierbtn__unit {
+  font-size: var(--text-meta);
+  color: var(--color-paper);
+}
+
+.tierbtn__line {
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+}
+
+.tierbtn:hover {
+  border-color: rgba(245, 244, 240, 0.55);
+  background: rgba(245, 244, 240, 0.07);
+}
+
+/* Chosen inverts outright. A border or a tint would be one more shade in a
+   page already built from six of them; a solid paper fill is unmistakable at
+   a glance across ten rows. */
+.tierbtn--on,
+.tierbtn--on:hover {
+  border-color: var(--color-paper);
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+.tierbtn--on .tierbtn__unit { color: var(--color-ink); }
+.tierbtn--on .tierbtn__line { color: var(--color-muted-text); }
+
+/* The ink ground would swallow the default ink focus ring. */
+.tierbtn:focus-visible {
+  outline: 2px solid var(--color-paper);
+  outline-offset: 2px;
+}
+
+@media (min-width: 62rem) {
+  .sheetrow {
+    grid-template-columns: 9rem minmax(0, 1fr) 26rem;
+    grid-template-areas: "frame body tiers";
+    align-items: start;
+    gap: var(--space-4);
+  }
+
+  .sheetrow__tiers { margin-top: 0; }
+}
+
+/* --------------------------------------------------------------------------
+   The order form
+   Paper on ink: the sheet is the catalogue, this is the form clipped to it.
+   -------------------------------------------------------------------------- */
+
+.tradepanel__inner {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  padding: var(--space-4);
+  border-radius: var(--radius-card);
+}
+
+/* Follows the sheet down, but only where there is a second column for it to
+   sit in and enough height that a sticky panel does not trap the page. */
+@media (min-width: 68rem) {
+  .tradepanel { position: sticky; top: var(--space-5); }
+  .tradepanel__inner { padding: var(--space-5); }
+}
+
+.tradepanel__title {
+  font-size: var(--text-meta);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted-text);
+}
+
+.tradepanel__empty {
+  margin-top: var(--space-3);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-muted-text);
+}
+
+.tradepanel__lines {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+}
+
+.tradepanel__line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.15rem var(--space-2);
+  padding-block: var(--space-2);
+  border-bottom: var(--spacing-rule) solid var(--color-warm);
+}
+
+.tradepanel__style {
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.tradepanel__qty {
+  grid-column: 1;
+  font-size: var(--text-meta);
+  color: var(--color-muted-text);
+}
+
+.tradepanel__money {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  font-size: 0.9375rem;
+}
+
+.tradepanel__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  font-size: 1.0625rem;
+  font-weight: 500;
+}
+
+.tradepanel__totallabel {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--text-meta);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted-text);
+}
+
+.tradepanel__units { color: var(--color-ink); }
+
+/* --------------------------------------------------------------------------
+   Contact fields
+   -------------------------------------------------------------------------- */
+
+.tradeform {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: var(--spacing-rule) solid var(--color-warm);
+}
+
+.tradeform__pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+@media (min-width: 30rem) {
+  .tradeform__pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.tradeform__field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.tradeform__field label {
+  font-size: var(--text-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted-text);
+}
+
+.tradeform__hint {
+  letter-spacing: 0.06em;
+  text-transform: none;
+  color: var(--color-muted);
+}
+
+/* Underlines rather than boxes. Seven boxed fields in a panel this narrow
+   read as a form to be endured; a rule under each one keeps the panel looking
+   like the rest of the page. */
+.tradeform__field input,
+.tradeform__field textarea {
+  width: 100%;
+  padding: 0.5rem 0;
+  border: 0;
+  border-bottom: var(--spacing-rule) solid var(--color-muted);
+  border-radius: 0;
+  background: none;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 0.9375rem;
+  transition: border-color var(--dur-1) var(--ease-out);
+}
+
+.tradeform__field textarea { resize: vertical; }
+
+.tradeform__field input:focus,
+.tradeform__field textarea:focus {
+  border-color: var(--color-ink);
+  outline: none;
+}
+
+.tradeform__field input:focus-visible,
+.tradeform__field textarea:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 4px;
+}
+
+.tradeform__field ::placeholder { color: var(--color-muted); }
+
+.tradeform__send { margin-top: var(--space-2); }
+
+/* Disabled means "there is nothing to send yet", which the note underneath
+   explains. Kept legible rather than greyed to nothing, because it is the
+   normal state of this button when the page loads. */
+.tradeform__send:disabled {
+  border-color: var(--color-muted);
+  background: var(--color-muted);
+  cursor: not-allowed;
+}
+
+.tradeform__note {
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  color: var(--color-muted-text);
+}
+
+/* --------------------------------------------------------------------------
+   One style's own page
+   The same two columns as the sheet — ink on the left, the paper enquiry
+   panel sticky on the right — with the row's contents unpacked into the left
+   column: the gallery at full size, the copy unclamped, and the ladder given
+   its own block rather than squeezed beside a thumbnail.
+   -------------------------------------------------------------------------- */
+
+.tradestyle__crumbs {
+  font-size: var(--text-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.tradestyle-page .tradeboard { margin-top: var(--space-5); }
+
+.tradestyle__head {
+  padding-bottom: var(--space-4);
+  border-bottom: var(--trade-rule);
+}
+
+.tradestyle__title {
+  font-size: var(--text-sub);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.tradestyle__spec { margin-top: var(--space-3); }
+
+.tradestyle__price {
+  margin-top: var(--space-3);
+  font-size: 1.25rem;
+  color: var(--color-paper);
+}
+
+.tradestyle__basis {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: var(--text-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.tradestyle__gallery {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+@media (min-width: 48rem) {
+  .tradestyle__gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.tradestyle__shot {
+  aspect-ratio: 2 / 3;
+  background: rgba(245, 244, 240, 0.08);
+}
+
+/* The description component is written for paper; on the ink ground it needs
+   the copy colour the sheet rows use, and its bullets follow the text. */
+.tradestyle .story {
+  margin-top: var(--space-5);
+  max-width: 60ch;
+  color: rgba(245, 244, 240, 0.72);
+}
+
+.tradestyle .story__item::before { background: currentColor; }
+
+.tradestyle__ladder {
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: var(--trade-rule);
+}
+
+/* The sheet's legend is a desktop-only header over ten rows; over one ladder
+   it is the label for the figures directly beneath it, so it shows at every
+   width and sits tight to them. */
+.tradestyle__legend {
+  display: flex;
+  margin-bottom: var(--space-3);
+}
+
+.tradestyle__ladder .sheetrow__tiers { margin-top: 0; }
+
+/* --------------------------------------------------------------------------
+   Sticky purchase bar
+
+   The product page's own actions, kept within reach once they have scrolled
+   off the top. It is the same two buttons bound to the same handlers — see
+   components/shop/StickyBuyBar.tsx — so nothing here is a second checkout.
+
+   It portals to body, above the paper slab and the fixed footer dock but below
+   the cart sheet (80), the quick view and the toaster (90), so opening any of
+   those still buries it. The two product layouts pay for the room it occupies
+   in padding, so the bar never sits on top of the last thing being read.
+   -------------------------------------------------------------------------- */
+
+.buybar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 70;
+  background: var(--color-ink);
+  color: var(--color-white);
+  border-top: var(--spacing-rule) solid rgb(255 255 255 / 0.16);
+  padding-bottom: env(safe-area-inset-bottom);
+  transform: translateY(101%);
+  visibility: hidden;
+  transition:
+    transform var(--dur-2) var(--ease-out),
+    visibility 0s linear var(--dur-2);
+}
+
+.buybar--on {
+  transform: translateY(0);
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.buybar__inner {
+  width: 100%;
+  max-width: 100rem;
+  margin-inline: auto;
+  padding: var(--space-2) clamp(1.25rem, 4vw, 4.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.buybar__id { min-width: 0; }
+
+.buybar__title {
+  font-size: var(--text-meta);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.buybar__price {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-white);
+}
+
+.buybar__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+}
+
+/* Smaller than the page's own buttons on purpose: this is the reminder, not
+   the offer. btn--accent keeps Buy now the one lit thing in the bar. */
+.buybar__actions .btn {
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  border-color: var(--color-white);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.buybar__actions .btn:not(.btn--accent) {
+  background: transparent;
+  color: var(--color-white);
+
+  --btn-fill: var(--color-white);
+  --btn-fill-ink: var(--color-ink);
+}
+
+/* This file is unlayered, so the rule above outranks the layered `.btn:hover`
+   colour no matter its specificity — which left the label white under the
+   white fill that rises on hover, and stuck that way after a tap on a phone.
+   The interaction states are restated here, in the same cascade. */
+.buybar__actions .btn:not(.btn--accent):hover,
+.buybar__actions .btn:not(.btn--accent):focus-visible,
+.buybar__actions .btn:not(.btn--accent):active {
+  color: var(--btn-fill-ink);
+}
+
+/* On a phone the name and the money take their own line above the buttons
+   rather than squeezing them off the screen. */
+@media (max-width: 32rem) {
+  .buybar__inner {
+    flex-wrap: wrap;
+    padding-block: var(--space-1) var(--space-2);
+  }
+
+  .buybar__id {
+    flex: 1 1 100%;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  .buybar__actions { flex: 1 1 100%; }
+  .buybar__actions .btn { flex: 1 1 0; padding-inline: 0.5rem; }
+}
+
+/* The room the bar needs, given only to the two pages that mount one. */
+.pdp,
+.tradestyle-page { padding-bottom: 5.5rem; }
+
+@media (max-width: 32rem) {
+  .pdp,
+  .tradestyle-page { padding-bottom: 7rem; }
+}
+
+/* --------------------------------------------------------------------------
+   Zoomable product photography
+
+   The frames are the pages' own — .zoomshot only turns the wrapper into a
+   button and adds the magnifier. The cursor is a real SVG cursor so the hint
+   is under the pointer rather than in a corner, with zoom-in behind it for
+   anything that refuses the file.
+   -------------------------------------------------------------------------- */
+
+.zoomshot {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  /* No `background` here on purpose: `.frame` already paints the paper ground
+     the photograph loads over, and this rule is the later of the two. */
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><circle cx='14' cy='14' r='9' fill='rgba(255,255,255,0.35)' stroke='%230a0a0a' stroke-width='2'/><path d='M20.5 20.5 29 29' stroke='%230a0a0a' stroke-width='2.5' stroke-linecap='round'/><path d='M14 10v8M10 14h8' stroke='%230a0a0a' stroke-width='2' stroke-linecap='round'/></svg>")
+      14 14,
+    zoom-in;
+}
+
+.zoomshot__hint {
+  position: absolute;
+  right: var(--space-2);
+  bottom: var(--space-2);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.9);
+  color: var(--color-ink);
+  opacity: 0;
+  transform: scale(0.9);
+  transition:
+    opacity var(--dur-2) var(--ease-out),
+    transform var(--dur-2) var(--ease-out);
+}
+
+.zoomshot:hover .zoomshot__hint,
+.zoomshot:focus-visible .zoomshot__hint {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Touch has no hover, so there the badge is simply always on — it is the only
+   thing telling a finger the photograph opens. */
+@media (hover: none) {
+  .zoomshot__hint { opacity: 1; transform: scale(1); }
+}
+
+/* --------------------------------------------------------------------------
+   Image viewer
+
+   One photograph, uncropped, as large as the viewport allows, with the rest of
+   the gallery a key, a button or a swipe away.
+   -------------------------------------------------------------------------- */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  padding: clamp(0.75rem, 2vw, 2rem);
+  animation: lightbox-in var(--dur-2) var(--ease-out);
+}
+
+@keyframes lightbox-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lightbox__scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgb(10 10 10 / 0.94);
+  cursor: default;
+}
+
+/* Flex, not grid, on purpose. A grid's implicit row is auto — it sizes to the
+   photograph's own 1800px — and the image's `max-height: 100%` then resolves
+   against that row rather than against the stage, so a portrait shot overflowed
+   a landscape viewport and `overflow: hidden` served the top slice of it. A
+   flex item's percentage caps resolve against the container, whose height the
+   viewer's own grid has already made definite. */
+.lightbox__stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+  cursor: zoom-in;
+  touch-action: pan-y;
+}
+
+.lightbox__stage--zoomed { cursor: zoom-out; }
+
+.lightbox__image {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  user-select: none;
+  border-radius: var(--radius-card);
+  transition: transform var(--dur-2) var(--ease-out);
+}
+
+.lightbox__stage--zoomed .lightbox__image {
+  transform: scale(2.5);
+  /* Following the pointer at 320ms lags; the magnified pan wants to be live. */
+  transition: transform 60ms linear;
+}
+
+.lightbox__close,
+.lightbox__step {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: var(--spacing-rule) solid rgb(255 255 255 / 0.28);
+  border-radius: 999px;
+  background: rgb(10 10 10 / 0.6);
+  color: var(--color-white);
+  cursor: pointer;
+  transition:
+    background var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out),
+    color var(--dur-2) var(--ease-out);
+}
+
+.lightbox__close:hover,
+.lightbox__step:hover,
+.lightbox__close:focus-visible,
+.lightbox__step:focus-visible {
+  background: var(--color-white);
+  border-color: var(--color-white);
+  color: var(--color-ink);
+}
+
+.lightbox__close {
+  top: clamp(0.75rem, 2vw, 2rem);
+  right: clamp(0.75rem, 2vw, 2rem);
+}
+
+.lightbox__step {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.lightbox__step--prev { left: clamp(0.5rem, 2vw, 2rem); }
+.lightbox__step--next { right: clamp(0.5rem, 2vw, 2rem); }
+
+.lightbox__meta {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  color: rgb(255 255 255 / 0.7);
+  font-size: var(--text-meta);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.lightbox__tip { color: rgb(255 255 255 / 0.45); }
+
+@media (max-width: 32rem) {
+  .lightbox__step { width: 2.5rem; height: 2.5rem; }
+  .lightbox__meta { gap: var(--space-2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .buybar,
+  .lightbox,
+  .lightbox__image,
+  .zoomshot__hint { transition-duration: 1ms; animation-duration: 1ms; }
+}
+
+
+/* --------------------------------------------------------------------------
+   One style's own page
+   The retail product page's structure — gallery beside a sticky column, price,
+   story, spec, the choice, the action, then the accordion — drawn on the line
+   sheet's ink ground. Only colour is restated here; every rule of layout is
+   the shop's own, so the two pages cannot drift apart.
+   -------------------------------------------------------------------------- */
+
+.pdp--trade .pdp__shot { background: rgba(245, 244, 240, 0.08); }
+
+.pdp--trade .pdp__title,
+.pdp--trade .picker__price { color: var(--color-paper); }
+
+.pdp--trade .picker__spec,
+.pdp--trade .picker__legend,
+.pdp--trade .swatch__name,
+.pdp--trade .crumbs__sep { color: var(--color-muted); }
+
+.pdp--trade .accordion,
+.pdp--trade .accordion__item { border-color: rgba(245, 244, 240, 0.2); }
+
+.pdp--trade .accordion__body { color: rgba(245, 244, 240, 0.72); }
+
+/* The quantity control. Retail steps through singles, so it gets a stepper;
+   trade is sold by the run, so it gets this style's own tiers and nothing in
+   between them. Same slot in the column either way. */
+.picker__select {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.5rem 0.75rem;
+  border: var(--spacing-rule) solid var(--color-muted);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.picker__select:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+/* The native menu paints on the system ground, so its rows are set as paper
+   rather than inheriting the ink column's own colour. */
+.pdp--trade .picker__select {
+  border-color: rgba(245, 244, 240, 0.35);
+  color: var(--color-paper);
+}
+
+.pdp--trade .picker__select option { background: var(--color-paper); color: var(--color-ink); }
+
+.picker__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  font-size: var(--text-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Colour and size are chosen here as they are on the shop's own page; only
+   the ground is different, so the chip has to read on ink rather than paper. */
+.pdp--trade .chip {
+  border-color: rgba(245, 244, 240, 0.25);
+  color: var(--color-paper);
+}
+
+.pdp--trade .chip--on {
+  background: var(--color-paper);
+  border-color: var(--color-paper);
+  color: var(--color-ink);
+}
+
+.pdp--trade .chip:has(:focus-visible) { outline-color: var(--color-paper); }
+
+.pdp--trade .swatch--on { border-color: var(--color-paper); }
+
+.pdp--trade .swatch--on .swatch__name { color: var(--color-paper); }
+
+.pdp--trade .swatch__dot { border-color: rgba(245, 244, 240, 0.35); }

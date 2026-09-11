@@ -1,0 +1,2558 @@
+/* ==========================================================================
+   Shrinkless admin
+   --------------------------------------------------------------------------
+   A back office for a fashion house, not a dashboard template.
+
+   The composition is one idea: a white worksheet floating on warm off-white,
+   with a dark spine down its left edge. Everything else is spacing and
+   restraint. Panels are recessed off-white rather than white-on-white cards,
+   so the page reads as one sheet with regions instead of a tray of tiles.
+
+   The acid is rationed on purpose. It marks exactly three things: where you
+   are, what is selected, and what needs a human today. Spend it anywhere else
+   and it stops meaning anything.
+
+   Own tokens rather than the storefront's: the shopfront is paper and ink with
+   a grain, this is a working instrument. Scoped under .admin, and this file is
+   unlayered so it outranks globals.css inside @layer shrinkless-base.
+   ========================================================================== */
+
+.admin {
+  /* --- Palette ------------------------------------------------------------ */
+  --ad-ink: #171919;
+  --ad-paper: #f4f5f1;
+  --ad-white: #ffffff;
+  --ad-acid: #efff65;
+
+  /* Secondary text is mixed from the ink, never a neutral grey — grey on a
+     warm ground reads dirty. Both clear 4.5:1 on white and on paper. */
+  --ad-ink-2: color-mix(in oklab, var(--ad-ink) 66%, var(--ad-paper));
+  --ad-ink-3: color-mix(in oklab, var(--ad-ink) 48%, var(--ad-paper));
+
+  /* Hairlines only. The layout separates with space; lines are punctuation. */
+  --ad-line: color-mix(in oklab, var(--ad-ink) 12%, transparent);
+  --ad-line-2: color-mix(in oklab, var(--ad-ink) 7%, transparent);
+
+  /* Fields are the exception, and deliberately so. A hairline at 12% is
+     punctuation between regions; on a control it is invisible against the
+     sheet, which left every input reading as a piece of the page until it was
+     focused and the acid ring appeared. Somewhere you can type is drawn as a
+     box, at rest, in ink. */
+  --ad-field-line: var(--ad-ink);
+
+  /* On the dark spine. */
+  --ad-onink: color-mix(in oklab, var(--ad-paper) 92%, var(--ad-ink));
+  --ad-onink-2: color-mix(in oklab, var(--ad-paper) 55%, var(--ad-ink));
+  --ad-onink-line: color-mix(in oklab, var(--ad-paper) 16%, transparent);
+
+  /* --- Radius ------------------------------------------------------------- */
+  --ad-r-shell: 30px;
+  --ad-r-card: 20px;
+  --ad-r-inner: 14px;
+  --ad-r-field: 11px;
+  --ad-r-pill: 999px;
+
+  /* --- Depth --------------------------------------------------------------
+     Offset and blur, tinted with the ink. A haloed shadow with no offset is
+     decoration; this is the sheet sitting on the desk. */
+  --ad-lift: 0 1px 2px rgba(23, 25, 25, 0.04), 0 24px 48px -28px rgba(23, 25, 25, 0.26);
+  --ad-lift-sm: 0 1px 2px rgba(23, 25, 25, 0.05), 0 8px 20px -14px rgba(23, 25, 25, 0.22);
+
+  /* --- Type ---------------------------------------------------------------
+     Fixed rem, ~1.22 ratio. Product UI is read at a consistent size; fluid
+     headings that shrink inside a panel look worse, not better. */
+  --ad-t-micro: 0.6875rem;
+  --ad-t-small: 0.8125rem;
+  --ad-t-body: 0.9375rem;
+  --ad-t-lead: 1.0625rem;
+  --ad-t-h3: 1.25rem;
+  --ad-t-h2: 1.625rem;
+  --ad-t-h1: 2.25rem;
+  --ad-t-figure: 2.75rem;
+
+  --ad-track-label: 0.14em;
+
+  /* --- Space -------------------------------------------------------------- */
+  --ad-s-1: 0.375rem;
+  --ad-s-2: 0.625rem;
+  --ad-s-3: 1rem;
+  --ad-s-4: 1.5rem;
+  --ad-s-5: 2rem;
+  --ad-s-6: 3rem;
+  --ad-s-7: 4.5rem;
+
+  /* --- Motion -------------------------------------------------------------
+     One curve, two durations. Users are inside a task; nothing here should
+     make them wait for choreography. */
+  --ad-ease: cubic-bezier(0.16, 0.84, 0.44, 1);
+  --ad-fast: 140ms;
+  --ad-slow: 220ms;
+
+  min-height: 100dvh;
+  padding: clamp(0.5rem, 1.4vw, 1.25rem);
+  background: var(--ad-paper);
+  color: var(--ad-ink);
+  font-size: var(--ad-t-body);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Texture is a storefront device. The admin gets clean stock. */
+body:has(.admin)::before { display: none; }
+
+body:has(.admin) {
+  background: var(--ad-paper);
+}
+
+/* --------------------------------------------------------------------------
+   Shell
+   -------------------------------------------------------------------------- */
+
+.admin__shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: calc(100dvh - 2 * clamp(0.5rem, 1.4vw, 1.25rem));
+  border-radius: var(--ad-r-shell);
+  background: var(--ad-white);
+  box-shadow: var(--ad-lift);
+  overflow: clip;
+}
+
+@media (min-width: 64rem) {
+  .admin__shell { grid-template-columns: 15.5rem minmax(0, 1fr); }
+}
+
+.admin__main {
+  min-width: 0;
+  padding: var(--ad-s-4) var(--ad-s-4) var(--ad-s-7);
+}
+
+@media (min-width: 48rem) {
+  .admin__main { padding: var(--ad-s-6) var(--ad-s-6) var(--ad-s-7); }
+}
+
+@media (min-width: 90rem) {
+  .admin__main { padding: var(--ad-s-6) var(--ad-s-7) var(--ad-s-7); }
+}
+
+/* --------------------------------------------------------------------------
+   The spine
+
+   Desktop: a dark column the full height of the sheet. Below 64rem it becomes
+   a dark header with the navigation scrolling horizontally underneath — a
+   recomposition, not a squeeze. No JavaScript, so it cannot break.
+   -------------------------------------------------------------------------- */
+
+.admin .rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ad-s-4);
+  padding: var(--ad-s-4);
+  background: var(--ad-ink);
+  color: var(--ad-onink);
+}
+
+@media (min-width: 64rem) {
+  .admin .rail {
+    position: sticky;
+    top: 0;
+    height: calc(100dvh - 2 * clamp(0.5rem, 1.4vw, 1.25rem));
+    padding: var(--ad-s-5) var(--ad-s-3) var(--ad-s-4);
+  }
+}
+
+.admin .rail__brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding-inline: var(--ad-s-2);
+  color: var(--ad-white);
+  text-decoration: none;
+  font-size: var(--ad-t-lead);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.admin .rail__brand::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--ad-acid);
+}
+
+.admin .rail__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.admin .rail__nav ul {
+  display: flex;
+  gap: var(--ad-s-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Below the desktop breakpoint the nav is one scrolling row of pills. */
+.admin .rail__nav ul {
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.admin .rail__nav ul::-webkit-scrollbar { display: none; }
+
+@media (min-width: 64rem) {
+  .admin .rail__nav ul {
+    flex-direction: column;
+    overflow-x: visible;
+  }
+}
+
+.admin .rail__link {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem var(--ad-s-2);
+  border-radius: var(--ad-r-field);
+  color: var(--ad-onink-2);
+  text-decoration: none;
+  font-size: var(--ad-t-small);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color var(--ad-fast) var(--ad-ease),
+    background-color var(--ad-fast) var(--ad-ease);
+}
+
+@media (min-width: 64rem) {
+  .admin .rail__link { padding: 0.5rem 0.625rem; }
+}
+
+.admin .rail__link:hover {
+  color: var(--ad-white);
+  background: color-mix(in oklab, var(--ad-paper) 8%, transparent);
+}
+
+/* Where you are. One of the three things the acid is allowed to say. */
+.admin .rail__link[aria-current="page"] {
+  background: var(--ad-acid);
+  color: var(--ad-ink);
+  font-weight: 600;
+}
+
+.admin .rail__icon {
+  flex: none;
+  width: 1.0625rem;
+  height: 1.0625rem;
+  stroke-width: 1.5;
+}
+
+/* The identity and the two ways out.
+
+   On a phone this sits between the brand and the nav row — `order` lifts it,
+   so the exits are the first thing under the wordmark rather than something
+   found by scrolling a nav that never ends. It was previously display:none
+   below 64rem, which left a phone with no visible way out of the panel at all.
+   On the desktop the flex order puts it back at the foot of the spine. */
+.admin .rail__foot {
+  display: flex;
+  align-items: center;
+  gap: var(--ad-s-2);
+  flex-wrap: wrap;
+  /* Brand keeps the default 0, so 1 and 2 place these two after it. */
+  order: 1;
+}
+
+.admin .rail__scroll { order: 2; }
+
+@media (min-width: 64rem) {
+  .admin .rail__foot {
+    display: block;
+    order: 2;
+    padding-top: var(--ad-s-3);
+    border-top: 1px solid var(--ad-onink-line);
+  }
+
+  .admin .rail__scroll { order: 1; }
+}
+
+.admin .rail__who { min-width: 0; }
+
+.admin .rail__actor {
+  display: none;
+  padding-inline: 0.625rem;
+  font-size: var(--ad-t-micro);
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-onink-2);
+}
+
+@media (min-width: 64rem) {
+  .admin .rail__actor { display: block; }
+}
+
+/* On a phone the address is a quiet single line that gives up its room to the
+   buttons; on the desktop it wraps rather than truncating, because there the
+   column is the only place it appears. */
+.admin .rail__email {
+  display: block;
+  max-width: 11rem;
+  padding-inline: 0.625rem;
+  font-size: var(--ad-t-small);
+  color: var(--ad-onink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 64rem) {
+  .admin .rail__email {
+    max-width: none;
+    padding: 0.125rem 0.625rem var(--ad-s-2);
+    color: var(--ad-onink);
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: anywhere;
+  }
+}
+
+.admin .rail__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+@media (min-width: 64rem) {
+  .admin .rail__actions {
+    flex-direction: column;
+    align-items: stretch;
+    margin-left: 0;
+  }
+}
+
+.admin .rail__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.625rem;
+  border: 0;
+  border-radius: var(--ad-r-pill);
+  background: color-mix(in oklab, var(--ad-paper) 8%, transparent);
+  color: var(--ad-onink-2);
+  font: inherit;
+  font-size: var(--ad-t-small);
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--ad-fast) var(--ad-ease),
+    background-color var(--ad-fast) var(--ad-ease);
+}
+
+/* The spine's own ground is enough separation once there is room for it. */
+@media (min-width: 64rem) {
+  .admin .rail__action { background: transparent; }
+}
+
+.admin .rail__action:hover:not(:disabled) {
+  color: var(--ad-white);
+  background: color-mix(in oklab, var(--ad-paper) 14%, transparent);
+}
+
+.admin .rail__action:disabled { opacity: 0.6; cursor: progress; }
+.admin .rail__action svg { flex: none; width: 0.875rem; height: 0.875rem; }
+
+/* --------------------------------------------------------------------------
+   Page furniture
+   -------------------------------------------------------------------------- */
+
+.admin .apage__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ad-s-3) var(--ad-s-4);
+  padding-bottom: var(--ad-s-4);
+  margin-bottom: var(--ad-s-5);
+  border-bottom: 1px solid var(--ad-line);
+}
+
+.admin .apage__titles { max-width: 46ch; }
+
+.admin .apage h1,
+.admin .apage__title {
+  margin: 0;
+  font-size: var(--ad-t-h1);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.admin .apage__sub {
+  margin: var(--ad-s-2) 0 0;
+  color: var(--ad-ink-2);
+  font-size: var(--ad-t-small);
+  line-height: 1.55;
+  max-width: 62ch;
+}
+
+.admin .apage__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ad-s-2);
+}
+
+.admin .apage__section {
+  margin-top: var(--ad-s-6);
+}
+
+/* A small uppercase label is how a region announces itself. Never above a
+   page title — only over a region inside one. */
+.admin .alabel {
+  margin: 0 0 var(--ad-s-3);
+  font-size: var(--ad-t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+}
+
+.admin .aquiet {
+  color: var(--ad-ink-2);
+  font-size: var(--ad-t-small);
+  line-height: 1.6;
+}
+
+.admin .anum { font-variant-numeric: tabular-nums; }
+
+/* --------------------------------------------------------------------------
+   Panels
+
+   Recessed rather than raised: the sheet is white, so a region is defined by
+   a warmer fill, not by another shadow. Nested panels are never correct.
+   -------------------------------------------------------------------------- */
+
+.admin .panel {
+  padding: var(--ad-s-4);
+  border-radius: var(--ad-r-card);
+  background: var(--ad-paper);
+}
+
+@media (min-width: 48rem) {
+  .admin .panel { padding: var(--ad-s-5); }
+}
+
+.admin .panel--tight { padding: var(--ad-s-4); }
+
+.admin .panel--outline {
+  background: var(--ad-white);
+  border: 1px solid var(--ad-line);
+}
+
+.admin .panel--ink {
+  background: var(--ad-ink);
+  color: var(--ad-onink);
+}
+
+.admin .panel--ink .alabel { color: var(--ad-onink-2); }
+.admin .panel--ink a { color: var(--ad-white); }
+
+.admin .panel--acid {
+  background: var(--ad-acid);
+  color: var(--ad-ink);
+}
+
+.admin .panel__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ad-s-2);
+}
+
+.admin .panel__head .alabel { margin-bottom: var(--ad-s-3); }
+
+/* --------------------------------------------------------------------------
+   Figures
+
+   Large numbers are the point of the dashboard, so they are set as display
+   type: tabular, tight, and unencumbered by a supporting stat.
+   -------------------------------------------------------------------------- */
+
+.admin .figure__value {
+  margin: 0;
+  font-size: var(--ad-t-figure);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin .figure__value--lg { font-size: clamp(2.75rem, 6vw, 4.25rem); }
+
+.admin .figure__note {
+  margin: var(--ad-s-2) 0 0;
+  font-size: var(--ad-t-small);
+  color: var(--ad-ink-2);
+}
+
+.admin .panel--ink .figure__note { color: var(--ad-onink-2); }
+
+/* A row of secondary figures inside a panel: hairline-separated, never boxed. */
+.admin .figrow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: var(--ad-s-3) var(--ad-s-4);
+  margin: 0;
+  padding-top: var(--ad-s-4);
+  margin-top: var(--ad-s-4);
+  border-top: 1px solid var(--ad-line);
+}
+
+.admin .panel--ink .figrow { border-color: var(--ad-onink-line); }
+
+.admin .figrow dt {
+  font-size: var(--ad-t-micro);
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+}
+
+.admin .panel--ink .figrow dt { color: var(--ad-onink-2); }
+
+.admin .figrow dd {
+  margin: 0.25rem 0 0;
+  font-size: var(--ad-t-h3);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   Dashboard composition
+
+   Deliberately not a grid of equal cards: one wide revenue block, a dark
+   figure beside it, then an asymmetric pair of operational lists.
+   -------------------------------------------------------------------------- */
+
+.admin .dash {
+  display: grid;
+  gap: var(--ad-s-3);
+}
+
+@media (min-width: 60rem) {
+  .admin .dash { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--ad-s-4); }
+  .admin .dash__revenue { grid-column: span 8; }
+  .admin .dash__today { grid-column: span 4; }
+  .admin .dash__orders { grid-column: span 5; }
+  .admin .dash__stock { grid-column: span 7; }
+  .admin .dash__recent { grid-column: span 7; }
+  .admin .dash__people { grid-column: span 5; }
+  .admin .dash__wide { grid-column: 1 / -1; }
+}
+
+/* --------------------------------------------------------------------------
+   Stacked lists — the operational half of the dashboard and the detail pages
+   -------------------------------------------------------------------------- */
+
+.admin .stack {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin .stack > li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ad-s-3);
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--ad-line-2);
+  font-size: var(--ad-t-small);
+}
+
+.admin .stack > li:first-child { border-top: 0; padding-top: 0; }
+
+.admin .panel--ink .stack > li { border-color: var(--ad-onink-line); }
+
+.admin .stack__main { min-width: 0; }
+
+.admin .stack__title {
+  display: block;
+  font-size: var(--ad-t-body);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: inherit;
+  text-decoration: none;
+}
+
+.admin a.stack__title:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.admin .stack__meta {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: var(--ad-t-small);
+  color: var(--ad-ink-2);
+}
+
+.admin .panel--ink .stack__meta { color: var(--ad-onink-2); }
+
+.admin .stack__value {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   Tables
+
+   Generous rows, one hairline between them, no vertical rules, no zebra. The
+   header is a small uppercase label, not a heavy bar.
+   -------------------------------------------------------------------------- */
+
+.admin .tablewrap {
+  overflow-x: auto;
+  margin-inline: calc(-1 * var(--ad-s-2));
+  padding-inline: var(--ad-s-2);
+}
+
+.admin .atable {
+  width: 100%;
+  min-width: 40rem;
+  border-collapse: collapse;
+  font-size: var(--ad-t-small);
+}
+
+.admin .atable thead th {
+  padding: 0 var(--ad-s-3) var(--ad-s-2);
+  border-bottom: 1px solid var(--ad-line);
+  text-align: left;
+  font-size: var(--ad-t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+  white-space: nowrap;
+}
+
+.admin .atable tbody td {
+  padding: var(--ad-s-3);
+  border-bottom: 1px solid var(--ad-line-2);
+  vertical-align: middle;
+}
+
+.admin .atable tbody tr {
+  transition: background-color var(--ad-fast) var(--ad-ease);
+}
+
+.admin .atable tbody tr:hover {
+  background: color-mix(in oklab, var(--ad-paper) 62%, transparent);
+}
+
+.admin .atable tbody tr:last-child td { border-bottom: 0; }
+
+.admin .atable th:first-child,
+.admin .atable td:first-child { padding-left: var(--ad-s-2); }
+
+.admin .atable th:last-child,
+.admin .atable td:last-child { padding-right: var(--ad-s-2); }
+
+.admin .atable a {
+  color: inherit;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.admin .atable a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.admin .atable__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin .atable__actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* The product row: the thumbnail is the point, so it is large and the type
+   sits beside it rather than under it. */
+.admin .prow {
+  display: flex;
+  align-items: center;
+  gap: var(--ad-s-3);
+  min-width: 0;
+}
+
+.admin .prow__thumb {
+  flex: none;
+  width: 3.25rem;
+  height: 4.0625rem;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--ad-paper);
+}
+
+.admin .prow__thumb--empty {
+  display: grid;
+  place-items: center;
+  font-size: var(--ad-t-micro);
+  letter-spacing: var(--ad-track-label);
+  color: var(--ad-ink-3);
+}
+
+.admin .prow__title {
+  display: block;
+  font-size: var(--ad-t-body);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+.admin .prow__meta {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: var(--ad-t-micro);
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+}
+
+/* --------------------------------------------------------------------------
+   Status
+
+   A refined pill: hairline, no fill, and a single dot carrying the state. The
+   dot is the only place colour is permitted, and only three of them exist.
+   -------------------------------------------------------------------------- */
+
+.admin .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.55rem 0.2rem 0.45rem;
+  border: 1px solid var(--ad-line);
+  border-radius: var(--ad-r-pill);
+  font-size: var(--ad-t-micro);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ad-ink-2);
+}
+
+.admin .pill::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+/* Live and selling. */
+.admin .pill--on {
+  color: var(--ad-ink);
+  border-color: color-mix(in oklab, var(--ad-ink) 22%, transparent);
+}
+
+.admin .pill--on::before { background: var(--ad-ink); }
+
+/* Needs a human today. The second permitted use of the acid — and it earns
+   its contrast from the dark ring, not from the fill. */
+.admin .pill--attention {
+  color: var(--ad-ink);
+  border-color: color-mix(in oklab, var(--ad-ink) 22%, transparent);
+  background: var(--ad-acid);
+}
+
+.admin .pill--attention::before { background: var(--ad-ink); }
+
+/* Closed, cancelled, out. */
+.admin .pill--off {
+  color: var(--ad-ink-3);
+  border-color: var(--ad-line);
+}
+
+.admin .pill--off::before { background: var(--ad-ink-3); }
+
+/* --------------------------------------------------------------------------
+   Toolbar — search, filters, sort
+   -------------------------------------------------------------------------- */
+
+.admin .toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--ad-s-2);
+  padding: var(--ad-s-3);
+  border-radius: var(--ad-r-card);
+  background: var(--ad-paper);
+  margin-bottom: var(--ad-s-4);
+}
+
+.admin .toolbar__search { flex: 1 1 14rem; min-width: 0; }
+
+.admin .toolbar .adfield { margin: 0; }
+
+.admin .toolbar__reset {
+  padding: 0.55rem 0.75rem;
+  color: var(--ad-ink-2);
+  font-size: var(--ad-t-small);
+  text-decoration: none;
+  border-radius: var(--ad-r-field);
+  transition: color var(--ad-fast) var(--ad-ease);
+}
+
+.admin .toolbar__reset:hover { color: var(--ad-ink); }
+
+/* --------------------------------------------------------------------------
+   Bulk stock — one count across a whole list
+   -------------------------------------------------------------------------- */
+
+/* Sits between the toolbar and the table, and is quiet until it is opened:
+   closed it reads as a caption on the list it describes, open it becomes a
+   form on the same paper the toolbar uses. */
+.admin .bulkstock {
+  display: grid;
+  gap: var(--ad-s-2);
+  margin: 0 0 var(--ad-s-4);
+}
+
+.admin .bulkstock__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ad-s-2);
+}
+
+.admin .bulkstock__scope {
+  margin: 0;
+  font-size: var(--ad-t-small);
+  color: var(--ad-ink-2);
+}
+
+.admin .bulkstock__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--ad-s-2);
+  padding: var(--ad-s-3);
+  border-radius: var(--ad-r-card);
+  background: var(--ad-paper);
+}
+
+.admin .bulkstock__form .adfield { margin: 0; }
+
+.admin .bulkstock__field { flex: 0 1 12rem; min-width: 0; }
+
+/* Takes the whole row under the controls rather than squeezing in beside
+   them — it explains what the button is about to do, so it has to be read
+   before the button, not after it runs out of space. */
+.admin .bulkstock__note {
+  flex: 1 0 100%;
+  margin: 0;
+  font-size: var(--ad-t-small);
+  color: var(--ad-ink-2);
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+   Forms
+   -------------------------------------------------------------------------- */
+
+.admin .adfield {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: var(--ad-s-3);
+  font-size: var(--ad-t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+}
+
+.admin .adfield small,
+.admin .adfield__hint {
+  font-size: var(--ad-t-small);
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ad-ink-2);
+  line-height: 1.5;
+}
+
+/* Every control you can type into, addressed by what it is NOT.
+   The typed list this replaces missed the commonest case in the panel: an
+   `<input>` with no `type` at all is a text field, and `input[type="text"]`
+   does not match one — so the product title, the slug, the alt text and every
+   other bare input picked up no border and no padding, and sat on the sheet as
+   loose text until it was focused. */
+.admin input:not([type="checkbox"], [type="radio"], [type="file"], [type="range"],
+  [type="submit"], [type="button"], [type="image"], [type="hidden"]),
+.admin select,
+.admin textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--ad-field-line);
+  border-radius: var(--ad-r-field);
+  background: var(--ad-white);
+  color: var(--ad-ink);
+  font: inherit;
+  font-size: var(--ad-t-small);
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  transition: border-color var(--ad-fast) var(--ad-ease),
+    box-shadow var(--ad-fast) var(--ad-ease);
+}
+
+.admin textarea {
+  resize: vertical;
+  min-height: 5rem;
+  line-height: 1.55;
+}
+
+/* The file control is a field as well: it holds the one action in the row,
+   so it is drawn as a box rather than left as browser chrome on the sheet. */
+.admin input[type="file"] {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--ad-field-line);
+  border-radius: var(--ad-r-field);
+  background: var(--ad-white);
+  color: var(--ad-ink);
+  font: inherit;
+  font-size: var(--ad-t-small);
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  cursor: pointer;
+}
+
+/* Except the ones a label is wearing as a button — those are already a
+   control, and a box around a box reads as a mistake. */
+.admin .abtn input[type="file"] { display: none; }
+
+.admin input::placeholder,
+.admin textarea::placeholder {
+  color: var(--ad-ink-3);
+}
+
+.admin input:focus-visible,
+.admin select:focus-visible,
+.admin textarea:focus-visible {
+  outline: none;
+  border-color: var(--ad-ink);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ad-acid) 70%, transparent);
+}
+
+.admin select {
+  appearance: none;
+  padding-right: 2rem;
+  /* A drawn chevron, matching the icon set's stroke. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23171919' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6.5 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.65rem center;
+  background-size: 0.875rem;
+}
+
+.admin .checkline {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-bottom: var(--ad-s-3);
+  font-size: var(--ad-t-small);
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ad-ink);
+  cursor: pointer;
+}
+
+.admin input[type="checkbox"] {
+  flex: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: 0.1rem;
+  accent-color: var(--ad-ink);
+  cursor: pointer;
+}
+
+.admin fieldset {
+  margin: 0 0 var(--ad-s-4);
+  padding: 0;
+  border: 0;
+}
+
+.admin legend {
+  padding: 0;
+  margin-bottom: var(--ad-s-3);
+  font-size: var(--ad-t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+}
+
+/* Two-up form rows, collapsing to one on narrow screens. */
+.admin .fieldrow {
+  display: grid;
+  gap: 0 var(--ad-s-3);
+}
+
+@media (min-width: 40rem) {
+  .admin .fieldrow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin .fieldrow--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* --------------------------------------------------------------------------
+   Buttons
+
+   Black, white, and a hairline. The acid never lands on a button: it would
+   compete with the navigation's "you are here", which matters more.
+   -------------------------------------------------------------------------- */
+
+.admin .abtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1.05rem;
+  border: 1px solid var(--ad-ink);
+  border-radius: var(--ad-r-pill);
+  background: var(--ad-ink);
+  color: var(--ad-white);
+  font: inherit;
+  font-size: var(--ad-t-small);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--ad-fast) var(--ad-ease),
+    color var(--ad-fast) var(--ad-ease),
+    border-color var(--ad-fast) var(--ad-ease),
+    opacity var(--ad-fast) var(--ad-ease);
+}
+
+.admin .abtn:hover {
+  background: color-mix(in oklab, var(--ad-ink) 84%, var(--ad-paper));
+  border-color: color-mix(in oklab, var(--ad-ink) 84%, var(--ad-paper));
+}
+
+.admin .abtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ad-acid) 70%, transparent);
+}
+
+.admin .abtn[disabled],
+.admin .abtn[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.admin .abtn--ghost {
+  background: transparent;
+  color: var(--ad-ink);
+  border-color: color-mix(in oklab, var(--ad-ink) 24%, transparent);
+}
+
+.admin .abtn--ghost:hover {
+  background: var(--ad-paper);
+  border-color: var(--ad-ink);
+  color: var(--ad-ink);
+}
+
+.admin .abtn--quiet {
+  padding-inline: 0.6rem;
+  background: transparent;
+  border-color: transparent;
+  color: var(--ad-ink-2);
+}
+
+.admin .abtn--quiet:hover {
+  background: var(--ad-paper);
+  border-color: transparent;
+  color: var(--ad-ink);
+}
+
+.admin .abtn--sm {
+  padding: 0.35rem 0.7rem;
+  font-size: var(--ad-t-micro);
+  letter-spacing: 0.02em;
+}
+
+.admin .abtn--block { width: 100%; }
+
+/* A row of row-level actions. */
+.admin .rowactions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.admin .rowactions__error {
+  display: block;
+  width: 100%;
+  margin-top: 0.3rem;
+  font-size: var(--ad-t-micro);
+  color: var(--ad-ink);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* --------------------------------------------------------------------------
+   Notices
+   -------------------------------------------------------------------------- */
+
+.admin .anotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--ad-r-inner);
+  background: var(--ad-paper);
+  font-size: var(--ad-t-small);
+  color: var(--ad-ink-2);
+  line-height: 1.55;
+}
+
+.admin .anotice--alert {
+  background: var(--ad-acid);
+  color: var(--ad-ink);
+  font-weight: 500;
+}
+
+.admin .anotice--error {
+  background: var(--ad-ink);
+  color: var(--ad-white);
+}
+
+.admin .anotice p { margin: 0; }
+
+/* --------------------------------------------------------------------------
+   Empty states
+
+   Designed, not apologetic: a line of type that teaches what the region is
+   for, and the action that fills it.
+   -------------------------------------------------------------------------- */
+
+.admin .empty {
+  display: grid;
+  justify-items: start;
+  gap: var(--ad-s-2);
+  padding: var(--ad-s-5) var(--ad-s-4);
+  border-radius: var(--ad-r-card);
+  background: var(--ad-paper);
+}
+
+.admin .empty--center {
+  justify-items: center;
+  text-align: center;
+  padding-block: var(--ad-s-6);
+}
+
+.admin .empty__title {
+  margin: 0;
+  font-size: var(--ad-t-h3);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.admin .empty__body {
+  margin: 0;
+  max-width: 46ch;
+  font-size: var(--ad-t-small);
+  color: var(--ad-ink-2);
+  line-height: 1.6;
+}
+
+/* --------------------------------------------------------------------------
+   Pagination
+   -------------------------------------------------------------------------- */
+
+.admin .pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ad-s-3);
+  margin-top: var(--ad-s-4);
+  padding-top: var(--ad-s-3);
+  border-top: 1px solid var(--ad-line);
+}
+
+.admin .pager__count {
+  margin: 0;
+  font-size: var(--ad-t-micro);
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+}
+
+.admin .pager__links {
+  display: flex;
+  align-items: center;
+  gap: var(--ad-s-2);
+}
+
+.admin .pager__link {
+  padding: 0.4rem 0.85rem;
+  border: 1px solid color-mix(in oklab, var(--ad-ink) 24%, transparent);
+  border-radius: var(--ad-r-pill);
+  font-size: var(--ad-t-small);
+  color: var(--ad-ink);
+  text-decoration: none;
+  transition: background-color var(--ad-fast) var(--ad-ease);
+}
+
+.admin .pager__link:hover { background: var(--ad-paper); }
+
+.admin .pager__link[aria-disabled="true"] {
+  color: var(--ad-ink-3);
+  border-color: var(--ad-line);
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Detail pages: definition lists and address blocks
+   -------------------------------------------------------------------------- */
+
+.admin .adlist {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.admin .adlist > div,
+.admin .deflist__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ad-s-3);
+  padding: 0.65rem 0;
+  border-top: 1px solid var(--ad-line-2);
+}
+
+.admin .adlist > div:first-child { border-top: 0; padding-top: 0; }
+
+.admin .adlist dt {
+  font-size: var(--ad-t-micro);
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+}
+
+.admin .adlist dd {
+  margin: 0;
+  text-align: right;
+  font-size: var(--ad-t-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.admin .adlist__total {
+  border-top: 1px solid var(--ad-ink) !important;
+  padding-top: 0.75rem !important;
+  margin-top: 0.25rem;
+}
+
+.admin .adlist__total dt,
+.admin .adlist__total dd {
+  color: var(--ad-ink);
+  font-size: var(--ad-t-lead);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+
+.admin .aaddress {
+  font-style: normal;
+  font-size: var(--ad-t-small);
+  line-height: 1.7;
+  color: var(--ad-ink-2);
+}
+
+.admin .aaddress strong {
+  display: block;
+  color: var(--ad-ink);
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   Detail layout: content and a narrower operational column
+   -------------------------------------------------------------------------- */
+
+.admin .adsplit {
+  display: grid;
+  gap: var(--ad-s-3);
+  align-items: start;
+}
+
+@media (min-width: 66rem) {
+  .admin .adsplit {
+    grid-template-columns: minmax(0, 1.55fr) minmax(17rem, 1fr);
+    gap: var(--ad-s-4);
+  }
+}
+
+.admin .adsplit__col {
+  display: grid;
+  gap: var(--ad-s-3);
+  align-content: start;
+}
+
+@media (min-width: 48rem) {
+  .admin .adsplit__col { gap: var(--ad-s-4); }
+}
+
+/* --------------------------------------------------------------------------
+   Order items
+   -------------------------------------------------------------------------- */
+
+.admin .items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin .items > li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ad-s-3);
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--ad-line-2);
+}
+
+.admin .items > li:first-child { border-top: 0; padding-top: 0; }
+
+.admin .items__name {
+  font-size: var(--ad-t-body);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+.admin .items__spec {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: var(--ad-t-micro);
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+}
+
+.admin .items__price {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   Timeline
+   -------------------------------------------------------------------------- */
+
+.admin .timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin .timeline > li {
+  position: relative;
+  padding: 0 0 var(--ad-s-4) var(--ad-s-4);
+  border-left: 1px solid var(--ad-line);
+}
+
+.admin .timeline > li:last-child { padding-bottom: 0; border-color: transparent; }
+
+.admin .timeline > li::before {
+  content: "";
+  position: absolute;
+  left: -3.5px;
+  top: 0.35rem;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ad-ink-3);
+}
+
+.admin .timeline > li:first-child::before { background: var(--ad-ink); }
+
+.admin .timeline__what {
+  font-size: var(--ad-t-small);
+  font-weight: 500;
+}
+
+.admin .timeline__meta {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: var(--ad-t-micro);
+  color: var(--ad-ink-3);
+}
+
+.admin .timeline__note {
+  margin: 0.35rem 0 0;
+  font-size: var(--ad-t-small);
+  color: var(--ad-ink-2);
+  line-height: 1.55;
+}
+
+/* --------------------------------------------------------------------------
+   Notes
+   -------------------------------------------------------------------------- */
+
+.admin .notes__list {
+  margin: 0 0 var(--ad-s-4);
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--ad-s-2);
+}
+
+.admin .notes__item {
+  padding: 0.85rem 1rem;
+  border-radius: var(--ad-r-inner);
+  background: var(--ad-white);
+  border: 1px solid var(--ad-line-2);
+}
+
+.admin .notes__item p {
+  margin: 0;
+  font-size: var(--ad-t-small);
+  line-height: 1.55;
+}
+
+.admin .notes__meta {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: var(--ad-t-micro);
+  color: var(--ad-ink-3);
+}
+
+/* --------------------------------------------------------------------------
+   Inventory
+   -------------------------------------------------------------------------- */
+
+.admin .stockcell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.admin .stockcell__value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: var(--ad-t-lead);
+  letter-spacing: -0.02em;
+}
+
+.admin .stockcell input[type="number"] { width: 5rem; }
+.admin .stockcell select { width: auto; min-width: 7rem; }
+
+/* A stock bar: a hairline track with the level drawn on it. Reads at a glance
+   across a long list in a way a number alone does not. */
+.admin .level {
+  display: block;
+  width: 100%;
+  max-width: 6rem;
+  height: 3px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--ad-ink) 12%, transparent);
+  overflow: hidden;
+}
+
+.admin .level__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ad-ink);
+}
+
+.admin .level--low .level__fill { background: var(--ad-ink); }
+.admin .level--out .level__fill { background: transparent; }
+
+/* --------------------------------------------------------------------------
+   Product editor
+   -------------------------------------------------------------------------- */
+
+.admin .editor {
+  display: grid;
+  /* An explicit track, not the implicit `auto` one: an auto track is sized by
+     its content's min-content width, and the pricing ladder below carries a
+     `min-width: 44rem`. That min travelled up through the section and made the
+     whole editor 44rem wide inside a phone-width column — which the shell
+     clips, so every field's right-hand end was cut off with no way to scroll
+     to it. Pinned at `minmax(0, 1fr)` the column follows the page and the
+     ladder scrolls inside its own holder, which is what it is for. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ad-s-4);
+}
+
+.admin .editor__section {
+  padding-top: var(--ad-s-5);
+  border-top: 1px solid var(--ad-line);
+}
+
+.admin .editor__section:first-of-type { padding-top: 0; border-top: 0; }
+
+.admin .editor__sectionhead {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: var(--ad-s-4);
+}
+
+.admin .editor__sectiontitle {
+  margin: 0;
+  font-size: var(--ad-t-h3);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.admin .editor__sectionnote {
+  margin: 0;
+  max-width: 60ch;
+  font-size: var(--ad-t-small);
+  color: var(--ad-ink-2);
+  line-height: 1.55;
+}
+
+/* The save bar rides the bottom of the viewport so a long editor never hides
+   its own commit. */
+.admin .editor__save {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ad-s-3);
+  margin-top: var(--ad-s-5);
+  padding: var(--ad-s-3);
+  border-radius: var(--ad-r-card);
+  background: color-mix(in oklab, var(--ad-white) 86%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--ad-line);
+}
+
+.admin .editor__savemsg {
+  margin: 0;
+  margin-right: auto;
+  font-size: var(--ad-t-small);
+  color: var(--ad-ink-2);
+}
+
+/* Variant matrix and image uploader keep the table and field vocabulary. */
+.admin .matrix { overflow-x: auto; }
+
+.admin .matrix table {
+  width: 100%;
+  min-width: 44rem;
+  border-collapse: collapse;
+  font-size: var(--ad-t-small);
+}
+
+.admin .matrix th {
+  padding: 0 0.6rem var(--ad-s-2);
+  border-bottom: 1px solid var(--ad-line);
+  text-align: left;
+  font-size: var(--ad-t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+  white-space: nowrap;
+}
+
+.admin .matrix td {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--ad-line-2);
+}
+
+.admin .matrix input[type="text"],
+.admin .matrix input[type="number"] { min-width: 5rem; }
+
+.admin .matrix__applyall {
+  display: block;
+  margin-top: 0.3rem;
+  padding-inline: 0;
+  white-space: nowrap;
+}
+
+/* Product photography used to be a contact sheet of thumbnails: small, dense,
+   and enough to confirm an upload landed. It is now a stack, because each
+   frame carries a crop stage that has to be big enough to place a garment in.
+   Two across on a wide screen is as many as stays workable. */
+.admin .uploader__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+  gap: var(--ad-s-4);
+  margin: 0 0 var(--ad-s-4);
+  padding: 0;
+  list-style: none;
+}
+
+.admin .uploader__shot {
+  padding: var(--ad-s-3);
+  border-radius: var(--ad-r-inner);
+  background: var(--ad-paper);
+}
+
+.admin .uploader__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ad-s-2);
+  margin-bottom: var(--ad-s-2);
+}
+
+/* Position one is the featured image everywhere else in the store, so the
+   list says so rather than leaving it to be discovered. */
+.admin .uploader__index {
+  font-size: var(--ad-t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+}
+
+.admin .uploader__shot:first-child .uploader__index {
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--ad-r-pill);
+  background: var(--ad-acid);
+  color: var(--ad-ink);
+}
+
+.admin .uploader__tools { display: flex; gap: 0.25rem; }
+
+.admin .uploader__alt { margin: var(--ad-s-3) 0 0; }
+
+/* --------------------------------------------------------------------------
+   Managers (categories, discounts, shipping): a list beside its form
+   -------------------------------------------------------------------------- */
+
+.admin .manager {
+  display: grid;
+  gap: var(--ad-s-4);
+  align-items: start;
+}
+
+@media (min-width: 70rem) {
+  .admin .manager { grid-template-columns: minmax(0, 1.5fr) minmax(19rem, 1fr); }
+}
+
+.admin .manager__form {
+  padding: var(--ad-s-4);
+  border-radius: var(--ad-r-card);
+  background: var(--ad-paper);
+}
+
+@media (min-width: 70rem) {
+  .admin .manager__form { position: sticky; top: var(--ad-s-4); }
+}
+
+.admin .manager__formtitle {
+  margin: 0 0 var(--ad-s-4);
+  font-size: var(--ad-t-h3);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.admin .manager__form .adfield { margin-bottom: var(--ad-s-3); }
+
+.admin .manager__actions {
+  display: flex;
+  gap: var(--ad-s-2);
+  margin-top: var(--ad-s-4);
+}
+
+/* --------------------------------------------------------------------------
+   Settings: a grouped, sectioned form
+   -------------------------------------------------------------------------- */
+
+.admin .settings {
+  display: grid;
+  gap: var(--ad-s-4);
+  max-width: 58rem;
+}
+
+.admin .settings__group {
+  display: grid;
+  gap: var(--ad-s-3);
+  padding-top: var(--ad-s-5);
+  border-top: 1px solid var(--ad-line);
+}
+
+.admin .settings__group:first-of-type { padding-top: 0; border-top: 0; }
+
+@media (min-width: 56rem) {
+  .admin .settings__group {
+    grid-template-columns: 14rem minmax(0, 1fr);
+    gap: var(--ad-s-5);
+  }
+}
+
+.admin .settings__aside { align-self: start; }
+
+.admin .settings__grouptitle {
+  margin: 0 0 0.35rem;
+  font-size: var(--ad-t-body);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.admin .settings__groupnote {
+  margin: 0;
+  font-size: var(--ad-t-small);
+  color: var(--ad-ink-2);
+  line-height: 1.55;
+}
+
+.admin .settings__fields { min-width: 0; }
+
+/* --------------------------------------------------------------------------
+   Reduced motion
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .admin *,
+  .admin *::before,
+  .admin *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   Media
+
+   Reuses the settings screen's group shape — a titled aside beside a column of
+   fields — because these two screens do the same kind of work and should not
+   look like two different applications. What is new is the slot card: a
+   preview large enough to judge a photograph by, with its fields beside it.
+   -------------------------------------------------------------------------- */
+
+.admin .media { display: grid; }
+
+.admin .mediaslot { margin-bottom: var(--ad-s-3); }
+.admin .mediaslot:last-child { margin-bottom: 0; }
+
+.admin .mediaslot__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ad-s-3);
+  padding-bottom: var(--ad-s-3);
+}
+
+.admin .mediaslot__title {
+  margin: 0;
+  font-size: var(--ad-t-body);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.admin .mediaslot__where {
+  margin: 0.2rem 0 0;
+  font-size: var(--ad-t-small);
+  line-height: 1.5;
+  color: var(--ad-ink-3);
+}
+
+/* Whether this slot is still showing what the site shipped with. Quiet by
+   default — "Original" is the resting state and should not shout. */
+.admin .mediaslot__state {
+  flex: none;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--ad-r-pill);
+  background: var(--ad-paper);
+  color: var(--ad-ink-3);
+  font-size: var(--ad-t-micro);
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.admin .mediaslot__state--on {
+  background: var(--ad-acid);
+  color: var(--ad-ink);
+}
+
+.admin .mediaslot__body {
+  display: grid;
+  gap: var(--ad-s-3);
+  align-items: start;
+}
+
+/* The crop stage leads and takes the wider column: it is the decision on this
+   card, and the address and alt text beside it are its bookkeeping. Below
+   62rem they stack, because a crop stage in a 13rem column is not one. */
+@media (min-width: 62rem) {
+  .admin .mediaslot__body {
+    grid-template-columns: minmax(0, 1.2fr) minmax(17rem, 1fr);
+  }
+}
+
+.admin .mediaslot__preview { min-width: 0; }
+
+.admin .mediaslot__fields { display: grid; gap: var(--ad-s-3); }
+
+/* The uploader is a label wrapping a hidden input, so it needs the button's
+   look without the button's default centring of a file control. */
+.admin .mediaslot__upload {
+  justify-self: start;
+  cursor: pointer;
+}
+
+.admin .mediaslot__frames {
+  display: grid;
+  gap: var(--ad-s-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin .mediaslot__frame {
+  padding-top: var(--ad-s-3);
+  border-top: 1px solid var(--ad-line);
+}
+
+.admin .mediaslot__frame:first-child { padding-top: 0; border-top: 0; }
+
+.admin .mediaslot__framehead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ad-s-2);
+  padding-bottom: var(--ad-s-2);
+}
+
+.admin .mediaslot__index {
+  font-size: var(--ad-t-micro);
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+}
+
+.admin .mediaslot__reorder { display: flex; gap: 0.25rem; }
+
+.admin .mediaslot__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ad-s-2);
+  padding-top: var(--ad-s-3);
+  margin-top: var(--ad-s-3);
+  border-top: 1px solid var(--ad-line);
+}
+
+/* --------------------------------------------------------------------------
+   The crop stages
+
+   Two holders, in the two shapes the frame is actually seen in, each dragged
+   and zoomed on its own. Nothing here cuts the file: a stage writes an
+   `object-position` and a scale, and the storefront renders from the same
+   helper — `lib/media/crop.ts` — so what is inside a holder is what ships.
+
+   Every frame on this page therefore renders through the same three CSS
+   properties the storefront uses: `cover`, the position, and a scale of
+   `--crop-zoom`. A second way of drawing a crop would be a second thing to
+   keep in agreement with the shop.
+   -------------------------------------------------------------------------- */
+
+.admin .cropfield { display: grid; gap: var(--ad-s-3); }
+
+.admin .cropfield__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ad-s-2);
+  flex-wrap: wrap;
+}
+
+.admin .cropfield__label,
+.admin .cropview__label {
+  font-size: var(--ad-t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+}
+
+.admin .cropfield__hint,
+.admin .cropfield__note,
+.admin .cropfield__alt {
+  font-size: var(--ad-t-small);
+  color: var(--ad-ink-2);
+}
+
+.admin .cropfield__note { margin: 0; }
+
+/* The two views, stacked — mobile under desktop. Not behind a toggle: the
+   reason to see a wide crop and a tall one together is that the tall one
+   usually needs a different decision, and a toggle hides exactly the
+   comparison being asked for.
+
+   They were side by side and it was wrong. This field sits in a column beside
+   the address and alt text, and two frames sharing that column left the tall
+   one too narrow to place anything in — and pushed into its neighbour. A
+   column has vertical room to spare and none across, so the stack is what the
+   layout was already asking for. */
+.admin .cropviews {
+  display: grid;
+  gap: var(--ad-s-3);
+  justify-items: start;
+}
+
+.admin .cropview {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+  width: 100%;
+}
+
+/* How tall a holder may stand. A 9:16 phone frame given the full width of a
+   column is most of a screen of its own, so the height is what is capped and
+   the width follows from the frame's own shape — see the inline `max-width`,
+   which is this times the ratio. Capping the height directly would hold the
+   width at 100% and quietly render a shape the storefront never shows. */
+.admin .cropfield { --crop-max-h: 20rem; }
+
+.admin .cropview__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ad-s-2);
+}
+
+.admin .cropview__ratio {
+  font-size: var(--ad-t-micro);
+  font-variant-numeric: tabular-nums;
+  color: var(--ad-ink-3);
+}
+
+/* The holder. A field you manipulate rather than type into, so it takes the
+   same ink box as an input — and the same acid ring when it has the keyboard,
+   because the arrow keys do something here. */
+.admin .cropstage {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--ad-field-line);
+  border-radius: var(--ad-r-field);
+  background: var(--ad-paper);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.admin .cropstage--drag { cursor: grabbing; }
+
+.admin .cropstage:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ad-acid) 70%, transparent);
+}
+
+/* Absolutely positioned, and deliberately: a `height: 100%` image inside a
+   holder whose own height comes from `aspect-ratio` resolves against a
+   containing block that is not definite, so it kept its natural shape instead
+   of filling the frame. `object-fit: cover` then had nothing to crop and
+   `object-position` did nothing at all — the frame answered a zoom, because
+   that is a transform, but not a drag. Filling the box by inset removes the
+   question. */
+.admin .cropstage img,
+.admin .cropframe img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(var(--crop-zoom, 1));
+  -webkit-user-drag: none;
+}
+
+/* Thirds, at the weight of a pencil line. Visible enough to place a subject
+   against, faint enough not to be read as part of the photograph. */
+.admin .cropstage__guides {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(to right, transparent calc(33.333% - 0.5px),
+      rgba(255, 255, 255, 0.5) calc(33.333% - 0.5px) calc(33.333% + 0.5px),
+      transparent calc(33.333% + 0.5px) calc(66.666% - 0.5px),
+      rgba(255, 255, 255, 0.5) calc(66.666% - 0.5px) calc(66.666% + 0.5px),
+      transparent calc(66.666% + 0.5px)),
+    linear-gradient(to bottom, transparent calc(33.333% - 0.5px),
+      rgba(255, 255, 255, 0.5) calc(33.333% - 0.5px) calc(33.333% + 0.5px),
+      transparent calc(33.333% + 0.5px) calc(66.666% - 0.5px),
+      rgba(255, 255, 255, 0.5) calc(66.666% - 0.5px) calc(66.666% + 0.5px),
+      transparent calc(66.666% + 0.5px));
+  transition: opacity var(--ad-fast) var(--ad-ease);
+}
+
+/* Only while the crop is being decided. */
+.admin .cropstage:hover .cropstage__guides,
+.admin .cropstage:focus-visible .cropstage__guides,
+.admin .cropstage--drag .cropstage__guides { opacity: 1; }
+
+.admin .cropview__zoom {
+  display: flex;
+  align-items: center;
+  gap: var(--ad-s-2);
+  font-size: var(--ad-t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+}
+
+.admin .cropview__zoom input[type="range"] {
+  flex: 1 1 auto;
+  min-width: 4rem;
+  accent-color: var(--ad-ink);
+  cursor: pointer;
+}
+
+.admin .cropview__zoomvalue {
+  min-width: 3.25rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ad-ink-2);
+}
+
+.admin .cropfield__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ad-s-3);
+  flex-wrap: wrap;
+}
+
+.admin .cropfield__buttons { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.admin .cropframe {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--ad-r-field);
+  background: var(--ad-paper);
+  display: grid;
+  place-items: center;
+}
+
+.admin .cropframe__empty {
+  font-size: var(--ad-t-small);
+  color: var(--ad-ink-3);
+}
+
+/* Desktop | Mobile. A pair of pills in one field-coloured trough, so it reads
+   as one control with two states rather than as two buttons. */
+.admin .viewtoggle {
+  display: inline-flex;
+  gap: 0.2rem;
+  padding: 0.2rem;
+  border: 1px solid var(--ad-field-line);
+  border-radius: var(--ad-r-pill);
+  background: var(--ad-white);
+}
+
+.admin .viewtoggle__btn {
+  appearance: none;
+  border: 0;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--ad-r-pill);
+  background: transparent;
+  color: var(--ad-ink-2);
+  font: inherit;
+  font-size: var(--ad-t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.admin .viewtoggle__btn:hover { color: var(--ad-ink); }
+
+.admin .viewtoggle__btn--on {
+  background: var(--ad-ink);
+  color: var(--ad-onink);
+}
+
+/* --------------------------------------------------------------------------
+   The contextual panel
+
+   Only the controls that belong to the photograph in hand: what it is, how it
+   sits in its frame, and the two ways back out.
+   -------------------------------------------------------------------------- */
+
+.admin .inspector { display: grid; gap: var(--ad-s-3); align-content: start; }
+
+.admin .inspector__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ad-s-2);
+}
+
+.admin .inspector__title {
+  margin: 0;
+  font-size: var(--ad-t-body);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.admin .inspector__where {
+  margin: 0.2rem 0 0;
+  font-size: var(--ad-t-small);
+  line-height: 1.5;
+  color: var(--ad-ink-3);
+}
+
+.admin .inspector__close { flex: none; }
+
+.admin .inspector__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--ad-s-2);
+  margin: 0;
+  flex-wrap: wrap;
+}
+
+.admin .inspector__ratio {
+  font-size: var(--ad-t-micro);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+}
+
+/* The carousel's running order, where the carousel is what is selected. */
+.admin .inspector__frames {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ad-s-2);
+  flex-wrap: wrap;
+  padding: var(--ad-s-2) 0;
+  border-block: 1px solid var(--ad-line);
+}
+
+.admin .inspector__framelabel {
+  font-size: var(--ad-t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+}
+
+.admin .inspector__framebuttons { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+
+.admin .inspector__body { display: grid; gap: var(--ad-s-3); }
+.admin .inspector__body .adfield { margin: 0; }
+
+/* One stage here, not two, so the holder can have the whole column. */
+.admin .inspector .cropfield { --crop-max-h: 16rem; }
+.admin .inspector .cropview { max-width: 100%; }
+
+.admin .inspector__foot {
+  display: flex;
+  align-items: center;
+  gap: var(--ad-s-2);
+  flex-wrap: wrap;
+  padding-top: var(--ad-s-3);
+  border-top: 1px solid var(--ad-line);
+}
+
+.admin .inspector__foot .anotice { flex: 1 1 100%; margin: 0; }
+
+/* --------------------------------------------------------------------------
+   The visual editor
+
+   The Media tab is not a page in the panel; it is the shop, full screen, with
+   a bar over the top of it. So this block is chrome around a window and almost
+   nothing else — everything inside the frame is the storefront's own
+   stylesheet, and the only job here is to give it a real viewport, a way out,
+   and somewhere to put the controls once something has been clicked.
+
+   The stage's padding is 24px on purpose rather than a token: the editor
+   measures this box and scales the frame to fit inside it, and the two numbers
+   have to be the same one.
+   -------------------------------------------------------------------------- */
+
+.admin .mediaedit {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  background: var(--ad-paper);
+}
+
+.admin .mediaedit__bar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--ad-s-3);
+  padding: var(--ad-s-2) var(--ad-s-3);
+  background: var(--ad-white);
+  border-bottom: 1px solid var(--ad-line);
+}
+
+.admin .mediaedit__mid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ad-s-3);
+  flex-wrap: wrap;
+}
+
+.admin .mediaedit__page { margin: 0; min-width: 9rem; }
+
+.admin .mediaedit__devices .viewtoggle__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.admin .mediaedit__icon { width: 1.05rem; height: 1.05rem; flex: none; }
+
+.admin .mediaedit__acts {
+  display: flex;
+  align-items: center;
+  gap: var(--ad-s-2);
+  justify-self: end;
+}
+
+.admin .mediaedit__note { margin: 0; }
+
+@media (max-width: 64rem) {
+  .admin .mediaedit__devicename { display: none; }
+  .admin .mediaedit__note { display: none; }
+}
+
+.admin .mediaedit__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 0;
+}
+
+@media (min-width: 64rem) {
+  .admin .mediaedit__body--open { grid-template-columns: minmax(0, 1fr) 23rem; }
+}
+
+/* The stage. A dark-free ground on purpose: the shop is judged against the
+   paper the rest of the panel is on, not against a lightbox. */
+.admin .mediaedit__stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  padding: 24px;
+  overflow: hidden;
+}
+
+.admin .mediaedit__viewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--ad-r-inner);
+  background: var(--ad-white);
+  box-shadow: var(--ad-lift);
+}
+
+.admin .mediaedit__frame {
+  display: block;
+  border: 0;
+  background: var(--ad-white);
+}
+
+.admin .mediaedit__hint {
+  position: absolute;
+  left: 50%;
+  bottom: 0.5rem;
+  transform: translateX(-50%);
+  margin: 0;
+  max-width: min(46rem, calc(100% - 2rem));
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--ad-r-pill);
+  background: color-mix(in oklab, var(--ad-white) 88%, transparent);
+  font-size: var(--ad-t-small);
+  text-align: center;
+  color: var(--ad-ink-2);
+  pointer-events: none;
+}
+
+/* The panel stands still against the side of the frame, because a crop is
+   judged against the page behind it. */
+.admin .mediaedit__panel {
+  min-height: 0;
+  overflow: auto;
+  border-left: 1px solid var(--ad-line);
+  border-radius: 0;
+  background: var(--ad-white);
+  padding: var(--ad-s-3);
+}
+
+@media (max-width: 63.999rem) {
+  .admin .mediaedit__panel {
+    position: absolute;
+    inset: auto 0 0 0;
+    max-height: 60%;
+    border-left: 0;
+    border-top: 1px solid var(--ad-line);
+    box-shadow: var(--ad-lift);
+  }
+}
+
+.admin .mediaedit__height { display: flex; align-items: center; gap: var(--ad-s-2); }
+
+.admin .mediaedit__height input[type='range'] {
+  flex: 1 1 auto;
+  min-width: 0;
+  accent-color: var(--ad-ink);
+}
+
+.admin .mediaedit__height input[type='number'] { width: 5.5rem; }
+
+.admin .mediaedit__unit { font-size: 0.75rem; color: var(--ad-ink-3); }
+
+/* The grounds a band can be set to. A row of the actual colours rather than a
+   select of their names: the choice is a visual one, so the control is the
+   swatches themselves — the site's own three, and then a wheel and a hex box
+   for any other colour. */
+.admin .mediaedit__colours { margin-bottom: var(--ad-s-3); }
+
+.admin .swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ad-s-2);
+  margin-bottom: var(--ad-s-2);
+}
+
+.admin .swatch {
+  display: flex;
+  align-items: center;
+  gap: var(--ad-s-1);
+  padding: 0.3rem 0.55rem 0.3rem 0.35rem;
+  border: 1px solid var(--ad-line);
+  border-radius: 999px;
+  background: var(--ad-white);
+  font-size: var(--ad-t-small);
+  color: var(--ad-ink-2);
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease;
+}
+
+.admin .swatch:hover { border-color: var(--ad-ink-3); color: var(--ad-ink); }
+
+/* The chosen one is marked by the ring rather than by a tick inside the chip,
+   which would have to change colour to stay visible against three grounds. */
+.admin .swatch--on {
+  border-color: var(--ad-ink);
+  color: var(--ad-ink);
+  font-weight: 600;
+}
+
+.admin .swatch__chip {
+  flex: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 999px;
+  /* These are pale grounds on a white panel, so the chip needs an edge of its
+     own to read as a colour rather than as a hole. */
+  border: 1px solid var(--ad-line);
+}
+
+/* Any other colour: the same pill as a swatch, but holding two ways into one
+   setting rather than being a choice itself — so it is a div, not a radio. */
+.admin .swatch--any {
+  cursor: default;
+  padding-right: 0.35rem;
+}
+
+.admin .swatch--any:hover { border-color: var(--ad-line); color: var(--ad-ink-2); }
+.admin .swatch--any.swatch--on { border-color: var(--ad-ink); color: var(--ad-ink); }
+
+/* The native wheel, cut down to the same chip the named grounds show: the
+   browser draws its own frame and padding around the colour, and both are
+   stripped so what is left is the colour and the edge the chips all carry. */
+.admin .swatch__wheel {
+  flex: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  padding: 0;
+  border: 1px solid var(--ad-line);
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.admin .swatch__wheel::-webkit-color-swatch-wrapper { padding: 0; }
+.admin .swatch__wheel::-webkit-color-swatch { border: none; border-radius: 999px; }
+.admin .swatch__wheel::-moz-color-swatch { border: none; border-radius: 999px; }
+
+/* Room for `#ffffff` and no more. Monospace because it is a value being read
+   back and checked against another one, not a word. */
+.admin .swatch__hex {
+  width: 7.25rem;
+  padding: 0.15rem 0.35rem;
+  border: none;
+  background: none;
+  font: inherit;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: inherit;
+}
+
+.admin .swatch__hex:focus-visible { outline: 2px solid var(--ad-ink-3); outline-offset: 2px; }
+
+/* "The page's own" has no colour to show — a diagonal rule says empty without
+   pretending to be white, which is one of the three real choices. */
+.admin .swatch--none .swatch__chip {
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 1px),
+    var(--ad-ink-3) calc(50% - 1px),
+    var(--ad-ink-3) calc(50% + 1px),
+    transparent calc(50% + 1px)
+  );
+}
+
+/* --------------------------------------------------------------------------
+   The content tab
+
+   Words, in the order the page says them. No preview and no settings: a column
+   of sections, each one a card, each field a box with its own count and its
+   own way back to what the site shipped with.
+   -------------------------------------------------------------------------- */
+
+.admin .cedit { display: grid; gap: var(--ad-s-4); }
+
+.admin .cedit__bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ad-s-3);
+  flex-wrap: wrap;
+  padding-block: var(--ad-s-2);
+  background: var(--ad-white);
+  border-bottom: 1px solid var(--ad-line);
+}
+
+.admin .cedit__pages { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+.admin .cedit__page {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--ad-line);
+  border-radius: var(--ad-r-pill);
+  background: transparent;
+  font: inherit;
+  font-size: var(--ad-t-small);
+  color: var(--ad-ink-2);
+  cursor: pointer;
+}
+
+.admin .cedit__page:hover { border-color: var(--ad-ink-3); color: var(--ad-ink); }
+
+.admin .cedit__page--on {
+  border-color: var(--ad-ink);
+  background: var(--ad-ink);
+  color: var(--ad-onink);
+}
+
+.admin .cedit__acts { display: flex; gap: var(--ad-s-2); align-items: center; }
+
+.admin .cedit__note { flex: 1 1 100%; margin: 0; }
+
+.admin .csection { display: grid; gap: var(--ad-s-3); }
+
+.admin .csection__head { display: grid; gap: 0.2rem; }
+
+.admin .csection__title {
+  margin: 0;
+  font-size: var(--ad-t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+}
+
+.admin .csection__note {
+  margin: 0;
+  font-size: var(--ad-t-small);
+  line-height: 1.5;
+  color: var(--ad-ink-2);
+}
+
+.admin .csection__fields {
+  display: grid;
+  gap: var(--ad-s-3);
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+}
+
+.admin .cfield { display: grid; gap: 0.35rem; min-width: 0; }
+
+.admin .cfield .adfield { margin: 0; }
+
+.admin .cfield__label { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+
+.admin .cfield__state {
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--ad-r-pill);
+  background: color-mix(in oklab, var(--ad-ink) 8%, transparent);
+  font-size: 0.6rem;
+  letter-spacing: var(--ad-track-label);
+  color: var(--ad-ink-2);
+}
+
+/* The acid marks exactly one thing here: a line that has been typed into and
+   not yet saved. */
+.admin .cfield__state--on { background: var(--ad-acid); color: var(--ad-ink); }
+
+.admin .cfield__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ad-s-2);
+}
+
+.admin .cfield__restore {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: inherit;
+  color: var(--ad-ink-2);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.admin .cfield__restore:hover { color: var(--ad-ink); }
+
+.admin .cfield__restore:disabled { cursor: default; opacity: 0.6; }

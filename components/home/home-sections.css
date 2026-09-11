@@ -1,0 +1,1251 @@
+/* ==========================================================================
+   Homepage sections — hero, Instagram, the two product shelves, lookbook,
+   story, promise and reviews. Same language as home.css (the chrome and the
+   Men & Women doors), which this file reads from but never overrides.
+
+   Each section root keeps the class the admin's Media tab targets (.hero,
+   .iglane, .lookbook, .tiles, .imageband, .quotes, and the two shelves by
+   aria-labelledby). Grounds and heights below are set at the same weight as
+   those rules and load after the shop stylesheet, so they replace the old
+   look — while the Media tab's published settings, served later in the page,
+   still replace them.
+   ========================================================================== */
+
+.hm-hero,
+.hm-ig,
+.hm-shelf,
+.hm-look,
+.hm-story,
+.hm-promise,
+.hm-quotes {
+  --hm-ink: #0a0a0a;
+  --hm-coal: #151515;
+  --hm-graphite: #2a2a29;
+  --hm-stone: #5c5c58;
+  --hm-smoke: #8e8e8a;
+  --hm-ash: #b8b8b3;
+  --hm-mist: #e4e4e1;
+  --hm-chalk: #f2f2f0;
+  --hm-white: #ffffff;
+  --hm-line-dark: rgba(255, 255, 255, 0.16);
+  --hm-line-light: rgba(10, 10, 10, 0.12);
+
+  --hm-display: var(--font-hm-display), "Helvetica Neue", Arial, sans-serif;
+  --hm-serif: var(--font-hm-serif), "Bodoni 72", Didot, Georgia, serif;
+  --hm-mono: var(--font-hm-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  --hm-sans: var(--font-inter-tight), "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  --hm-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --hm-curtain: cubic-bezier(0.76, 0, 0.24, 1);
+  --hm-gutter: clamp(1.25rem, 4vw, 4.5rem);
+}
+
+.hm-hero :focus-visible,
+.hm-look :focus-visible,
+.hm-promise :focus-visible {
+  outline: 2px solid var(--hm-white);
+  outline-offset: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   Shared pieces
+   -------------------------------------------------------------------------- */
+
+.hm-wrap {
+  width: 100%;
+  max-width: 100rem;
+  margin-inline: auto;
+  padding-inline: var(--hm-gutter);
+}
+
+.hm-eyebrow {
+  display: block;
+  color: var(--hm-stone);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+/* Big type needs room above its capitals and below its baseline inside a mask. */
+.hm-mask--tall {
+  padding-block: 0.1em;
+  margin-block: -0.1em;
+}
+
+/* One word, one window: the word rises through it. */
+.hm-wordmask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding: 0.06em 0.08em 0.12em 0;
+  margin: -0.06em -0.08em -0.12em 0;
+}
+
+.hm-word { display: inline-block; }
+
+@keyframes hm-unshrink {
+  from { font-variation-settings: "wdth" 62; }
+  to { font-variation-settings: "wdth" 125; }
+}
+
+@keyframes hm-lift {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes hm-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* --- the pill ------------------------------------------------------------- */
+
+.hm-pill {
+  --pill-bg: transparent;
+  --pill-ink: #0a0a0a;
+  --pill-line: rgba(10, 10, 10, 0.22);
+  --pill-fill: #0a0a0a;
+  --pill-fill-ink: #ffffff;
+
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 3.25rem;
+  padding: 0.3rem 0.3rem 0.3rem 1.4rem;
+  overflow: hidden;
+  border: 1px solid var(--pill-line);
+  border-radius: 999px;
+  background: var(--pill-bg);
+  color: var(--pill-ink);
+  font-family: var(--font-hm-mono), ui-monospace, Menlo, monospace;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* The flood: a disc hidden under the arrow's disc, scaled out past the far
+   end of the pill. */
+.hm-pill::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  right: 0.3rem;
+  width: 2.6rem;
+  height: 2.6rem;
+  margin-top: -1.3rem;
+  border-radius: 999px;
+  background: var(--pill-fill);
+  transform: scale(0);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hm-pill__label { position: relative; }
+
+.hm-pill__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  background: var(--pill-fill);
+  color: var(--pill-fill-ink);
+}
+
+.hm-pill__icon svg {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hm-pill:hover,
+.hm-pill:focus-visible {
+  color: var(--pill-fill-ink);
+  border-color: var(--pill-fill);
+}
+
+.hm-pill:hover::before,
+.hm-pill:focus-visible::before { transform: scale(14); }
+
+.hm-pill:hover .hm-pill__icon svg,
+.hm-pill:focus-visible .hm-pill__icon svg { transform: rotate(-45deg); }
+
+.hm-pill--light {
+  --pill-bg: #ffffff;
+  --pill-ink: #0a0a0a;
+  --pill-line: #ffffff;
+  --pill-fill: #0a0a0a;
+  --pill-fill-ink: #ffffff;
+}
+
+.hm-pill--ghost {
+  --pill-bg: transparent;
+  --pill-ink: #ffffff;
+  --pill-line: rgba(255, 255, 255, 0.45);
+  --pill-fill: #ffffff;
+  --pill-fill-ink: #0a0a0a;
+}
+
+/* --------------------------------------------------------------------------
+   Hero
+   -------------------------------------------------------------------------- */
+
+.hm-hero {
+  overflow: hidden;
+  /* The bar above is 5.25rem and the section is pulled up under it. The
+     section's own height (from the shop sheet) plus the announcement bar runs
+     its foot past the fold by a different amount at each width, so the foot
+     pad carries that back and the calls to action land on the first screen. */
+  --hm-hero-over: 3.25rem;
+  padding-block:
+    calc(5.25rem + clamp(1.5rem, 6vh, 4rem))
+    calc(var(--hm-hero-over) + clamp(1rem, 3vh, 2rem));
+  background: var(--hm-ink);
+}
+
+@media (min-width: 48rem) {
+  .hm-hero { --hm-hero-over: calc(7.5rem - 6svh); }
+}
+
+@media (min-width: 62rem) {
+  .hm-hero { --hm-hero-over: 7.5rem; }
+}
+
+.hm-hero__stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.hm-hero__slide {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+}
+
+.hm-hero__slide.is-prev { z-index: 1; visibility: visible; }
+.hm-hero__slide.is-active { z-index: 2; visibility: visible; }
+
+.hm-hero__zoom { position: absolute; inset: 0; }
+
+.hm-hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to top,
+    rgba(10, 10, 10, 0.84) 0%,
+    rgba(10, 10, 10, 0.52) 36%,
+    rgba(10, 10, 10, 0.14) 66%,
+    rgba(10, 10, 10, 0.32) 100%
+  );
+}
+
+.hm-hero__inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: clamp(1rem, 3vh, 2rem);
+  width: 100%;
+  max-width: 100rem;
+  margin-inline: auto;
+  padding-inline: var(--hm-gutter);
+}
+
+.hm-hero__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  color: rgba(255, 255, 255, 0.86);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hm-hero__rule {
+  width: 2.5rem;
+  height: 1px;
+  background: currentColor;
+  transform-origin: left;
+}
+
+.hm-hero__head {
+  display: grid;
+  margin: 0;
+  color: var(--hm-white);
+  /* Capped by the window's height too: the lede and both buttons have to fit
+     under two lines of this on a 13" laptop. */
+  font-size: clamp(3rem, min(7.4vw, 11.5vh), 9rem);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.9;
+}
+
+.hm-hero__line { display: block; }
+
+.hm-hero__line--sans {
+  font-family: var(--hm-display);
+  font-weight: 800;
+  font-variation-settings: "wdth" 125;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+
+.hm-hero__line--serif {
+  font-family: var(--hm-serif);
+  font-size: 1.04em;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  line-height: 0.98;
+}
+
+@media (min-width: 62rem) {
+  .hm-hero__line--serif { padding-left: clamp(2rem, 9vw, 10rem); }
+}
+
+.hm-hero__foot {
+  display: grid;
+  gap: 1.5rem;
+  align-items: end;
+  padding-top: clamp(1rem, 2.6vh, 1.75rem);
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+@media (min-width: 48rem) {
+  .hm-hero__foot { grid-template-columns: minmax(0, 1fr) auto; }
+}
+
+.hm-hero__copy { display: grid; gap: 1.25rem; }
+
+@media (min-width: 62rem) {
+  .hm-hero__copy {
+    grid-template-columns: minmax(0, 24rem) auto;
+    align-items: end;
+    gap: 3rem;
+  }
+}
+
+.hm-hero__lede {
+  max-width: 32ch;
+  color: rgba(255, 255, 255, 0.86);
+  font-family: var(--hm-sans);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.hm-hero__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
+.hm-hero__meta {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-family: var(--hm-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+.hm-hero__now { color: var(--hm-white); }
+.hm-hero__of { color: rgba(255, 255, 255, 0.55); }
+
+.hm-hero__bars { display: flex; gap: 0.4rem; }
+
+.hm-hero__bar {
+  position: relative;
+  width: clamp(2rem, 3.6vw, 3.5rem);
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.hm-hero__bar::before,
+.hm-hero__fill {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+}
+
+.hm-hero__bar::before {
+  background: rgba(255, 255, 255, 0.3);
+  transition: background-color 0.4s var(--hm-ease);
+}
+
+.hm-hero__bar:hover::before { background: rgba(255, 255, 255, 0.6); }
+
+.hm-hero__fill {
+  background: var(--hm-white);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+@keyframes hm-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes hm-wipe {
+  from { clip-path: inset(0 0 0 100%); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes hm-settle {
+  from { transform: scale(1.12); }
+  to { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The bar is the timer: the frame advances when this animation ends. */
+  .hm-hero__bar.is-on .hm-hero__fill { animation: hm-fill linear forwards; }
+  .hm-hero.is-paused .hm-hero__bar.is-on .hm-hero__fill { animation-play-state: paused; }
+
+  .hm-hero__slide.is-active:not(.is-first) { animation: hm-wipe 1.3s var(--hm-curtain) both; }
+  .hm-hero__slide.is-active .hm-hero__zoom { animation: hm-settle 8s cubic-bezier(0.25, 0.1, 0.25, 1) both; }
+
+  /* First paint: the headline rises word by word and the first line widens
+     out of Archivo's narrowest cut. CSS, so it never waits on hydration. */
+  .hm-hero .hm-word { animation: hm-rise 1.3s var(--hm-ease) both; }
+  .hm-hero__line--sans .hm-word { animation-delay: calc(var(--w, 0) * 80ms + 250ms); }
+  .hm-hero__line--serif .hm-word { animation-delay: calc(var(--w, 0) * 70ms + 520ms); }
+  .hm-hero__line--sans { animation: hm-unshrink 2.2s var(--hm-ease) 0.3s both; }
+
+  .hm-hero__rule { animation: hm-grow 1.2s var(--hm-ease) 0.2s both; }
+  .hm-hero__eyebrow > span:last-child { animation: hm-lift 1s var(--hm-ease) 0.3s both; }
+  .hm-hero__foot { animation: hm-lift 1.2s var(--hm-ease) 0.9s both; }
+}
+
+/* Reduced motion holds one frame and draws the bar full: no timer runs. */
+@media (prefers-reduced-motion: reduce) {
+  .hm-hero__bar.is-on .hm-hero__fill { transform: scaleX(1); }
+}
+
+/* --------------------------------------------------------------------------
+   Instagram
+   -------------------------------------------------------------------------- */
+
+.hm-ig {
+  padding-block: clamp(4rem, 9vw, 8rem) clamp(3rem, 7vw, 6rem);
+  background: var(--hm-chalk);
+  color: var(--hm-ink);
+}
+
+.hm-ig__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.75rem 3rem;
+  padding-bottom: clamp(2rem, 4vw, 3.5rem);
+}
+
+.hm-ig__titles { min-width: 0; }
+
+.hm-ig__title {
+  margin-top: 0.75rem;
+  font-family: var(--hm-display);
+  font-size: clamp(2.75rem, 8.6vw, 9rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 0.86;
+}
+
+.hm-ig__handle {
+  display: inline-flex;
+  align-items: baseline;
+  color: inherit;
+  font-variation-settings: "wdth" var(--wdth, 125);
+  text-decoration: none;
+}
+
+.hm-ig__at {
+  display: inline-block;
+  margin-right: 0.04em;
+  color: var(--hm-smoke);
+  font-weight: 300;
+  transition: transform 0.9s var(--hm-ease), color 0.6s var(--hm-ease);
+}
+
+.hm-ig__handle:hover .hm-ig__at { color: var(--hm-ink); }
+
+.hm-ig__handle:hover .hm-ig__at,
+.hm-ig__handle:focus-visible .hm-ig__at { transform: rotate(-14deg) translateY(-0.04em); }
+
+.hm-ig__aside {
+  display: grid;
+  justify-items: start;
+  gap: 1rem;
+  max-width: 22rem;
+}
+
+.hm-ig__note {
+  color: var(--hm-stone);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.hm-ig__empty {
+  max-width: 40rem;
+  color: var(--hm-stone);
+  font-family: var(--hm-sans);
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+/* The shared rail, re-proportioned for this band: portrait tiles, wider gaps. */
+.hm-ig .iglane__set {
+  gap: clamp(0.5rem, 1vw, 1rem);
+  padding-right: clamp(0.5rem, 1vw, 1rem);
+}
+
+.hm-ig .iglane__tile {
+  width: clamp(14rem, 22vw, 20rem);
+  aspect-ratio: 4 / 5;
+  background: var(--hm-mist);
+}
+
+.hm-ig .iglane__image { transition: transform 1.2s var(--hm-ease); }
+.hm-ig .iglane__mark { background: rgba(10, 10, 10, 0.34); }
+
+/* --------------------------------------------------------------------------
+   Product shelves
+   -------------------------------------------------------------------------- */
+
+.hm-shelf {
+  padding-block: clamp(4.5rem, 10vw, 9rem);
+  background: var(--hm-white);
+  color: var(--hm-ink);
+}
+
+.hm-shelf__head { display: grid; gap: 1.5rem; align-content: start; }
+
+.hm-shelf__title {
+  margin-top: 0.6rem;
+  font-family: var(--hm-display);
+  font-size: clamp(2.75rem, 6.2vw, 6.25rem);
+  font-weight: 800;
+  font-variation-settings: "wdth" var(--wdth, 125);
+  letter-spacing: -0.01em;
+  line-height: 0.86;
+  text-transform: uppercase;
+}
+
+.hm-shelf__aside {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+}
+
+.hm-shelf__count {
+  color: var(--hm-stone);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hm-shelf__grid {
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 4rem) clamp(1rem, 2vw, 1.75rem);
+}
+
+.hm-shelf__cell { transition: opacity 0.6s var(--hm-ease); }
+
+/* The index names a card; the rest of the shelf steps back so it stands out. */
+.hm-shelf__grid.is-spotlit .hm-shelf__cell:not(.is-spot) { opacity: 0.3; }
+
+.hm-shelf__empty {
+  color: var(--hm-stone);
+  font-family: var(--hm-sans);
+  font-size: 1.0625rem;
+}
+
+/* --- index layout (New arrivals) ------------------------------------------ */
+
+.hm-shelf__index { display: none; }
+
+@media (min-width: 48rem) {
+  .hm-shelf--index .hm-shelf__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 62rem) {
+  .hm-shelf--index .hm-shelf__wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: clamp(2.5rem, 5vw, 6rem);
+    align-items: start;
+  }
+
+  .hm-shelf--index .hm-shelf__head {
+    position: sticky;
+    top: 6rem;
+  }
+
+  /* The head has a third of the measure here, and the title is sized to it. */
+  .hm-shelf--index .hm-shelf__title { font-size: clamp(2.5rem, 3.9vw, 4.5rem); }
+
+  .hm-shelf__index {
+    display: grid;
+    margin-top: 1rem;
+    border-top: 1px solid var(--hm-line-light);
+  }
+}
+
+@media (max-width: 61.9375rem) {
+  .hm-shelf--index .hm-shelf__head { padding-bottom: clamp(2rem, 5vw, 3rem); }
+}
+
+.hm-shelf__row {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding-block: 0.85rem;
+  border-bottom: 1px solid var(--hm-line-light);
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.45s var(--hm-ease);
+}
+
+.hm-shelf__num {
+  color: var(--hm-smoke);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+}
+
+.hm-shelf__name {
+  font-family: var(--hm-display);
+  font-size: 1rem;
+  font-weight: 500;
+  font-variation-settings: "wdth" 100;
+  transition: transform 0.6s var(--hm-ease);
+}
+
+.hm-shelf__price {
+  color: var(--hm-stone);
+  font-family: var(--hm-mono);
+  font-size: 0.75rem;
+}
+
+.hm-shelf__index:has(.is-on) .hm-shelf__row:not(.is-on) { color: rgba(10, 10, 10, 0.35); }
+.hm-shelf__row.is-on .hm-shelf__name { transform: translateX(0.5rem); }
+
+/* --- spread layout (Featured) ---------------------------------------------- */
+
+.hm-shelf--spread .hm-shelf__head {
+  margin-bottom: clamp(2rem, 4vw, 3.5rem);
+  padding-bottom: clamp(1.75rem, 3.5vw, 3rem);
+  border-bottom: 1px solid var(--hm-line-light);
+}
+
+@media (min-width: 48rem) {
+  .hm-shelf--spread .hm-shelf__head {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+
+  .hm-shelf__grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .hm-shelf__grid--3 {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  /* The lead card holds while its two neighbours pass it. */
+  .hm-shelf__grid--3 .hm-shelf__cell:first-child {
+    grid-row: span 2;
+    position: sticky;
+    top: 6rem;
+  }
+
+  .hm-shelf__grid--3 .hm-shelf__cell:first-child .pcard__title { font-size: 1.125rem; }
+}
+
+.hm-shelf__grid--1 { max-width: 36rem; }
+
+.hm-shelf--spread .pcard__frame { aspect-ratio: 4 / 5; }
+
+/* --- the shop's cards, set in this page's type ---------------------------- */
+
+.hm-shelf .pcard { gap: 0.9rem; }
+
+.hm-shelf .pcard__media,
+.hm-shelf .pcard__frame {
+  border-radius: 0;
+  background: var(--hm-mist);
+}
+
+.hm-shelf .pcard__title {
+  font-family: var(--hm-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-variation-settings: "wdth" 112;
+  letter-spacing: 0.04em;
+}
+
+.hm-shelf .pcard__price {
+  color: var(--hm-stone);
+  font-family: var(--hm-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.hm-shelf .pcard__rating,
+.hm-shelf .pcard__flag {
+  font-family: var(--hm-mono);
+  letter-spacing: 0.08em;
+}
+
+.hm-shelf .pcard__frame img { transition: transform 1.2s var(--hm-ease); }
+
+/* --------------------------------------------------------------------------
+   Lookbook reel
+   -------------------------------------------------------------------------- */
+
+.hm-look {
+  overflow: hidden;
+  padding-block: clamp(4rem, 9vw, 7rem) clamp(3rem, 7vw, 5rem);
+  background: var(--hm-ink);
+  color: var(--hm-white);
+}
+
+.hm-look .hm-eyebrow { color: var(--hm-ash); }
+
+.hm-look__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem 3rem;
+  padding-bottom: clamp(1.75rem, 4.5vh, 3.25rem);
+}
+
+.hm-look__title {
+  margin-top: 0.6rem;
+  font-family: var(--hm-display);
+  font-size: clamp(2.75rem, min(7vw, 12vh), 7.5rem);
+  font-weight: 800;
+  font-variation-settings: "wdth" 125;
+  letter-spacing: -0.01em;
+  line-height: 0.86;
+  text-transform: uppercase;
+}
+
+.hm-look__serif {
+  font-family: var(--hm-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+
+.hm-look__aside { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; }
+
+.hm-look__count {
+  color: var(--hm-ash);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hm-look__viewport {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.hm-look__viewport::-webkit-scrollbar { display: none; }
+
+.hm-look__track {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(1rem, 2vw, 2rem);
+  width: max-content;
+  padding-inline: var(--hm-gutter);
+}
+
+.hm-look__item {
+  flex: none;
+  scroll-snap-align: start;
+  scroll-margin-left: var(--hm-gutter);
+}
+
+.hm-look__tile { display: block; color: inherit; text-decoration: none; }
+
+.hm-look__frame {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: var(--hm-coal);
+}
+
+/* Frames alternate tall and wide, and the wide ones sit lower: a reel with a
+   rhythm rather than a row of equal boxes. */
+.hm-look__item--tall .hm-look__frame {
+  height: clamp(20rem, 54vh, 36rem);
+  aspect-ratio: 4 / 5;
+}
+
+.hm-look__item--wide .hm-look__frame {
+  height: clamp(15rem, 40vh, 27rem);
+  aspect-ratio: 3 / 2;
+  margin-top: clamp(2.5rem, 12vh, 8rem);
+}
+
+/* Wider than the window by the drift, so the parallax never shows an edge. */
+.hm-look__photo {
+  position: absolute;
+  inset: 0 -10%;
+}
+
+.hm-look__image { transition: transform 1.2s var(--hm-ease); }
+.hm-look__tile:hover .hm-look__image { transform: scale(calc(var(--crop-z, 1) * 1.05)); }
+
+.hm-look__cap {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding-top: 0.85rem;
+}
+
+.hm-look__num {
+  color: var(--hm-smoke);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+}
+
+.hm-look__label {
+  padding-bottom: 0.15rem;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  font-family: var(--hm-display);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-variation-settings: "wdth" 112;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: background-size 0.7s var(--hm-ease);
+}
+
+.hm-look__tile:hover .hm-look__label,
+.hm-look__tile:focus-visible .hm-look__label { background-size: 100% 1px; }
+
+.hm-look__foot { display: none; }
+
+.hm-look__progress {
+  position: relative;
+  display: block;
+  height: 1px;
+  background: var(--hm-line-dark);
+}
+
+.hm-look__bar {
+  position: absolute;
+  inset: 0;
+  background: var(--hm-white);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+/* Desk, motion allowed: the section pins and GSAP runs the reel. */
+@media (min-width: 62rem) and (prefers-reduced-motion: no-preference) {
+  .hm-look {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100svh;
+    padding-block: 5.5rem 2.5rem;
+  }
+
+  .hm-look__viewport { overflow: hidden; scroll-snap-type: none; }
+
+  .hm-look__foot {
+    display: block;
+    padding-top: clamp(1.5rem, 4vh, 2.5rem);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Story chapters
+   -------------------------------------------------------------------------- */
+
+.hm-story {
+  padding-block: clamp(4.5rem, 10vw, 9rem);
+  background: var(--hm-white);
+  color: var(--hm-ink);
+}
+
+.hm-story__grid { display: grid; gap: 3rem; }
+
+.hm-story__media { display: none; }
+
+.hm-story__frame {
+  position: relative;
+  height: calc(100svh - 8rem);
+  max-height: 54rem;
+  overflow: hidden;
+  background: var(--hm-mist);
+}
+
+.hm-story__shot { position: absolute; inset: 0; }
+
+.hm-story__counter {
+  position: absolute;
+  z-index: 10;
+  left: 1.25rem;
+  bottom: 1.25rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.3);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: var(--hm-white);
+  font-family: var(--hm-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  line-height: 1;
+}
+
+.hm-story__chapters { display: grid; gap: 4.5rem; }
+
+.hm-story__chapter {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 1.5rem;
+}
+
+.hm-story__own {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+  background: var(--hm-mist);
+}
+
+.hm-story__title {
+  max-width: 14ch;
+  font-family: var(--hm-display);
+  font-size: clamp(2.25rem, 4.4vw, 4.5rem);
+  font-weight: 700;
+  font-variation-settings: "wdth" 100;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  text-transform: none;
+}
+
+.hm-story__body {
+  max-width: 38ch;
+  color: var(--hm-stone);
+  font-family: var(--hm-sans);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+@media (min-width: 62rem) and (prefers-reduced-motion: no-preference) {
+  .hm-story__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(3rem, 6vw, 7rem);
+    align-items: start;
+  }
+
+  .hm-story__media {
+    display: block;
+    position: sticky;
+    top: 6rem;
+  }
+
+  .hm-story__chapters { gap: 0; }
+  .hm-story__chapter { min-height: calc(100svh - 8rem); }
+  .hm-story__own { display: none; }
+}
+
+/* Without the scroll-driven swap, each chapter keeps its own frame, side by side. */
+@media (min-width: 62rem) and (prefers-reduced-motion: reduce) {
+  .hm-story__chapters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(2rem, 4vw, 4rem);
+    align-items: start;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Promise
+   -------------------------------------------------------------------------- */
+
+.hm-promise {
+  align-items: stretch;
+  min-height: 100svh;
+  padding-block: clamp(4.5rem, 11vh, 7.5rem) clamp(2rem, 6vh, 4rem);
+  background: var(--hm-ink);
+}
+
+.hm-promise__media {
+  position: absolute;
+  inset: -10% 0;
+  will-change: transform;
+}
+
+.hm-promise__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(10, 10, 10, 0.5) 0%, rgba(10, 10, 10, 0.22) 42%, rgba(10, 10, 10, 0.62) 100%);
+}
+
+.hm-promise__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2.5rem;
+}
+
+.hm-promise__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  color: rgba(255, 255, 255, 0.86);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hm-promise__rule { width: 2.5rem; height: 1px; background: currentColor; }
+
+.hm-promise__head {
+  display: grid;
+  gap: 0.06em;
+  margin: 0;
+  color: var(--hm-white);
+  font-size: clamp(3rem, min(10vw, 17vh), 11rem);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.88;
+}
+
+.hm-promise__head > span { display: block; }
+
+/* The three lines step across the frame. */
+@media (min-width: 48rem) {
+  .hm-promise__head > span:nth-child(3n + 2) { text-align: center; }
+  .hm-promise__head > span:nth-child(3n) { text-align: right; }
+}
+
+.hm-promise__line { display: inline-block; }
+
+.hm-promise__line--sans {
+  font-family: var(--hm-display);
+  font-weight: 800;
+  font-variation-settings: "wdth" 125;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.hm-promise__line--serif {
+  font-family: var(--hm-serif);
+  font-size: 1.06em;
+  font-style: italic;
+  letter-spacing: -0.02em;
+}
+
+/* The body, quoted as a care label: bordered, set in mono, a vertical tab. */
+.hm-promise__label {
+  align-self: flex-end;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  max-width: 30rem;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(10, 10, 10, 0.2);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: var(--hm-white);
+  font-family: var(--hm-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  line-height: 1.55;
+  text-transform: uppercase;
+}
+
+.hm-promise__labelhead {
+  padding: 0.9rem 0.7rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.55);
+  font-size: 0.625rem;
+  letter-spacing: 0.22em;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.hm-promise__body { padding: 1rem 1.15rem; }
+
+/* --------------------------------------------------------------------------
+   Reviews
+   -------------------------------------------------------------------------- */
+
+.hm-quotes {
+  padding-block: clamp(4.5rem, 10vw, 9rem) clamp(5rem, 11vw, 10rem);
+  background: var(--hm-chalk);
+  color: var(--hm-ink);
+}
+
+.hm-quotes__grid { display: grid; gap: 2.5rem; }
+
+@media (min-width: 62rem) {
+  .hm-quotes__grid {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: clamp(3rem, 6vw, 6rem);
+    align-items: start;
+  }
+}
+
+.hm-quotes__title {
+  max-width: 10ch;
+  margin-top: 0.6rem;
+  font-family: var(--hm-display);
+  font-size: clamp(2.25rem, 4vw, 4rem);
+  font-weight: 800;
+  font-variation-settings: "wdth" 112;
+  letter-spacing: -0.01em;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.hm-quotes__controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.hm-quotes__btn {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0;
+  border: 1px solid rgba(10, 10, 10, 0.22);
+  border-radius: 999px;
+  background: none;
+  color: var(--hm-ink);
+  cursor: pointer;
+  transition:
+    background-color 0.45s var(--hm-ease),
+    border-color 0.45s var(--hm-ease),
+    color 0.45s var(--hm-ease);
+}
+
+.hm-quotes__btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  transition: transform 0.6s var(--hm-ease);
+}
+
+.hm-quotes__btn--prev svg { transform: rotate(180deg); }
+
+.hm-quotes__btn:hover {
+  background: var(--hm-ink);
+  border-color: var(--hm-ink);
+  color: var(--hm-white);
+}
+
+.hm-quotes__btn:hover svg { transform: translateX(0.2rem); }
+.hm-quotes__btn--prev:hover svg { transform: rotate(180deg) translateX(0.2rem); }
+
+.hm-quotes__count {
+  min-width: 4.5rem;
+  font-family: var(--hm-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+
+.hm-quotes__of { color: var(--hm-smoke); }
+
+.hm-quotes__stage { position: relative; }
+
+/* In the flow above the words, never behind them. */
+.hm-quotes__mark {
+  display: block;
+  height: 0.42em;
+  color: var(--hm-ink);
+  font-family: var(--hm-serif);
+  font-size: clamp(5rem, 9vw, 8rem);
+  line-height: 0.8;
+  opacity: 0.16;
+}
+
+.hm-quotes__stack { display: grid; }
+
+.hm-quotes__item {
+  grid-area: 1 / 1;
+  margin: 0;
+  visibility: hidden;
+  transition: visibility 0s linear 0.6s;
+}
+
+.hm-quotes__item.is-on { visibility: visible; transition-delay: 0s; }
+
+.hm-quotes__text {
+  max-width: 24ch;
+  margin: 0;
+  font-family: var(--hm-serif);
+  font-size: clamp(1.85rem, 3.6vw, 3.5rem);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.12;
+}
+
+.hm-quotes__name {
+  display: block;
+  margin-top: 2rem;
+  color: var(--hm-stone);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion: hover transitions go still too.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .hm-pill,
+  .hm-pill::before,
+  .hm-pill__icon svg,
+  .hm-shelf__cell,
+  .hm-shelf__name,
+  .hm-look__image,
+  .hm-look__label,
+  .hm-ig__at { transition: none; }
+}

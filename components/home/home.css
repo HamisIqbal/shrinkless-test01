@@ -1,0 +1,1440 @@
+/* ==========================================================================
+   Homepage chrome — announcement bar, masthead, menus, the Men & Women doors
+   and the footer, on `/` only. Every selector here is `hm-` prefixed and every
+   element that uses one is rendered by components/home, so nothing on any
+   other route can match a rule in this file.
+
+   Black, white and five greys between them. Three faces: Archivo (with its
+   width axis) for display, Bodoni Moda italic as the accent, Geist Mono for
+   the care-label small print. Body copy stays in the site's Inter Tight.
+   ========================================================================== */
+
+.hm-announce,
+.hm-head,
+.hm-scrim,
+.hm-drawer,
+.hm-gw,
+.hm-foot {
+  --hm-ink: #0a0a0a;
+  --hm-coal: #151515;
+  --hm-graphite: #262625;
+  --hm-smoke: #8e8e8a;
+  --hm-ash: #b8b8b3;
+  --hm-mist: #e4e4e1;
+  --hm-white: #ffffff;
+  --hm-line-dark: rgba(255, 255, 255, 0.14);
+  --hm-line-light: rgba(10, 10, 10, 0.1);
+
+  --hm-display: var(--font-hm-display), "Helvetica Neue", Arial, sans-serif;
+  --hm-serif: var(--font-hm-serif), "Bodoni 72", Didot, Georgia, serif;
+  --hm-mono: var(--font-hm-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  --hm-sans: var(--font-inter-tight), "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  --hm-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --hm-curtain: cubic-bezier(0.76, 0, 0.24, 1);
+  --hm-gutter: clamp(1.25rem, 4vw, 4.5rem);
+}
+
+/* Focus stays visible on every ground these sections use. */
+.hm-announce :focus-visible,
+.hm-head--over :focus-visible,
+.hm-head--panel :focus-visible,
+.hm-drawer :focus-visible,
+.hm-gw :focus-visible,
+.hm-foot :focus-visible {
+  outline: 2px solid var(--hm-white);
+  outline-offset: 3px;
+}
+
+.hm-head :focus-visible { outline-offset: 3px; }
+
+/* A one-line window the label rises through. `padding`/`margin` give focus
+   rings room without letting the rising text show outside the mask. */
+.hm-mask {
+  overflow: hidden;
+  padding: 3px;
+  margin: -3px;
+}
+
+/* The roll: two copies of a label, the second waiting under the first. */
+.hm-roll {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  line-height: 1.25;
+}
+
+.hm-roll__a,
+.hm-roll__b {
+  display: block;
+  transition: transform 0.55s var(--hm-ease, ease);
+}
+
+.hm-roll__b {
+  position: absolute;
+  inset: 0 auto auto 0;
+  transform: translateY(105%);
+}
+
+:is(a, button):is(:hover, :focus-visible) .hm-roll__a { transform: translateY(-105%); }
+:is(a, button):is(:hover, :focus-visible) .hm-roll__b { transform: none; }
+
+@keyframes hm-rise {
+  from { transform: translateY(110%); }
+  to { transform: none; }
+}
+
+@keyframes hm-drop {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+/* --------------------------------------------------------------------------
+   Announcement bar
+   -------------------------------------------------------------------------- */
+
+.hm-announce {
+  position: relative;
+  height: 2.25rem;
+  overflow: hidden;
+  background: var(--hm-ink);
+  color: var(--hm-mist);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
+
+.hm-announce__inner {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.hm-announce__track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.hm-announce__half { display: flex; flex: none; }
+
+.hm-announce__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.5rem;
+  padding-right: 2.5rem;
+  white-space: nowrap;
+}
+
+.hm-announce__mark {
+  width: 1rem;
+  height: 0.75rem;
+  flex: none;
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hm-announce__inner { animation: hm-drop 1s var(--hm-ease) 0.05s both; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hm-announce__half:nth-child(2) { display: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Masthead
+   Same three independent states as the shop header: `--over` (transparent
+   over the campaign), `--compact` (after the first scroll), `--panel` (a menu
+   or search is down, and the bar and panel become one ink sheet).
+   -------------------------------------------------------------------------- */
+
+.hm-head {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  color: var(--hm-ink);
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid var(--hm-line-light);
+  -webkit-backdrop-filter: saturate(1.4) blur(16px);
+  backdrop-filter: saturate(1.4) blur(16px);
+  transition:
+    background-color 0.5s var(--hm-ease),
+    border-color 0.5s var(--hm-ease),
+    color 0.5s var(--hm-ease);
+}
+
+.hm-head--over {
+  background: transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+  color: var(--hm-white);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.hm-head--panel {
+  background: var(--hm-ink);
+  border-bottom-color: var(--hm-line-dark);
+  color: var(--hm-white);
+}
+
+/* 5.25rem at rest: the hero is pulled up under exactly this much bar. */
+.hm-head__bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  max-width: 100rem;
+  min-height: 5.25rem;
+  margin-inline: auto;
+  padding-inline: var(--hm-gutter);
+  transition: min-height 0.5s var(--hm-ease);
+}
+
+.hm-head--compact .hm-head__bar { min-height: 4rem; }
+
+.hm-head__left { display: flex; align-items: center; min-width: 0; }
+
+/* --- burger (below the desktop breakpoint) ------------------------------ */
+
+.hm-burger {
+  display: inline-grid;
+  place-items: center start;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-left: -0.25rem;
+  padding: 0 0.25rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.hm-burger__lines {
+  position: relative;
+  display: block;
+  width: 1.5rem;
+  height: 0.5rem;
+}
+
+.hm-burger__lines::before,
+.hm-burger__lines::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  background: currentColor;
+  transform-origin: left;
+  transition: transform 0.45s var(--hm-ease);
+}
+
+.hm-burger__lines::before { top: 0; }
+.hm-burger__lines::after { bottom: 0; transform: scaleX(0.62); }
+.hm-burger:hover .hm-burger__lines::after { transform: none; }
+
+/* --- main navigation ------------------------------------------------------ */
+
+.hm-nav { display: none; }
+
+.hm-nav ul {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.1rem, 2vw, 2.25rem);
+}
+
+.hm-nav__item { position: relative; }
+
+.hm-nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.85rem 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--hm-display);
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-variation-settings: "wdth" 112;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* A plus that turns into a cross when the panel is down. */
+.hm-nav__plus {
+  position: relative;
+  width: 0.5rem;
+  height: 0.5rem;
+  transition: transform 0.5s var(--hm-ease);
+}
+
+.hm-nav__plus::before,
+.hm-nav__plus::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+
+.hm-nav__plus::before { top: 50%; left: 0; width: 100%; height: 1px; }
+.hm-nav__plus::after { left: 50%; top: 0; width: 1px; height: 100%; }
+
+.hm-nav__link[aria-expanded="true"] .hm-nav__plus { transform: rotate(45deg); }
+
+/* Wholesale sells to a different buyer, and carries a mark to say so. */
+.hm-nav__flag {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.hm-nav__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.4rem;
+  height: 1px;
+  background: currentColor;
+  pointer-events: none;
+}
+
+/* --- wordmark ------------------------------------------------------------- */
+
+.hm-mark {
+  justify-self: center;
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.hm-mark__word {
+  display: flex;
+  overflow: hidden;
+  padding-block: 0.12em;
+  /* The tracking trails the last letter; pull it back so the word centres. */
+  margin-right: -0.16em;
+  font-family: var(--hm-display);
+  font-size: clamp(1.05rem, 1.55vw, 1.45rem);
+  font-weight: 700;
+  font-variation-settings: "wdth" 125;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  transition:
+    font-size 0.5s var(--hm-ease),
+    letter-spacing 0.7s var(--hm-ease),
+    margin 0.7s var(--hm-ease);
+}
+
+.hm-head--compact .hm-mark__word { font-size: clamp(0.95rem, 1.25vw, 1.2rem); }
+
+/* A phone has a burger and two icons either side of it; the word gives way. */
+@media (max-width: 30rem) {
+  .hm-mark__word,
+  .hm-head--compact .hm-mark__word {
+    font-size: 0.9rem;
+    letter-spacing: 0.12em;
+    margin-right: -0.12em;
+  }
+}
+
+@media (hover: hover) {
+  .hm-mark:hover .hm-mark__word { letter-spacing: 0.22em; margin-right: -0.22em; }
+}
+
+.hm-mark__char { display: inline-block; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .hm-mark__char {
+    animation: hm-rise 1.1s var(--hm-ease) both;
+    animation-delay: calc(var(--i, 0) * 45ms + 180ms);
+  }
+}
+
+/* --- utilities ------------------------------------------------------------ */
+
+.hm-head__utils {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.1rem, 1.5vw, 1.75rem);
+}
+
+.hm-util {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.hm-util__icon { width: 1.25rem; height: 1.25rem; flex: none; }
+.hm-util__text { display: none; line-height: 0; }
+
+.hm-util__count {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  overflow: hidden;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding-inline: 0.3rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.hm-util__num { display: block; }
+
+.hm-util--account,
+.hm-util--admin { display: none; }
+
+/* --- desktop -------------------------------------------------------------- */
+
+@media (min-width: 62rem) {
+  .hm-burger { display: none; }
+  .hm-nav { display: block; }
+
+  .hm-util { min-width: 0; }
+  .hm-util__text { display: inline-block; }
+  .hm-util--search .hm-util__icon,
+  .hm-util--bag .hm-util__icon { display: none; }
+  .hm-util--account,
+  .hm-util--admin { display: inline-flex; }
+}
+
+/* --------------------------------------------------------------------------
+   Search panel
+   -------------------------------------------------------------------------- */
+
+.hm-search {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--hm-ink);
+  color: var(--hm-white);
+  border-bottom: 1px solid var(--hm-line-dark);
+  clip-path: inset(0 0 100% 0);
+  visibility: hidden;
+  transition:
+    clip-path 0.55s var(--hm-curtain),
+    visibility 0s linear 0.55s;
+}
+
+.hm-search.is-open {
+  clip-path: inset(0 0 0 0);
+  visibility: visible;
+  transition:
+    clip-path 0.7s var(--hm-curtain),
+    visibility 0s;
+}
+
+.hm-search__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 1rem 2rem;
+  max-width: 100rem;
+  margin-inline: auto;
+  padding: clamp(1.75rem, 5vw, 3.5rem) var(--hm-gutter) clamp(2rem, 5vw, 4rem);
+}
+
+.hm-search__label {
+  grid-column: 1 / -1;
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hm-smoke);
+}
+
+.hm-search__field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.hm-search__field::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--hm-white);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.9s var(--hm-ease);
+}
+
+.hm-search__field:focus-within::after { transform: scaleX(1); }
+
+.hm-search__input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.3em 0;
+  border: 0;
+  background: transparent;
+  color: var(--hm-white);
+  font-family: var(--hm-display);
+  font-size: clamp(1.5rem, 4vw, 3.25rem);
+  font-weight: 300;
+  font-variation-settings: "wdth" 100;
+  letter-spacing: -0.02em;
+  outline: 0;
+}
+
+.hm-search__input::placeholder { color: rgba(255, 255, 255, 0.3); }
+
+/* The field's own underline draws in on focus; a box around it would double up. */
+.hm-head .hm-search__input:focus-visible { outline: 0; }
+.hm-search__input::-webkit-search-cancel-button { display: none; }
+
+.hm-search__go {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--hm-white);
+  cursor: pointer;
+  transition:
+    background-color 0.45s var(--hm-ease),
+    color 0.45s var(--hm-ease),
+    border-color 0.45s var(--hm-ease);
+}
+
+.hm-search__go svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  transition: transform 0.6s var(--hm-ease);
+}
+
+.hm-search__go:hover {
+  background: var(--hm-white);
+  border-color: var(--hm-white);
+  color: var(--hm-ink);
+}
+
+.hm-search__go:hover svg { transform: translateX(0.2rem); }
+
+.hm-search__close {
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--hm-ash);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.hm-search__close:hover { color: var(--hm-white); }
+
+/* --------------------------------------------------------------------------
+   Shop panel (desktop)
+   -------------------------------------------------------------------------- */
+
+.hm-mega {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: none;
+  max-height: calc(100svh - 6rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--hm-ink);
+  color: var(--hm-white);
+  border-bottom: 1px solid var(--hm-line-dark);
+  visibility: hidden;
+  transition: visibility 0s linear 0.6s;
+  scrollbar-width: thin;
+  scrollbar-color: var(--hm-graphite) transparent;
+}
+
+@media (min-width: 62rem) { .hm-mega { display: block; } }
+
+.hm-mega.is-open { visibility: visible; transition-delay: 0s; }
+
+.hm-mega__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(2.5rem, 5vw, 5rem);
+  max-width: 100rem;
+  margin-inline: auto;
+  padding: clamp(2.5rem, 4vw, 3.5rem) var(--hm-gutter) clamp(2.75rem, 4.5vw, 4rem);
+}
+
+.hm-mega__cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 2.5rem;
+  align-content: start;
+}
+
+.hm-mega__title {
+  display: inline-block;
+  padding-bottom: 1.1rem;
+  color: var(--hm-smoke);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color 0.4s var(--hm-ease);
+}
+
+a.hm-mega__title:hover { color: var(--hm-white); }
+
+.hm-mega__links { display: grid; gap: 0.1rem; }
+
+.hm-mega__link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding-block: 0.3rem;
+  color: rgba(255, 255, 255, 0.78);
+  font-family: var(--hm-display);
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
+  font-weight: 400;
+  font-variation-settings: "wdth" 100;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  text-decoration: none;
+  transition: color 0.4s var(--hm-ease);
+}
+
+/* The arrow sits in the row's left edge, out of the flow; on hover the label
+   slides over to make room. Transforms only, so no row reflows. */
+.hm-mega__arrow {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 1rem;
+  height: 1rem;
+  margin-top: -0.5rem;
+  opacity: 0;
+  transform: translateX(-0.6rem);
+  transition:
+    opacity 0.3s var(--hm-ease),
+    transform 0.5s var(--hm-ease);
+}
+
+.hm-mega__link > span { transition: transform 0.5s var(--hm-ease); }
+
+.hm-mega__link:hover > span,
+.hm-mega__link:focus-visible > span { transform: translateX(1.55rem); }
+
+/* The hovered row brightens and gains an arrow; its neighbours step back. */
+.hm-mega__links:hover .hm-mega__link { color: rgba(255, 255, 255, 0.4); }
+
+.hm-mega__link:hover,
+.hm-mega__link:focus-visible,
+.hm-mega__links:hover .hm-mega__link:hover { color: var(--hm-white); }
+
+.hm-mega__link:hover .hm-mega__arrow,
+.hm-mega__link:focus-visible .hm-mega__arrow {
+  opacity: 1;
+  transform: none;
+}
+
+/* One row however many categories the store has: the menu is read from the
+   catalogue, so the count is not ours to fix at two. */
+.hm-mega__features {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 1rem;
+  align-content: start;
+}
+
+.hm-mega__feature {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.hm-mega__frame {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  max-height: 52svh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--hm-coal);
+}
+
+.hm-mega__photo { position: absolute; inset: 0; }
+
+.hm-mega__photo img {
+  object-fit: cover;
+  transition: transform 1.2s var(--hm-ease);
+}
+
+.hm-mega__feature:hover .hm-mega__photo img { transform: scale(1.06); }
+
+.hm-mega__featurefoot {
+  display: grid;
+  gap: 0.4rem;
+  padding-top: 0.85rem;
+}
+
+.hm-mega__featurelabel {
+  font-family: var(--hm-display);
+  font-size: 1.125rem;
+  font-weight: 700;
+  font-variation-settings: "wdth" 125;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.hm-mega__caption {
+  color: var(--hm-smoke);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* The page behind an open panel. */
+.hm-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: rgba(10, 10, 10, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s var(--hm-ease);
+}
+
+.hm-scrim.is-open { opacity: 1; pointer-events: auto; }
+
+/* --------------------------------------------------------------------------
+   Phone menu
+   -------------------------------------------------------------------------- */
+
+.hm-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s linear 0.6s;
+}
+
+.hm-drawer.is-open {
+  pointer-events: auto;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.hm-drawer__panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--hm-ink);
+  color: var(--hm-white);
+}
+
+.hm-drawer__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 4rem;
+  padding-inline: var(--hm-gutter);
+  border-bottom: 1px solid var(--hm-line-dark);
+}
+
+.hm-drawer__title {
+  color: var(--hm-smoke);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hm-drawer__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--hm-white);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.hm-drawer__x {
+  position: relative;
+  width: 0.875rem;
+  height: 0.875rem;
+  transition: transform 0.6s var(--hm-ease);
+}
+
+.hm-drawer__x::before,
+.hm-drawer__x::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+}
+
+.hm-drawer__x::before { transform: rotate(45deg); }
+.hm-drawer__x::after { transform: rotate(-45deg); }
+.hm-drawer__close:hover .hm-drawer__x { transform: rotate(90deg); }
+
+.hm-drawer__scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1rem var(--hm-gutter) 2.5rem;
+}
+
+.hm-drawer__item { border-bottom: 1px solid var(--hm-line-dark); }
+
+.hm-drawer__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.hm-drawer__link {
+  display: block;
+  padding-block: 0.95rem 0.8rem;
+  color: var(--hm-white);
+  font-family: var(--hm-display);
+  font-size: clamp(2rem, 10vw, 3.25rem);
+  font-weight: 700;
+  font-variation-settings: "wdth" 118;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.hm-drawer__expand {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  background: none;
+  color: var(--hm-white);
+  cursor: pointer;
+  transition:
+    background-color 0.4s var(--hm-ease),
+    color 0.4s var(--hm-ease);
+}
+
+.hm-drawer__expand[aria-expanded="true"] { background: var(--hm-white); color: var(--hm-ink); }
+
+.hm-drawer__plus {
+  position: relative;
+  width: 0.75rem;
+  height: 0.75rem;
+  transition: transform 0.5s var(--hm-ease);
+}
+
+.hm-drawer__plus::before,
+.hm-drawer__plus::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+
+.hm-drawer__plus::before { top: 50%; left: 0; width: 100%; height: 1px; }
+.hm-drawer__plus::after { left: 50%; top: 0; width: 1px; height: 100%; }
+.hm-drawer__expand[aria-expanded="true"] .hm-drawer__plus { transform: rotate(45deg); }
+
+.hm-drawer__sub { overflow: hidden; }
+
+.hm-drawer__subinner {
+  display: grid;
+  padding: 0 0 1.25rem;
+}
+
+.hm-drawer__sublink {
+  display: block;
+  padding-block: 0.55rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: var(--hm-sans);
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+.hm-drawer__sublink:hover { color: var(--hm-white); }
+
+.hm-drawer__features {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.hm-drawer__feature { display: block; color: inherit; text-decoration: none; }
+
+.hm-drawer__frame {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--hm-coal);
+}
+
+.hm-drawer__frame img { object-fit: cover; }
+
+.hm-drawer__featurefoot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.6rem;
+  font-family: var(--hm-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-variation-settings: "wdth" 125;
+  text-transform: uppercase;
+}
+
+.hm-drawer__caption {
+  color: var(--hm-smoke);
+  font-family: var(--hm-mono);
+  font-size: 0.625rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+}
+
+.hm-drawer__foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--hm-line-dark);
+}
+
+.hm-drawer__util {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--hm-ash);
+  font-family: var(--hm-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.hm-drawer__util:hover { color: var(--hm-white); }
+
+/* --------------------------------------------------------------------------
+   Men & Women
+   -------------------------------------------------------------------------- */
+
+.hm-gw {
+  overflow: hidden;
+  padding-block: clamp(3.5rem, 8vw, 7.5rem) clamp(3rem, 6vw, 5.5rem);
+  background: var(--hm-ink);
+  color: var(--hm-white);
+}
+
+.hm-gw__wrap {
+  max-width: 100rem;
+  margin-inline: auto;
+  padding-inline: var(--hm-gutter);
+}
+
+.hm-gw__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+  overflow: hidden;
+  margin-bottom: clamp(1.75rem, 4vw, 3.5rem);
+  padding-bottom: clamp(1.25rem, 2.5vw, 2rem);
+  border-bottom: 1px solid var(--hm-line-dark);
+}
+
+.hm-gw__eyebrow {
+  color: var(--hm-ash);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.hm-gw__note {
+  font-family: var(--hm-display);
+  font-size: clamp(1rem, 1.6vw, 1.375rem);
+  font-weight: 500;
+  font-variation-settings: "wdth" 112;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.hm-gw__serif {
+  margin-right: 0.1em;
+  font-family: var(--hm-serif);
+  font-size: 1.2em;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.hm-gw__grid {
+  display: grid;
+  gap: clamp(2.5rem, 7vw, 3.5rem);
+}
+
+@media (min-width: 48rem) {
+  .hm-gw__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(1rem, 2.5vw, 2.5rem);
+  }
+
+  /* The second door sits lower: a spread, not a pair of cards. */
+  .hm-gw__cell:nth-child(2) { margin-top: clamp(4rem, 11vw, 10rem); }
+}
+
+.hm-gw__tile {
+  display: block;
+  color: var(--hm-white);
+  text-decoration: none;
+}
+
+.hm-gw__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  max-height: 92svh;
+  overflow: hidden;
+  background: var(--hm-coal);
+}
+
+/* Taller than its frame by the parallax travel, so the drift never shows an edge. */
+.hm-gw__photo {
+  position: absolute;
+  inset: -8% 0;
+  will-change: transform;
+}
+
+.hm-gw__tile:hover .hm-gw__image,
+.hm-gw__tile:focus-visible .hm-gw__image {
+  transform: scale(calc(var(--crop-z, 1) * 1.05));
+}
+
+.hm-gw__image { transition: transform 1.4s var(--hm-ease); }
+
+.hm-gw__wash {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(10, 10, 10, 0.66) 0%, rgba(10, 10, 10, 0.16) 42%, rgba(10, 10, 10, 0) 68%),
+    linear-gradient(to bottom, rgba(10, 10, 10, 0.3) 0%, rgba(10, 10, 10, 0) 24%);
+  transition: opacity 0.8s var(--hm-ease);
+}
+
+.hm-gw__tile:hover .hm-gw__wash { opacity: 0.8; }
+
+.hm-gw__count {
+  position: absolute;
+  top: clamp(0.9rem, 2vw, 1.5rem);
+  right: clamp(0.9rem, 2vw, 1.5rem);
+  padding: 0.5rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.2);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* The signature: Archivo's width axis, driven by scroll. Rests at its widest. */
+.hm-gw__label {
+  position: absolute;
+  left: clamp(0.9rem, 2.4vw, 2rem);
+  bottom: clamp(0.6rem, 1.8vw, 1.5rem);
+  display: flex;
+  font-family: var(--hm-display);
+  font-size: clamp(3.25rem, 15vw, 6rem);
+  font-weight: 800;
+  font-variation-settings: "wdth" var(--wdth, 125);
+  letter-spacing: -0.01em;
+  line-height: 0.86;
+  text-transform: uppercase;
+  transition: letter-spacing 1s var(--hm-ease);
+}
+
+@media (min-width: 48rem) {
+  .hm-gw__label { font-size: clamp(3.5rem, 7.4vw, 8.5rem); }
+}
+
+.hm-gw__tile:hover .hm-gw__label { letter-spacing: 0.025em; }
+
+.hm-gw__charmask {
+  display: inline-block;
+  overflow: hidden;
+  padding-top: 0.06em;
+}
+
+.hm-gw__char { display: inline-block; }
+
+.hm-gw__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.1rem;
+}
+
+.hm-gw__cta {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.4rem;
+  font-family: var(--hm-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hm-gw__ctaline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0.22);
+  transform-origin: left;
+  transition: transform 0.9s var(--hm-ease);
+}
+
+.hm-gw__tile:hover .hm-gw__ctaline,
+.hm-gw__tile:focus-visible .hm-gw__ctaline { transform: scaleX(1); }
+
+.hm-gw__arrow {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  transition:
+    background-color 0.5s var(--hm-ease),
+    border-color 0.5s var(--hm-ease),
+    color 0.5s var(--hm-ease);
+}
+
+.hm-gw__arrow svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  transition: transform 0.7s var(--hm-ease);
+}
+
+.hm-gw__tile:hover .hm-gw__arrow,
+.hm-gw__tile:focus-visible .hm-gw__arrow {
+  background: var(--hm-white);
+  border-color: var(--hm-white);
+  color: var(--hm-ink);
+}
+
+.hm-gw__tile:hover .hm-gw__arrow svg,
+.hm-gw__tile:focus-visible .hm-gw__arrow svg { transform: rotate(-45deg); }
+
+/* --------------------------------------------------------------------------
+   Footer
+   Pinned under the page on a desk (components/site/FooterReveal), so every
+   vertical measure is viewport-relative: the whole thing has to fit a 13"
+   laptop window or its top would sit above the screen.
+   -------------------------------------------------------------------------- */
+
+.hm-foot {
+  position: relative;
+  overflow: hidden;
+  background: var(--hm-ink);
+  color: var(--hm-white);
+}
+
+@media (min-width: 62rem) {
+  .hm-foot { max-height: 100svh; }
+}
+
+.hm-foot__wrap {
+  max-width: 100rem;
+  margin-inline: auto;
+  padding: clamp(2.75rem, 7vh, 5.5rem) var(--hm-gutter) clamp(0.75rem, 2.2vh, 1.5rem);
+}
+
+.hm-foot__top {
+  display: grid;
+  gap: 1.75rem;
+  padding-bottom: clamp(1.75rem, 4.5vh, 3.25rem);
+  border-bottom: 1px solid var(--hm-line-dark);
+}
+
+@media (min-width: 56.25rem) {
+  .hm-foot__top {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: end;
+  }
+}
+
+.hm-foot__head {
+  font-family: var(--hm-display);
+  font-size: clamp(2.25rem, min(5.4vw, 8.5vh), 5.25rem);
+  font-weight: 600;
+  font-variation-settings: "wdth" 100;
+  letter-spacing: -0.025em;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+.hm-foot__serif {
+  display: block;
+  font-family: var(--hm-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+.hm-foot__signup {
+  display: grid;
+  gap: 0.9rem;
+  width: 100%;
+  max-width: 34rem;
+}
+
+@media (min-width: 56.25rem) {
+  .hm-foot__signup { justify-self: end; }
+}
+
+.hm-foot__label {
+  color: var(--hm-smoke);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+/* The shared signup form, redrawn as a hairline field for this footer. */
+.hm-foot .signup {
+  max-width: 100%;
+  padding: 0 0 0.55rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 0;
+  background: transparent;
+  transition: border-color 0.5s var(--hm-ease);
+}
+
+.hm-foot .signup:focus-within { border-bottom-color: var(--hm-white); }
+
+.hm-foot .signup__input {
+  min-height: 2.75rem;
+  color: var(--hm-white);
+  font-family: var(--hm-display);
+  font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+  font-variation-settings: "wdth" 100;
+}
+
+.hm-foot .signup__input::placeholder { color: rgba(255, 255, 255, 0.4); opacity: 1; }
+.hm-foot .signup__input:focus-visible { outline: 0; }
+
+.hm-foot__index {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.75rem 1.5rem;
+  padding-block: clamp(1.5rem, 4.5vh, 3rem);
+}
+
+.hm-foot__brand { grid-column: 1 / -1; }
+
+@media (min-width: 48rem) {
+  .hm-foot__index { grid-template-columns: minmax(0, 2fr) repeat(4, minmax(0, 1fr)); }
+  .hm-foot__brand { grid-column: auto; }
+}
+
+.hm-foot__bio {
+  max-width: 32ch;
+  padding-top: 0.75rem;
+  color: var(--hm-ash);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.hm-foot__links {
+  display: grid;
+  justify-items: start;
+  gap: 0.3rem;
+  padding-top: 0.75rem;
+}
+
+.hm-foot__link {
+  display: inline-block;
+  color: rgba(255, 255, 255, 0.84);
+  font-family: var(--hm-sans);
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: color 0.4s var(--hm-ease);
+}
+
+.hm-foot__link:hover,
+.hm-foot__link:focus-visible { color: var(--hm-white); }
+
+.hm-foot__mark {
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hm-foot__word {
+  display: flex;
+  width: max-content;
+  margin: 0;
+  font-family: var(--hm-display);
+  font-size: var(--fit, 13.4vw);
+  font-weight: 800;
+  font-variation-settings: "wdth" var(--wdth, 125);
+  letter-spacing: -0.005em;
+  line-height: 0.8;
+  text-transform: uppercase;
+}
+
+.hm-foot__charmask {
+  display: inline-block;
+  overflow: hidden;
+  padding-top: 0.05em;
+}
+
+.hm-foot__char { display: inline-block; }
+
+.hm-foot__base {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-top: clamp(0.75rem, 2vh, 1.25rem);
+  padding-top: clamp(0.5rem, 1.5vh, 1rem);
+  border-top: 1px solid var(--hm-line-dark);
+  color: var(--hm-smoke);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hm-foot__top-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--hm-white);
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.hm-foot__up {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  transition:
+    background-color 0.45s var(--hm-ease),
+    color 0.45s var(--hm-ease);
+}
+
+.hm-foot__up svg {
+  width: 1rem;
+  height: 1rem;
+  transform: rotate(-90deg);
+  transition: transform 0.6s var(--hm-ease);
+}
+
+.hm-foot__top-btn:hover .hm-foot__up { background: var(--hm-white); color: var(--hm-ink); }
+.hm-foot__top-btn:hover .hm-foot__up svg { transform: rotate(-90deg) translateX(0.15rem); }
+
+/* --------------------------------------------------------------------------
+   Reduced motion: CSS transitions go still too. Motion and GSAP read the
+   same preference in their own code.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .hm-roll__a,
+  .hm-roll__b,
+  .hm-gw__image,
+  .hm-gw__label,
+  .hm-mega__photo img,
+  .hm-search,
+  .hm-search.is-open { transition: none; }
+
+  :is(a, button):is(:hover, :focus-visible) .hm-roll__a { transform: none; }
+  :is(a, button):is(:hover, :focus-visible) .hm-roll__b { transform: translateY(105%); }
+}
