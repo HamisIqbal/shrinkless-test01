@@ -72,7 +72,7 @@
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
   font-weight: 400;
-  letter-spacing: 0.14em;
+  letter-spacing: 0;
   line-height: 1.4;
   text-transform: uppercase;
 }
@@ -118,7 +118,7 @@
   font-family: var(--font-hm-mono), ui-monospace, Menlo, monospace;
   font-size: 0.72rem;
   font-weight: 400;
-  letter-spacing: 0.14em;
+  letter-spacing: 0;
   line-height: 1;
   text-transform: uppercase;
   text-decoration: none;
@@ -269,14 +269,19 @@
   align-items: center;
   justify-content: center;
   min-height: 3rem;
-  padding: 0.95rem clamp(1.75rem, 4vw, 3rem);
+  padding: 0.95rem clamp(2rem, 4.5vw, 3.5rem);
+  /* A lozenge rather than a rectangle. The rest of the page is hard-edged, so
+     rounding the one button on the campaign is what marks it as the thing to
+     press; the radius is larger than the button is tall, which makes the ends
+     true half-circles at every size it clamps to. */
+  border-radius: 999px;
   border: 1px solid var(--hm-white);
   background: var(--hm-white);
   color: var(--hm-ink);
   font-family: var(--hm-bebas);
   font-size: clamp(1rem, 1.6vw, 1.25rem);
   font-weight: 400;
-  letter-spacing: 0.18em;
+  letter-spacing: 0;
   line-height: 1;
   text-transform: uppercase;
   text-decoration: none;
@@ -328,7 +333,7 @@
   font-family: var(--hm-bebas);
   font-size: clamp(1.875rem, 4vw, 3.25rem);
   font-weight: 400;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
   line-height: 1.05;
   text-transform: uppercase;
 }
@@ -384,7 +389,7 @@
   font-family: var(--hm-bebas);
   font-size: clamp(3.25rem, 7.4vw, 7.5rem);
   font-weight: 400;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   line-height: 0.9;
   text-transform: uppercase;
 }
@@ -400,7 +405,7 @@
   color: var(--hm-stone);
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
-  letter-spacing: 0.14em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -471,14 +476,14 @@
   color: var(--hm-smoke);
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
 }
 
 .hm-shelf__name {
   font-family: var(--hm-bebas);
   font-size: 1.125rem;
   font-weight: 400;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   text-transform: uppercase;
   transition: transform 0.6s var(--hm-ease);
 }
@@ -541,7 +546,7 @@
   font-family: var(--hm-bebas);
   font-size: 1.0625rem;
   font-weight: 400;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -549,13 +554,13 @@
   color: var(--hm-stone);
   font-family: var(--hm-mono);
   font-size: 0.75rem;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
 }
 
 .hm-shelf .pcard__rating,
 .hm-shelf .pcard__flag {
   font-family: var(--hm-mono);
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
 }
 
 .hm-shelf .pcard__frame img { transition: transform 1.2s var(--hm-ease); }
@@ -587,7 +592,7 @@
   font-family: var(--hm-bebas);
   font-size: clamp(3.25rem, min(8.2vw, 14vh), 9rem);
   font-weight: 400;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   line-height: 0.9;
   text-transform: uppercase;
 }
@@ -605,7 +610,7 @@
   color: var(--hm-ash);
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
-  letter-spacing: 0.14em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -674,7 +679,7 @@
   color: var(--hm-smoke);
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
 }
 
 .hm-look__label {
@@ -683,7 +688,7 @@
   font-family: var(--hm-bebas);
   font-size: 1.125rem;
   font-weight: 400;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
   text-transform: uppercase;
   transition: background-size 0.7s var(--hm-ease);
 }
@@ -763,7 +768,7 @@
   color: var(--hm-white);
   font-family: var(--hm-mono);
   font-size: 0.75rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
   line-height: 1;
 }
 
@@ -792,7 +797,7 @@
   font-family: var(--hm-bebas);
   font-size: clamp(2.75rem, 5.2vw, 5.5rem);
   font-weight: 400;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   line-height: 0.96;
   text-transform: uppercase;
 }
@@ -872,7 +877,7 @@
   color: rgba(255, 255, 255, 0.86);
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
-  letter-spacing: 0.16em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -902,7 +907,7 @@
 .hm-promise__line--sans {
   font-family: var(--hm-bebas);
   font-weight: 400;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -926,7 +931,7 @@
   color: var(--hm-white);
   font-family: var(--hm-mono);
   font-size: 0.75rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   line-height: 1.55;
   text-transform: uppercase;
 }
@@ -935,7 +940,7 @@
   padding: 0.9rem 0.7rem;
   border-right: 1px solid rgba(255, 255, 255, 0.55);
   font-size: 0.625rem;
-  letter-spacing: 0.22em;
+  letter-spacing: 0;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
 }
@@ -968,7 +973,7 @@
   font-family: var(--hm-bebas);
   font-size: clamp(2.75rem, 4.8vw, 4.75rem);
   font-weight: 400;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   line-height: 0.94;
   text-transform: uppercase;
 }
@@ -1018,7 +1023,7 @@
   min-width: 4.5rem;
   font-family: var(--hm-mono);
   font-size: 0.75rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
   text-align: center;
 }
 
@@ -1064,7 +1069,7 @@
   color: var(--hm-stone);
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
-  letter-spacing: 0.14em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 

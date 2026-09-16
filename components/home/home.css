@@ -393,7 +393,7 @@
   font-family: var(--hm-bebas);
   font-size: clamp(1rem, 1.35vw, 1.125rem);
   font-weight: 400;
-  letter-spacing: 0.14em;
+  letter-spacing: 0;
   line-height: 1;
   text-transform: uppercase;
   text-decoration: none;
@@ -434,34 +434,21 @@
   display: flex;
   overflow: hidden;
   padding-block: 0.12em;
-  /* The tracking trails the last letter; pull it back so the word centres. */
-  margin-right: -0.16em;
   font-family: var(--hm-display);
   font-size: clamp(1.05rem, 1.55vw, 1.45rem);
   font-weight: 700;
   font-variation-settings: "wdth" 125;
-  letter-spacing: 0.16em;
   line-height: 1;
-  transition:
-    font-size 0.5s var(--hm-ease),
-    letter-spacing 0.7s var(--hm-ease),
-    margin 0.7s var(--hm-ease);
+  transition: font-size 0.5s var(--hm-ease);
 }
 
 .hm-head--compact .hm-mark__word { font-size: clamp(0.95rem, 1.25vw, 1.2rem); }
 
-/* A phone has a burger and two icons either side of it; the word gives way. */
+/* A phone fits a burger, the word and two marks on one row; the word is what
+   gives way to make that true. */
 @media (max-width: 30rem) {
   .hm-mark__word,
-  .hm-head--compact .hm-mark__word {
-    font-size: 0.9rem;
-    letter-spacing: 0.12em;
-    margin-right: -0.12em;
-  }
-}
-
-@media (hover: hover) {
-  .hm-mark:hover .hm-mark__word { letter-spacing: 0.22em; margin-right: -0.22em; }
+  .hm-head--compact .hm-mark__word { font-size: 0.9rem; }
 }
 
 .hm-mark__char { display: inline-block; }
@@ -496,7 +483,7 @@
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
   font-weight: 400;
-  letter-spacing: 0.12em;
+  letter-spacing: 0;
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
@@ -588,7 +575,7 @@
   grid-column: 1 / -1;
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
-  letter-spacing: 0.14em;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--hm-smoke);
 }
@@ -677,7 +664,7 @@
   color: var(--hm-ash);
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
-  letter-spacing: 0.14em;
+  letter-spacing: 0;
   text-transform: uppercase;
   cursor: pointer;
 }
@@ -758,7 +745,7 @@
   font-size: 0.8125rem;
   font-weight: 500;
   font-variation-settings: "wdth" 112;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
   line-height: 1;
   text-transform: uppercase;
   text-decoration: none;
@@ -928,7 +915,7 @@
   color: var(--hm-smoke);
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
-  letter-spacing: 0.14em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -943,7 +930,7 @@
   color: var(--hm-white);
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
-  letter-spacing: 0.14em;
+  letter-spacing: 0;
   text-transform: uppercase;
   cursor: pointer;
 }
@@ -1093,7 +1080,7 @@
   font-family: var(--hm-mono);
   font-size: 0.625rem;
   font-weight: 400;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
 }
 
 .hm-drawer__foot {
@@ -1114,7 +1101,7 @@
   color: var(--hm-ash);
   font-family: var(--hm-mono);
   font-size: 0.75rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0;
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
@@ -1218,27 +1205,16 @@
   font-family: var(--hm-bebas);
   font-size: clamp(1.75rem, 5.5vw, 2.75rem);
   font-weight: 400;
-  letter-spacing: 0.16em;
-  /* The tracking is added to the right of the last letter; trimming it back
-     is what keeps the word optically centred. */
-  margin-right: -0.16em;
   line-height: 1;
   text-align: center;
   text-transform: uppercase;
   /* The last of the legibility, for the one frame where the wash is not
      quite enough. */
   text-shadow: 0 0.05em 0.5em rgba(10, 10, 10, 0.55);
-  transition: letter-spacing 0.9s var(--hm-ease), margin-right 0.9s var(--hm-ease);
 }
 
 @media (min-width: 48rem) {
   .hm-gw__name { font-size: clamp(1.75rem, 2.6vw, 2.5rem); }
-}
-
-.hm-gw__tile:is(:hover, :focus-visible) .hm-gw__name {
-  letter-spacing: 0.24em;
-  /* The tracking is added to the right, so the word walks left without it. */
-  margin-right: -0.24em;
 }
 
 
@@ -1314,7 +1290,7 @@
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
   font-weight: 400;
-  letter-spacing: 0.14em;
+  letter-spacing: 0;
   line-height: 1.4;
   text-transform: uppercase;
 }
@@ -1422,7 +1398,7 @@
   color: var(--hm-smoke);
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
