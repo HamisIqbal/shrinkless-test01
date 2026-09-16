@@ -1,14 +1,16 @@
-import { Archivo, Bodoni_Moda, Geist_Mono } from 'next/font/google';
+import { Archivo, Space_Grotesk, Geist_Mono } from 'next/font/google';
 
 /**
  * The homepage chrome's three faces. Scoped: each home component puts
  * `homeFonts` on its own root, so the variables exist only inside the
- * announcement bar, header, menus, category doors and footer on `/`.
+ * header, menus, category doors and footer on `/`.
  *
  * Archivo is loaded with its width axis because the width is the idea — a
  * brand that sells tees that do not shrink sets its biggest words in a face
- * that visibly widens rather than narrows. Bodoni is an italic accent and
- * Geist Mono is the care-label voice for counts and small print.
+ * that visibly widens rather than narrows. Space Grotesk is the accent: a
+ * modern grotesk with enough character in its letterforms to read as a second
+ * voice beside Archivo's uppercase, which is what the old Bodoni italic was
+ * for. Geist Mono is the care-label voice for counts and small print.
  */
 const archivo = Archivo({
   subsets: ['latin'],
@@ -17,13 +19,11 @@ const archivo = Archivo({
   display: 'swap',
 });
 
-const bodoni = Bodoni_Moda({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  style: ['italic'],
-  axes: ['opsz'],
-  variable: '--font-hm-serif',
+  weight: ['400', '500', '600'],
+  variable: '--font-hm-accent',
   display: 'swap',
-  preload: false,
 });
 
 const geistMono = Geist_Mono({
@@ -34,4 +34,4 @@ const geistMono = Geist_Mono({
   preload: false,
 });
 
-export const homeFonts = `${archivo.variable} ${bodoni.variable} ${geistMono.variable}`;
+export const homeFonts = `${archivo.variable} ${spaceGrotesk.variable} ${geistMono.variable}`;

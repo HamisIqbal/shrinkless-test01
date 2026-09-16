@@ -1,17 +1,17 @@
 /* ==========================================================================
-   Homepage chrome — announcement bar, masthead, menus, the Men & Women doors
-   and the footer, on `/` only. Every selector here is `hm-` prefixed and every
-   element that uses one is rendered by components/home, so nothing on any
-   other route can match a rule in this file.
+   Homepage chrome — the masthead, menus, the announcement pop-up, the Men &
+   Women doors and the footer, on `/` only. Every selector here is `hm-`
+   prefixed and every element that uses one is rendered by components/home, so
+   nothing on any other route can match a rule in this file.
 
    Black, white and five greys between them. Three faces: Archivo (with its
-   width axis) for display, Bodoni Moda italic as the accent, Geist Mono for
+   width axis) for display, Space Grotesk as the accent, Geist Mono for
    the care-label small print. Body copy stays in the site's Inter Tight.
    ========================================================================== */
 
-.hm-announce,
 .hm-head,
 .hm-scrim,
+.hm-pop,
 .hm-drawer,
 .hm-gw,
 .hm-foot {
@@ -26,7 +26,7 @@
   --hm-line-light: rgba(10, 10, 10, 0.1);
 
   --hm-display: var(--font-hm-display), "Helvetica Neue", Arial, sans-serif;
-  --hm-serif: var(--font-hm-serif), "Bodoni 72", Didot, Georgia, serif;
+  --hm-accent: var(--font-hm-accent), "Helvetica Neue", Arial, sans-serif;
   --hm-mono: var(--font-hm-mono), ui-monospace, "SF Mono", Menlo, monospace;
   --hm-sans: var(--font-inter-tight), "Helvetica Neue", Helvetica, Arial, sans-serif;
 
@@ -36,10 +36,10 @@
 }
 
 /* Focus stays visible on every ground these sections use. */
-.hm-announce :focus-visible,
 .hm-head--over :focus-visible,
 .hm-head--panel :focus-visible,
 .hm-drawer :focus-visible,
+.hm-pop :focus-visible,
 .hm-gw :focus-visible,
 .hm-foot :focus-visible {
   outline: 2px solid var(--hm-white);
@@ -85,65 +85,161 @@
   to { transform: none; }
 }
 
-@keyframes hm-drop {
-  from { transform: translateY(-100%); opacity: 0; }
-  to { transform: none; opacity: 1; }
-}
-
 /* --------------------------------------------------------------------------
-   Announcement bar
+   Announcement pop-up
+   One screen, never a scrollbar: the card is a column whose picture slot
+   takes whatever height the type leaves and crops to it, and whose type is
+   clamped against the viewport as well as the width. Both content slots
+   collapse while they are empty, so today's card is only the heading.
    -------------------------------------------------------------------------- */
 
-.hm-announce {
+.hm-pop {
+  position: fixed;
+  inset: 0;
+  /* Over the masthead (50) and its scrim (45), and over the cart sheet's
+     ground too: while the announcement is up it is the only thing to read. */
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 4vw, 2.5rem);
+  background: rgba(10, 10, 10, 0.55);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+  backdrop-filter: blur(18px) saturate(1.1);
+}
+
+.hm-pop__card {
   position: relative;
-  height: 2.25rem;
+  display: flex;
+  flex-direction: column;
+  width: min(32rem, 100%);
+  max-height: min(88svh, 40rem);
   overflow: hidden;
+  /* The card's own padding is the only horizontal inset inside it, so the
+     close button, the heading and the rule all line up on both edges. */
+  padding: clamp(1.15rem, 2.5vw, 1.6rem);
   background: var(--hm-ink);
-  color: var(--hm-mist);
-  font-family: var(--hm-mono);
-  font-size: 0.6875rem;
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  border: 1px solid var(--hm-line-dark);
+  color: var(--hm-white);
+  text-align: left;
 }
 
-.hm-announce__inner {
+/* A single soft light from the top left, so the card is not a flat rectangle
+   of black on a darkened page. */
+.hm-pop__card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 80% at 12% 0%, rgba(255, 255, 255, 0.09), transparent 62%);
+  pointer-events: none;
+}
+
+/* The close button gets a row of its own rather than a corner of the card's,
+   so it is fully inside and cannot sit over anything. */
+.hm-pop__bar {
+  position: relative;
+  z-index: 1;
   display: flex;
-  align-items: center;
-  height: 100%;
-}
-
-.hm-announce__track {
-  display: flex;
-  width: max-content;
-  will-change: transform;
-}
-
-.hm-announce__half { display: flex; flex: none; }
-
-.hm-announce__item {
-  display: inline-flex;
-  align-items: center;
-  gap: 2.5rem;
-  padding-right: 2.5rem;
-  white-space: nowrap;
-}
-
-.hm-announce__mark {
-  width: 1rem;
-  height: 0.75rem;
+  justify-content: flex-end;
   flex: none;
-  opacity: 0.5;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .hm-announce__inner { animation: hm-drop 1s var(--hm-ease) 0.05s both; }
+.hm-pop__close {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--hm-line-dark);
+  border-radius: 999px;
+  background: none;
+  color: var(--hm-ash);
+  cursor: pointer;
+  transition:
+    background-color 0.45s var(--hm-ease),
+    border-color 0.45s var(--hm-ease),
+    color 0.45s var(--hm-ease),
+    transform 0.55s var(--hm-ease);
+}
+
+.hm-pop__close svg { width: 0.85rem; height: 0.85rem; }
+
+.hm-pop__close:is(:hover, :focus-visible) {
+  background: var(--hm-white);
+  border-color: var(--hm-white);
+  color: var(--hm-ink);
+  transform: rotate(90deg);
+}
+
+/* Empty today. When there is art, this is the slot that gives up height
+   first: it takes what the type leaves and crops to fill it. */
+.hm-pop__media {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: 0.5rem;
+  overflow: hidden;
+  background: var(--hm-coal);
+}
+
+.hm-pop__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hm-pop__media:empty { display: none; }
+
+.hm-pop__body {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  display: grid;
+  gap: clamp(0.85rem, 2vh, 1.35rem);
+  padding: clamp(1.75rem, 5vh, 3rem) 0 clamp(0.5rem, 1.5vh, 1rem);
+}
+
+.hm-pop__title {
+  margin: 0;
+  font-family: var(--hm-display);
+  /* Against the window's height as well as its width: the card must clear a
+     short laptop window with a picture above the words. */
+  font-size: clamp(2rem, min(9vw, 8vh), 3.75rem);
+  font-weight: 700;
+  font-variation-settings: "wdth" 125;
+  letter-spacing: -0.02em;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+.hm-pop__rule {
+  display: block;
+  height: 1px;
+  background: var(--hm-line-dark);
+  transform-origin: left center;
+}
+
+/* Announcement copy, when there is some. */
+.hm-pop__copy {
+  display: grid;
+  gap: 0.75rem;
+  color: var(--hm-ash);
+  font-family: var(--hm-accent);
+  font-size: clamp(0.9rem, 1.5vw, 1rem);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.55;
+}
+
+.hm-pop__copy:empty { display: none; }
+
+@media (max-width: 30rem) {
+  .hm-pop__card { max-height: 86svh; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hm-announce__half:nth-child(2) { display: none; }
+  .hm-pop { -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+  .hm-pop__close { transition: none; }
 }
 
 /* --------------------------------------------------------------------------
@@ -180,6 +276,16 @@
   background: var(--hm-ink);
   border-bottom-color: var(--hm-line-dark);
   color: var(--hm-white);
+}
+
+/* The shop panel is white, so the bar above it goes solid paper: the two are
+   one surface, and the panel's border is the only line between them. */
+.hm-head--menu {
+  background: var(--hm-white);
+  border-bottom-color: var(--hm-line-light);
+  color: var(--hm-ink);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 /* 5.25rem at rest: the hero is pulled up under exactly this much bar. */
@@ -563,169 +669,171 @@
 
 /* --------------------------------------------------------------------------
    Shop panel (desktop)
+   A white sheet in ink type, anchored under the Shop button rather than run
+   across the page: four destinations do not need the full width. Each of the
+   first three rows carries a plus and opens a list under itself.
    -------------------------------------------------------------------------- */
 
 .hm-mega {
   position: absolute;
   top: 100%;
-  left: 0;
-  right: 0;
+  /* The gutter is where the nav starts, so the sheet's left edge lines up
+     with the word SHOP above it. */
+  left: var(--hm-gutter);
   display: none;
-  max-height: calc(100svh - 6rem);
+  width: min(21rem, calc(100vw - 2 * var(--hm-gutter)));
+  max-height: calc(100svh - 7rem);
   overflow-y: auto;
   overscroll-behavior: contain;
-  background: var(--hm-ink);
-  color: var(--hm-white);
-  border-bottom: 1px solid var(--hm-line-dark);
+  background: var(--hm-white);
+  color: var(--hm-ink);
+  border: 1px solid var(--hm-line-light);
+  border-top: 0;
+  box-shadow: 0 1.75rem 3.5rem -1.25rem rgba(10, 10, 10, 0.28);
   visibility: hidden;
-  transition: visibility 0s linear 0.6s;
+  transition: visibility 0s linear 0.45s;
   scrollbar-width: thin;
-  scrollbar-color: var(--hm-graphite) transparent;
+  scrollbar-color: var(--hm-ash) transparent;
 }
 
 @media (min-width: 62rem) { .hm-mega { display: block; } }
 
 .hm-mega.is-open { visibility: visible; transition-delay: 0s; }
 
-.hm-mega__inner {
-  display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: clamp(2.5rem, 5vw, 5rem);
-  max-width: 100rem;
-  margin-inline: auto;
-  padding: clamp(2.5rem, 4vw, 3.5rem) var(--hm-gutter) clamp(2.75rem, 4.5vw, 4rem);
+/* On white the shared white focus ring would vanish. */
+.hm-mega :focus-visible {
+  outline: 2px solid var(--hm-ink);
+  outline-offset: 2px;
 }
 
-.hm-mega__cols {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
-  gap: 2.5rem;
-  align-content: start;
+.hm-mega__inner { padding: 0.5rem 0; }
+
+.hm-mega__list { display: grid; }
+
+.hm-mega__row { position: relative; }
+
+.hm-mega__row + .hm-mega__row { border-top: 1px solid var(--hm-line-light); }
+
+.hm-mega__head {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
-.hm-mega__title {
-  display: inline-block;
-  padding-bottom: 1.1rem;
-  color: var(--hm-smoke);
-  font-family: var(--hm-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  text-decoration: none;
-  transition: color 0.4s var(--hm-ease);
-}
-
-a.hm-mega__title:hover { color: var(--hm-white); }
-
-.hm-mega__links { display: grid; gap: 0.1rem; }
-
-.hm-mega__link {
-  position: relative;
-  display: inline-flex;
+.hm-mega__item {
+  display: flex;
   align-items: center;
-  padding-block: 0.3rem;
-  color: rgba(255, 255, 255, 0.78);
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.95rem 0.5rem 0.95rem clamp(1rem, 1.6vw, 1.35rem);
+  color: var(--hm-ink);
   font-family: var(--hm-display);
-  font-size: clamp(1rem, 1.2vw, 1.2rem);
-  font-weight: 400;
-  font-variation-settings: "wdth" 100;
-  letter-spacing: -0.01em;
-  line-height: 1.25;
-  text-decoration: none;
-  transition: color 0.4s var(--hm-ease);
-}
-
-/* The arrow sits in the row's left edge, out of the flow; on hover the label
-   slides over to make room. Transforms only, so no row reflows. */
-.hm-mega__arrow {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 1rem;
-  height: 1rem;
-  margin-top: -0.5rem;
-  opacity: 0;
-  transform: translateX(-0.6rem);
-  transition:
-    opacity 0.3s var(--hm-ease),
-    transform 0.5s var(--hm-ease);
-}
-
-.hm-mega__link > span { transition: transform 0.5s var(--hm-ease); }
-
-.hm-mega__link:hover > span,
-.hm-mega__link:focus-visible > span { transform: translateX(1.55rem); }
-
-/* The hovered row brightens and gains an arrow; its neighbours step back. */
-.hm-mega__links:hover .hm-mega__link { color: rgba(255, 255, 255, 0.4); }
-
-.hm-mega__link:hover,
-.hm-mega__link:focus-visible,
-.hm-mega__links:hover .hm-mega__link:hover { color: var(--hm-white); }
-
-.hm-mega__link:hover .hm-mega__arrow,
-.hm-mega__link:focus-visible .hm-mega__arrow {
-  opacity: 1;
-  transform: none;
-}
-
-/* One row however many categories the store has: the menu is read from the
-   catalogue, so the count is not ours to fix at two. */
-.hm-mega__features {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
-  gap: 1rem;
-  align-content: start;
-}
-
-.hm-mega__feature {
-  display: block;
-  color: inherit;
-  text-decoration: none;
-}
-
-.hm-mega__frame {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  max-height: 52svh;
-  width: 100%;
-  overflow: hidden;
-  background: var(--hm-coal);
-}
-
-.hm-mega__photo { position: absolute; inset: 0; }
-
-.hm-mega__photo img {
-  object-fit: cover;
-  transition: transform 1.2s var(--hm-ease);
-}
-
-.hm-mega__feature:hover .hm-mega__photo img { transform: scale(1.06); }
-
-.hm-mega__featurefoot {
-  display: grid;
-  gap: 0.4rem;
-  padding-top: 0.85rem;
-}
-
-.hm-mega__featurelabel {
-  font-family: var(--hm-display);
-  font-size: 1.125rem;
-  font-weight: 700;
-  font-variation-settings: "wdth" 125;
-  letter-spacing: 0.02em;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-variation-settings: "wdth" 112;
+  letter-spacing: 0.1em;
   line-height: 1;
   text-transform: uppercase;
+  text-decoration: none;
 }
 
-.hm-mega__caption {
-  color: var(--hm-smoke);
-  font-family: var(--hm-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+/* The label steps in a little as its row is read. */
+.hm-mega__item > span { transition: transform 0.5s var(--hm-ease); }
+
+.hm-mega__row:is(:hover, :focus-within) .hm-mega__item > span { transform: translateX(0.3rem); }
+
+/* A hairline that grows from the left under the row being read. */
+.hm-mega__row::after {
+  content: "";
+  position: absolute;
+  left: clamp(1rem, 1.6vw, 1.35rem);
+  right: clamp(1rem, 1.6vw, 1.35rem);
+  bottom: 0;
+  height: 1px;
+  background: var(--hm-ink);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.55s var(--hm-ease);
+  pointer-events: none;
 }
+
+.hm-mega__row:is(:hover, :focus-within, .is-open)::after { transform: scaleX(1); }
+
+/* The plus: a bordered disc that fills in and turns into a cross. */
+.hm-mega__plus {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  align-self: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-right: clamp(1rem, 1.6vw, 1.35rem);
+  padding: 0;
+  border: 1px solid var(--hm-line-light);
+  border-radius: 999px;
+  background: none;
+  color: var(--hm-ink);
+  cursor: pointer;
+  transition:
+    background-color 0.45s var(--hm-ease),
+    border-color 0.45s var(--hm-ease),
+    color 0.45s var(--hm-ease);
+}
+
+.hm-mega__row:is(:hover, :focus-within) .hm-mega__plus,
+.hm-mega__plus[aria-expanded="true"] {
+  background: var(--hm-ink);
+  border-color: var(--hm-ink);
+  color: var(--hm-white);
+}
+
+.hm-mega__cross {
+  position: relative;
+  width: 0.5rem;
+  height: 0.5rem;
+  transition: transform 0.5s var(--hm-ease);
+}
+
+.hm-mega__cross::before,
+.hm-mega__cross::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+
+.hm-mega__cross::before { top: 50%; left: 0; width: 100%; height: 1px; }
+.hm-mega__cross::after { left: 50%; top: 0; width: 1px; height: 100%; }
+
+.hm-mega__plus[aria-expanded="true"] .hm-mega__cross { transform: rotate(45deg); }
+
+/* The list. Its height is animated, so nothing may escape the box. */
+.hm-mega__sub { overflow: hidden; }
+
+.hm-mega__sublist {
+  display: grid;
+  padding: 0.1rem 0 0.85rem clamp(1rem, 1.6vw, 1.35rem);
+}
+
+.hm-mega__sublink {
+  display: inline-block;
+  padding: 0.35rem 0;
+  color: var(--hm-smoke);
+  font-family: var(--hm-accent);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+  text-decoration: none;
+  transition: color 0.4s var(--hm-ease), transform 0.5s var(--hm-ease);
+}
+
+.hm-mega__sublink:is(:hover, :focus-visible) {
+  color: var(--hm-ink);
+  transform: translateX(0.3rem);
+}
+
 
 /* The page behind an open panel. */
 .hm-scrim {
@@ -739,6 +847,10 @@ a.hm-mega__title:hover { color: var(--hm-white); }
 }
 
 .hm-scrim.is-open { opacity: 1; pointer-events: auto; }
+
+/* Behind the compact white shop panel, not the full-width search sheet: less
+   of the page is covered, so less of it needs putting away. */
+.hm-scrim.is-soft { background: rgba(10, 10, 10, 0.28); }
 
 /* --------------------------------------------------------------------------
    Phone menu
@@ -977,227 +1089,118 @@ a.hm-mega__title:hover { color: var(--hm-white); }
 
 /* --------------------------------------------------------------------------
    Men & Women
+   Two doors, edge to edge: half the screen each from tablet width up, stacked
+   with nothing between them below it. `object-fit: cover` on a tile of fixed
+   height is what guarantees no bare ground at any width — the photograph
+   always has more of itself than the frame asks for.
    -------------------------------------------------------------------------- */
 
 .hm-gw {
-  overflow: hidden;
-  padding-block: clamp(3.5rem, 8vw, 7.5rem) clamp(3rem, 6vw, 5.5rem);
   background: var(--hm-ink);
-  color: var(--hm-white);
-}
-
-.hm-gw__wrap {
-  max-width: 100rem;
-  margin-inline: auto;
-  padding-inline: var(--hm-gutter);
-}
-
-.hm-gw__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem 2rem;
-  overflow: hidden;
-  margin-bottom: clamp(1.75rem, 4vw, 3.5rem);
-  padding-bottom: clamp(1.25rem, 2.5vw, 2rem);
-  border-bottom: 1px solid var(--hm-line-dark);
-}
-
-.hm-gw__eyebrow {
-  color: var(--hm-ash);
-  font-family: var(--hm-mono);
-  font-size: 0.6875rem;
-  font-weight: 400;
-  letter-spacing: 0.14em;
-  line-height: 1.4;
-  text-transform: uppercase;
-}
-
-.hm-gw__note {
-  font-family: var(--hm-display);
-  font-size: clamp(1rem, 1.6vw, 1.375rem);
-  font-weight: 500;
-  font-variation-settings: "wdth" 112;
-  letter-spacing: 0.02em;
-  line-height: 1.1;
-  text-transform: uppercase;
-}
-
-.hm-gw__serif {
-  margin-right: 0.1em;
-  font-family: var(--hm-serif);
-  font-size: 1.2em;
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: 0;
-  text-transform: none;
 }
 
 .hm-gw__grid {
   display: grid;
-  gap: clamp(2.5rem, 7vw, 3.5rem);
+  grid-template-columns: minmax(0, 1fr);
+  /* The brief's "no gap between them", on purpose rather than by default. */
+  gap: 0;
+  width: 100%;
+}
+
+/* Tablet and desktop: side by side, half the screen each. */
+@media (min-width: 48rem) {
+  .hm-gw__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.hm-gw__cell { display: block; }
+
+.hm-gw__tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  /* Height rather than an aspect ratio: at half the screen a 3:4 door would
+     be over a screen tall on a wide monitor, and the pair has to be readable
+     as a pair. Bounded so it neither collapses on a short window nor runs
+     away on a tall one. */
+  height: clamp(20rem, 58svh, 30rem);
+  overflow: hidden;
+  color: var(--hm-white);
+  text-decoration: none;
+  isolation: isolate;
 }
 
 @media (min-width: 48rem) {
-  .hm-gw__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: clamp(1rem, 2.5vw, 2.5rem);
-  }
-
-  /* The second door sits lower: a spread, not a pair of cards. */
-  .hm-gw__cell:nth-child(2) { margin-top: clamp(4rem, 11vw, 10rem); }
+  .hm-gw__tile { height: clamp(26rem, 74svh, 46rem); }
 }
 
-.hm-gw__tile {
-  display: block;
-  color: var(--hm-white);
-  text-decoration: none;
-}
-
-.hm-gw__frame {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 5;
-  max-height: 92svh;
-  overflow: hidden;
-  background: var(--hm-coal);
-}
-
-/* Taller than its frame by the parallax travel, so the drift never shows an edge. */
+/* Inset past the tile on every side: the blur feathers the photograph's edge,
+   and this is what puts that feathering outside the frame the tile clips to.
+   The filter lives here rather than on the image so it does not collide with
+   the `transform` the admin's crop zoom writes onto `.gateway__image`. */
 .hm-gw__photo {
   position: absolute;
-  inset: -8% 0;
-  will-change: transform;
+  inset: -2rem;
+  z-index: 0;
+  filter: blur(4px);
+  transition: filter 1.2s var(--hm-ease), transform 1.4s var(--hm-ease);
 }
 
-.hm-gw__tile:hover .hm-gw__image,
-.hm-gw__tile:focus-visible .hm-gw__image {
-  transform: scale(calc(var(--crop-z, 1) * 1.05));
+/* Reading the name is the point, so hovering sharpens the picture under it
+   rather than dimming it further. */
+.hm-gw__tile:is(:hover, :focus-visible) .hm-gw__photo {
+  filter: blur(2px);
+  transform: scale(1.03);
 }
 
-.hm-gw__image { transition: transform 1.4s var(--hm-ease); }
+.hm-gw__image { will-change: transform; }
 
+/* Weight top and bottom and a little overall, so the name holds against a
+   pale photograph without the picture going flat. */
 .hm-gw__wash {
   position: absolute;
   inset: 0;
+  z-index: 1;
   background:
-    linear-gradient(to top, rgba(10, 10, 10, 0.66) 0%, rgba(10, 10, 10, 0.16) 42%, rgba(10, 10, 10, 0) 68%),
-    linear-gradient(to bottom, rgba(10, 10, 10, 0.3) 0%, rgba(10, 10, 10, 0) 24%);
-  transition: opacity 0.8s var(--hm-ease);
+    radial-gradient(70% 55% at 50% 50%, rgba(10, 10, 10, 0.42), transparent 70%),
+    linear-gradient(
+      to bottom,
+      rgba(10, 10, 10, 0.34) 0%,
+      rgba(10, 10, 10, 0.16) 40%,
+      rgba(10, 10, 10, 0.4) 100%
+    );
+  transition: opacity 0.9s var(--hm-ease);
 }
 
-.hm-gw__tile:hover .hm-gw__wash { opacity: 0.8; }
+.hm-gw__tile:is(:hover, :focus-visible) .hm-gw__wash { opacity: 0.8; }
 
-.hm-gw__count {
-  position: absolute;
-  top: clamp(0.9rem, 2vw, 1.5rem);
-  right: clamp(0.9rem, 2vw, 1.5rem);
-  padding: 0.5rem 0.8rem;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 999px;
-  background: rgba(10, 10, 10, 0.2);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  font-family: var(--hm-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.12em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-/* The signature: Archivo's width axis, driven by scroll. Rests at its widest. */
-.hm-gw__label {
-  position: absolute;
-  left: clamp(0.9rem, 2.4vw, 2rem);
-  bottom: clamp(0.6rem, 1.8vw, 1.5rem);
-  display: flex;
+.hm-gw__name {
+  position: relative;
+  z-index: 2;
+  padding-inline: 1rem;
   font-family: var(--hm-display);
-  font-size: clamp(3.25rem, 15vw, 6rem);
+  font-size: clamp(2.5rem, 9vw, 5.5rem);
   font-weight: 800;
-  font-variation-settings: "wdth" var(--wdth, 125);
-  letter-spacing: -0.01em;
-  line-height: 0.86;
+  font-variation-settings: "wdth" 112;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  text-align: center;
   text-transform: uppercase;
-  transition: letter-spacing 1s var(--hm-ease);
+  /* The last of the legibility, for the one frame where the wash is not
+     quite enough. */
+  text-shadow: 0 0.05em 0.35em rgba(10, 10, 10, 0.45);
+  transition: letter-spacing 0.9s var(--hm-ease);
 }
 
 @media (min-width: 48rem) {
-  .hm-gw__label { font-size: clamp(3.5rem, 7.4vw, 8.5rem); }
+  .hm-gw__name { font-size: clamp(2.75rem, 5.5vw, 5rem); }
 }
 
-.hm-gw__tile:hover .hm-gw__label { letter-spacing: 0.025em; }
-
-.hm-gw__charmask {
-  display: inline-block;
-  overflow: hidden;
-  padding-top: 0.06em;
+.hm-gw__tile:is(:hover, :focus-visible) .hm-gw__name {
+  letter-spacing: 0.06em;
+  /* The tracking is added to the right, so the word walks left without it. */
+  margin-right: -0.06em;
 }
 
-.hm-gw__char { display: inline-block; }
-
-.hm-gw__foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-top: 1.1rem;
-}
-
-.hm-gw__cta {
-  position: relative;
-  display: inline-block;
-  padding-bottom: 0.4rem;
-  font-family: var(--hm-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.hm-gw__ctaline {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0.22);
-  transform-origin: left;
-  transition: transform 0.9s var(--hm-ease);
-}
-
-.hm-gw__tile:hover .hm-gw__ctaline,
-.hm-gw__tile:focus-visible .hm-gw__ctaline { transform: scaleX(1); }
-
-.hm-gw__arrow {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 3rem;
-  height: 3rem;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  border-radius: 999px;
-  transition:
-    background-color 0.5s var(--hm-ease),
-    border-color 0.5s var(--hm-ease),
-    color 0.5s var(--hm-ease);
-}
-
-.hm-gw__arrow svg {
-  width: 1.1rem;
-  height: 1.1rem;
-  transition: transform 0.7s var(--hm-ease);
-}
-
-.hm-gw__tile:hover .hm-gw__arrow,
-.hm-gw__tile:focus-visible .hm-gw__arrow {
-  background: var(--hm-white);
-  border-color: var(--hm-white);
-  color: var(--hm-ink);
-}
-
-.hm-gw__tile:hover .hm-gw__arrow svg,
-.hm-gw__tile:focus-visible .hm-gw__arrow svg { transform: rotate(-45deg); }
 
 /* --------------------------------------------------------------------------
    Footer
@@ -1249,10 +1252,9 @@ a.hm-mega__title:hover { color: var(--hm-white); }
 
 .hm-foot__serif {
   display: block;
-  font-family: var(--hm-serif);
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.01em;
+  font-family: var(--hm-accent);
+  font-weight: 500;
+  letter-spacing: -0.02em;
   text-transform: none;
 }
 
@@ -1429,9 +1431,13 @@ a.hm-mega__title:hover { color: var(--hm-white); }
 @media (prefers-reduced-motion: reduce) {
   .hm-roll__a,
   .hm-roll__b,
-  .hm-gw__image,
-  .hm-gw__label,
-  .hm-mega__photo img,
+  .hm-gw__photo,
+  .hm-gw__wash,
+  .hm-gw__name,
+  .hm-mega__item > span,
+  .hm-mega__row::after,
+  .hm-mega__cross,
+  .hm-mega__sublink,
   .hm-search,
   .hm-search.is-open { transition: none; }
 

@@ -31,7 +31,7 @@
   --hm-line-light: rgba(10, 10, 10, 0.12);
 
   --hm-display: var(--font-hm-display), "Helvetica Neue", Arial, sans-serif;
-  --hm-serif: var(--font-hm-serif), "Bodoni 72", Didot, Georgia, serif;
+  --hm-accent: var(--font-hm-accent), "Helvetica Neue", Arial, sans-serif;
   --hm-mono: var(--font-hm-mono), ui-monospace, "SF Mono", Menlo, monospace;
   --hm-sans: var(--font-inter-tight), "Helvetica Neue", Helvetica, Arial, sans-serif;
 
@@ -40,7 +40,6 @@
   --hm-gutter: clamp(1.25rem, 4vw, 4.5rem);
 }
 
-.hm-hero :focus-visible,
 .hm-look :focus-visible,
 .hm-promise :focus-visible {
   outline: 2px solid var(--hm-white);
@@ -85,21 +84,6 @@
 }
 
 .hm-word { display: inline-block; }
-
-@keyframes hm-unshrink {
-  from { font-variation-settings: "wdth" 62; }
-  to { font-variation-settings: "wdth" 125; }
-}
-
-@keyframes hm-lift {
-  from { opacity: 0; transform: translateY(22px); }
-  to { opacity: 1; transform: none; }
-}
-
-@keyframes hm-grow {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
 
 /* --- the pill ------------------------------------------------------------- */
 
@@ -206,23 +190,12 @@
 
 .hm-hero {
   overflow: hidden;
-  /* The bar above is 5.25rem and the section is pulled up under it. The
-     section's own height (from the shop sheet) plus the announcement bar runs
-     its foot past the fold by a different amount at each width, so the foot
-     pad carries that back and the calls to action land on the first screen. */
-  --hm-hero-over: 3.25rem;
-  padding-block:
-    calc(5.25rem + clamp(1.5rem, 6vh, 4rem))
-    calc(var(--hm-hero-over) + clamp(1rem, 3vh, 2rem));
+  /* Nothing is drawn in the hero any more, so the pads that used to hold the
+     type clear of the masthead and the fold have nothing to hold: the frame
+     fills the section, and the section's height is the shop sheet's `.hero`
+     (and whatever the admin's Media tab publishes over it). */
+  padding-block: 0;
   background: var(--hm-ink);
-}
-
-@media (min-width: 48rem) {
-  .hm-hero { --hm-hero-over: calc(7.5rem - 6svh); }
-}
-
-@media (min-width: 62rem) {
-  .hm-hero { --hm-hero-over: 7.5rem; }
 }
 
 .hm-hero__stage {
@@ -244,166 +217,6 @@
 
 .hm-hero__zoom { position: absolute; inset: 0; }
 
-.hm-hero__scrim {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: linear-gradient(
-    to top,
-    rgba(10, 10, 10, 0.84) 0%,
-    rgba(10, 10, 10, 0.52) 36%,
-    rgba(10, 10, 10, 0.14) 66%,
-    rgba(10, 10, 10, 0.32) 100%
-  );
-}
-
-.hm-hero__inner {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  gap: clamp(1rem, 3vh, 2rem);
-  width: 100%;
-  max-width: 100rem;
-  margin-inline: auto;
-  padding-inline: var(--hm-gutter);
-}
-
-.hm-hero__eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  color: rgba(255, 255, 255, 0.86);
-  font-family: var(--hm-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.hm-hero__rule {
-  width: 2.5rem;
-  height: 1px;
-  background: currentColor;
-  transform-origin: left;
-}
-
-.hm-hero__head {
-  display: grid;
-  margin: 0;
-  color: var(--hm-white);
-  /* Capped by the window's height too: the lede and both buttons have to fit
-     under two lines of this on a 13" laptop. */
-  font-size: clamp(3rem, min(7.4vw, 11.5vh), 9rem);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 0.9;
-}
-
-.hm-hero__line { display: block; }
-
-.hm-hero__line--sans {
-  font-family: var(--hm-display);
-  font-weight: 800;
-  font-variation-settings: "wdth" 125;
-  letter-spacing: -0.015em;
-  text-transform: uppercase;
-}
-
-.hm-hero__line--serif {
-  font-family: var(--hm-serif);
-  font-size: 1.04em;
-  font-style: italic;
-  letter-spacing: -0.02em;
-  line-height: 0.98;
-}
-
-@media (min-width: 62rem) {
-  .hm-hero__line--serif { padding-left: clamp(2rem, 9vw, 10rem); }
-}
-
-.hm-hero__foot {
-  display: grid;
-  gap: 1.5rem;
-  align-items: end;
-  padding-top: clamp(1rem, 2.6vh, 1.75rem);
-  border-top: 1px solid rgba(255, 255, 255, 0.22);
-}
-
-@media (min-width: 48rem) {
-  .hm-hero__foot { grid-template-columns: minmax(0, 1fr) auto; }
-}
-
-.hm-hero__copy { display: grid; gap: 1.25rem; }
-
-@media (min-width: 62rem) {
-  .hm-hero__copy {
-    grid-template-columns: minmax(0, 24rem) auto;
-    align-items: end;
-    gap: 3rem;
-  }
-}
-
-.hm-hero__lede {
-  max-width: 32ch;
-  color: rgba(255, 255, 255, 0.86);
-  font-family: var(--hm-sans);
-  font-size: 1rem;
-  line-height: 1.55;
-}
-
-.hm-hero__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-
-.hm-hero__meta {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  font-family: var(--hm-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-}
-
-.hm-hero__now { color: var(--hm-white); }
-.hm-hero__of { color: rgba(255, 255, 255, 0.55); }
-
-.hm-hero__bars { display: flex; gap: 0.4rem; }
-
-.hm-hero__bar {
-  position: relative;
-  width: clamp(2rem, 3.6vw, 3.5rem);
-  height: 2.75rem;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-}
-
-.hm-hero__bar::before,
-.hm-hero__fill {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  height: 1px;
-}
-
-.hm-hero__bar::before {
-  background: rgba(255, 255, 255, 0.3);
-  transition: background-color 0.4s var(--hm-ease);
-}
-
-.hm-hero__bar:hover::before { background: rgba(255, 255, 255, 0.6); }
-
-.hm-hero__fill {
-  background: var(--hm-white);
-  transform: scaleX(0);
-  transform-origin: left;
-}
-
-@keyframes hm-fill {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
-
 @keyframes hm-wipe {
   from { clip-path: inset(0 0 0 100%); }
   to { clip-path: inset(0 0 0 0); }
@@ -415,28 +228,8 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  /* The bar is the timer: the frame advances when this animation ends. */
-  .hm-hero__bar.is-on .hm-hero__fill { animation: hm-fill linear forwards; }
-  .hm-hero.is-paused .hm-hero__bar.is-on .hm-hero__fill { animation-play-state: paused; }
-
   .hm-hero__slide.is-active:not(.is-first) { animation: hm-wipe 1.3s var(--hm-curtain) both; }
   .hm-hero__slide.is-active .hm-hero__zoom { animation: hm-settle 8s cubic-bezier(0.25, 0.1, 0.25, 1) both; }
-
-  /* First paint: the headline rises word by word and the first line widens
-     out of Archivo's narrowest cut. CSS, so it never waits on hydration. */
-  .hm-hero .hm-word { animation: hm-rise 1.3s var(--hm-ease) both; }
-  .hm-hero__line--sans .hm-word { animation-delay: calc(var(--w, 0) * 80ms + 250ms); }
-  .hm-hero__line--serif .hm-word { animation-delay: calc(var(--w, 0) * 70ms + 520ms); }
-  .hm-hero__line--sans { animation: hm-unshrink 2.2s var(--hm-ease) 0.3s both; }
-
-  .hm-hero__rule { animation: hm-grow 1.2s var(--hm-ease) 0.2s both; }
-  .hm-hero__eyebrow > span:last-child { animation: hm-lift 1s var(--hm-ease) 0.3s both; }
-  .hm-hero__foot { animation: hm-lift 1.2s var(--hm-ease) 0.9s both; }
-}
-
-/* Reduced motion holds one frame and draws the bar full: no timer runs. */
-@media (prefers-reduced-motion: reduce) {
-  .hm-hero__bar.is-on .hm-hero__fill { transform: scaleX(1); }
 }
 
 /* --------------------------------------------------------------------------
@@ -756,10 +549,9 @@
 }
 
 .hm-look__serif {
-  font-family: var(--hm-serif);
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.02em;
+  font-family: var(--hm-accent);
+  font-weight: 500;
+  letter-spacing: -0.03em;
   text-transform: none;
 }
 
@@ -1072,10 +864,10 @@
 }
 
 .hm-promise__line--serif {
-  font-family: var(--hm-serif);
-  font-size: 1.06em;
-  font-style: italic;
-  letter-spacing: -0.02em;
+  font-family: var(--hm-accent);
+  font-size: 1.02em;
+  font-weight: 500;
+  letter-spacing: -0.035em;
 }
 
 /* The body, quoted as a care label: bordered, set in mono, a vertical tab. */
@@ -1197,7 +989,7 @@
   display: block;
   height: 0.42em;
   color: var(--hm-ink);
-  font-family: var(--hm-serif);
+  font-family: var(--hm-accent);
   font-size: clamp(5rem, 9vw, 8rem);
   line-height: 0.8;
   opacity: 0.16;
@@ -1217,12 +1009,11 @@
 .hm-quotes__text {
   max-width: 24ch;
   margin: 0;
-  font-family: var(--hm-serif);
-  font-size: clamp(1.85rem, 3.6vw, 3.5rem);
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.015em;
-  line-height: 1.12;
+  font-family: var(--hm-accent);
+  font-size: clamp(1.75rem, 3.4vw, 3.25rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.14;
 }
 
 .hm-quotes__name {

@@ -175,12 +175,16 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
     setSearchOpen(false);
   }
 
+  // `--panel` is the ink sheet the search drop becomes with the bar. The shop
+  // panel is a white sheet, so it gets `--menu` instead: the bar goes solid
+  // paper rather than ink, and the two read as one white surface.
   const classes = [
     'hm-head',
     homeFonts,
     overlaid ? 'hm-head--over' : '',
     scrolled ? 'hm-head--compact' : '',
-    panel ? 'hm-head--panel' : '',
+    searchOpen ? 'hm-head--panel' : '',
+    megaOpen && !searchOpen ? 'hm-head--menu' : '',
   ].filter(Boolean).join(' ');
 
   return (
@@ -355,11 +359,11 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
           </form>
         </div>
 
-        <HomeMegaMenu menu={menu} open={megaOpen} id="shop-mega" onNavigate={closeMega} />
+        <HomeMegaMenu open={megaOpen} id="shop-mega" onNavigate={closeMega} />
       </header>
 
       <div
-        className={`hm-scrim${panel ? ' is-open' : ''}`}
+        className={`hm-scrim${panel ? ' is-open' : ''}${megaOpen && !searchOpen ? ' is-soft' : ''}`}
         aria-hidden="true"
         onClick={closePanels}
       />

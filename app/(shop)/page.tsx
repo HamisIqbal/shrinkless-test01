@@ -16,6 +16,7 @@ import { SHOPPABLE } from '@/lib/shop/navigation';
 import type { HeroSlide } from '@/components/site/HeroSlider';
 import type { Gateway } from '@/components/shop/CategoryGateway';
 import type { Quote } from '@/components/editorial/QuoteRow';
+import { HomePopup } from '@/components/home/HomePopup';
 import { HomeHero } from '@/components/home/HomeHero';
 import { HomeGateway } from '@/components/home/HomeGateway';
 import { HomeInstagram } from '@/components/home/HomeInstagram';
@@ -64,8 +65,8 @@ export default async function HomePage() {
     ...SHOPPABLE.map(({ slug }) => listProductsInCategory(slug)),
   ]);
 
-  // The frames are media and come from the database; nothing else rides with
-  // them, so the hero is the photography and the two calls to action.
+  // The frames are media and come from the database, and they are now the
+  // whole hero: no eyebrow, no headline, no calls to action.
   const slides: HeroSlide[] = media.hero.map((image) => ({ image }));
 
   // Deliberately still the curated pair rather than every category in the
@@ -80,16 +81,16 @@ export default async function HomePage() {
 
   return (
     <>
-      <HomeHero
-        slides={slides}
-        eyebrow={copy['home.hero.eyebrow']}
-        headline={[copy['home.hero.headline1'], copy['home.hero.headline2']]}
-        lede={copy['home.hero.lede']}
-        primary={{ href: '/shop', label: copy['home.hero.primary'] }}
-        secondary={{ href: '/why-shrinkless', label: copy['home.hero.secondary'] }}
-      />
+      {/* Rendered by the page rather than the layout, so it can only ever
+          appear on `/`. It shows itself once per load of the site. */}
+      <HomePopup />
 
-      {/* Shopping direction, immediately after the hero — before any story. */}
+      {/* Photography only. The hero's copy keys are still in the Content tab
+          for whenever it gets its type back, but nothing reads them now. */}
+      <HomeHero slides={slides} />
+
+      {/* Shopping direction, immediately after the hero — before any story.
+          Two full-bleed doors, no heading of its own. */}
       <HomeGateway gateways={gateways} />
 
       {/* On the homepage the community band is not a footer ornament: the real

@@ -11,7 +11,6 @@ import { Header } from '@/components/site/Header';
 import { Footer } from '@/components/site/Footer';
 import { FooterReveal } from '@/components/site/FooterReveal';
 import { HomeSwitch } from '@/components/home/HomeSwitch';
-import { HomeAnnounce } from '@/components/home/HomeAnnounce';
 import { HomeHeader } from '@/components/home/HomeHeader';
 import { HomeFooter } from '@/components/home/HomeFooter';
 
@@ -32,12 +31,11 @@ export default async function ShopLayout({ children }: LayoutProps<'/'>) {
 
       <a href="#main" className="skiplink">Skip to content</a>
 
-      {/* The homepage draws its own announcement bar, header and footer; every
-          other shop route keeps the standard ones. See HomeSwitch. */}
-      <HomeSwitch
-        home={<HomeAnnounce message={settings.announcement} />}
-        rest={<AnnounceBar message={settings.announcement} />}
-      />
+      {/* The homepage draws its own header and footer; every other shop route
+          keeps the standard ones. See HomeSwitch. The homepage carries no
+          announcement bar at all — its announcements are the pop-up the page
+          itself renders — so `/` gets nothing here. */}
+      <HomeSwitch home={null} rest={<AnnounceBar message={settings.announcement} />} />
 
       <HomeSwitch
         home={

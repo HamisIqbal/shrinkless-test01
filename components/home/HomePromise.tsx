@@ -25,7 +25,7 @@ function sentences(text: string): string[] {
  * The promise, as the page's full-bleed statement.
  *
  * Each sentence of the headline takes a line of its own, alternating Archivo
- * and Bodoni and stepping across the frame, and slides in from its own side
+ * and the accent face and stepping across the frame, and slides in from its own side
  * as the band comes up. The body sits in a care-label box — the one place on
  * the page the garment's own paperwork is quoted. Keeps the `imageband` class
  * for the Media tab's "Promise band" height and ground.

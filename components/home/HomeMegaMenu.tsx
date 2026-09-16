@@ -1,62 +1,100 @@
 'use client';
 
-import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { motion, type Variants } from 'motion/react';
-import type { ShopMenu } from '@/lib/shop/navigation';
-import { ArrowIcon } from '@/components/site/icons';
+import { AnimatePresence, motion, type Variants } from 'motion/react';
 
 type Props = {
-  menu: ShopMenu;
   open: boolean;
   id: string;
   onNavigate: () => void;
 };
 
-const CURTAIN = [0.76, 0, 0.24, 1] as const;
-const LAND = [0.16, 1, 0.3, 1] as const;
-
-/* The sheet drops like a blind; its contents rise through their own masks a
-   beat behind it, column by column, then row by row. Closing is quicker and
-   unstaggered — leaving should never be the slow part. */
-const sheet: Variants = {
-  open: {
-    clipPath: 'inset(0% 0% 0% 0%)',
-    transition: { duration: 0.7, ease: CURTAIN, delayChildren: 0.18, staggerChildren: 0.06 },
-  },
-  closed: {
-    clipPath: 'inset(0% 0% 100% 0%)',
-    transition: { duration: 0.5, ease: CURTAIN, delay: 0.05 },
-  },
-};
-
-const column: Variants = {
-  open: { transition: { staggerChildren: 0.035 } },
-  closed: {},
-};
-
-const rise: Variants = {
-  open: { y: '0%', opacity: 1, transition: { duration: 0.8, ease: LAND } },
-  closed: { y: '105%', opacity: 0, transition: { duration: 0.25 } },
-};
-
-const frame: Variants = {
-  open: { clipPath: 'inset(0% 0% 0% 0%)', transition: { duration: 1, ease: CURTAIN } },
-  closed: { clipPath: 'inset(100% 0% 0% 0%)', transition: { duration: 0.3 } },
-};
-
-const photo: Variants = {
-  open: { scale: 1, transition: { duration: 1.4, ease: LAND } },
-  closed: { scale: 1.25, transition: { duration: 0.3 } },
+type Group = {
+  key: string;
+  label: string;
+  href: string;
+  /** A group with links carries the plus and can be opened; Wholesale cannot. */
+  links?: { label: string; href: string }[];
 };
 
 /**
- * The homepage's shop panel: an ink sheet under an ink bar.
+ * Four destinations, and only four — the panel is a way in, not the shop's
+ * index. The lists under the first three are a single entry today because a
+ * single entry is what the store sells; they are data rather than markup so
+ * the day there are more is an edit here.
+ */
+const GROUPS: Group[] = [
+  { key: 'all', label: 'Shop all', href: '/shop', links: [{ label: 'Tees', href: '/shop' }] },
+  { key: 'men', label: 'Men', href: '/shop/men', links: [{ label: 'Tees', href: '/shop/men' }] },
+  {
+    key: 'women',
+    label: 'Women',
+    href: '/shop/women',
+    links: [{ label: 'Tees', href: '/shop/women' }],
+  },
+  { key: 'wholesale', label: 'Wholesale', href: '/wholesale' },
+];
+
+const CURTAIN = [0.76, 0, 0.24, 1] as const;
+const LAND = [0.16, 1, 0.3, 1] as const;
+
+/* The sheet drops like a blind; its rows rise through their own masks a beat
+   behind it. Closing is quicker and unstaggered — leaving should never be the
+   slow part. */
+const sheet: Variants = {
+  open: {
+    clipPath: 'inset(0% 0% 0% 0%)',
+    transition: { duration: 0.55, ease: CURTAIN, delayChildren: 0.14, staggerChildren: 0.05 },
+  },
+  closed: {
+    clipPath: 'inset(0% 0% 100% 0%)',
+    transition: { duration: 0.4, ease: CURTAIN, delay: 0.05 },
+  },
+};
+
+const rise: Variants = {
+  open: { y: '0%', opacity: 1, transition: { duration: 0.7, ease: LAND } },
+  closed: { y: '105%', opacity: 0, transition: { duration: 0.2 } },
+};
+
+/**
+ * The homepage's shop panel: a white sheet under the masthead, anchored to the
+ * Shop button rather than run full-bleed, because four destinations do not
+ * need the whole width of the page.
+ *
+ * Shop all, Men and Women each carry a plus and a list. Where hovering is a
+ * real gesture the list opens on hover and the label stays a plain link. Where
+ * it is not — a touchscreen wide enough for this panel — the first tap on a
+ * row opens its list and the second follows the link, so nothing becomes
+ * unreachable in exchange for the reveal. The plus toggles either way.
  *
  * Mounted throughout so both directions animate, and `inert` while closed so
  * its links cannot be tabbed into. The header owns the open state.
  */
-export function HomeMegaMenu({ menu, open, id, onNavigate }: Props) {
+export function HomeMegaMenu({ open, id, onNavigate }: Props) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [hoverable, setHoverable] = useState(false);
+  const [wasOpen, setWasOpen] = useState(open);
+
+  useEffect(() => {
+    const query = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const read = () => setHoverable(query.matches);
+
+    read();
+    query.addEventListener('change', read);
+    return () => query.removeEventListener('change', read);
+  }, []);
+
+  // A panel that reopens should reopen shut, not on whatever was last read.
+  // Adjusted during render rather than in an effect: the collapse belongs to
+  // the same paint that closes the sheet, and an effect would show the stale
+  // row for a frame on the way back in.
+  if (wasOpen !== open) {
+    setWasOpen(open);
+    if (!open) setExpanded(null);
+  }
+
   return (
     <motion.div
       id={id}
@@ -67,69 +105,89 @@ export function HomeMegaMenu({ menu, open, id, onNavigate }: Props) {
       animate={open ? 'open' : 'closed'}
       variants={sheet}
       data-lenis-prevent
+      onMouseLeave={() => {
+        if (hoverable) setExpanded(null);
+      }}
     >
-      <div className="hm-mega__inner">
-        <div className="hm-mega__cols">
-          {menu.columns.map((col) => (
-            <motion.nav key={col.title} className="hm-mega__col" aria-label={col.title} variants={column}>
-              <div className="hm-mask">
-                <motion.div variants={rise}>
-                  {col.href ? (
-                    <Link href={col.href} className="hm-mega__title" onClick={onNavigate}>
-                      {col.title}
-                    </Link>
-                  ) : (
-                    <p className="hm-mega__title">{col.title}</p>
-                  )}
-                </motion.div>
-              </div>
+      <nav className="hm-mega__inner" aria-label="Shop">
+        <ul className="hm-mega__list">
+          {GROUPS.map((group) => {
+            const isOpen = expanded === group.key;
+            const subId = `${id}-${group.key}`;
 
-              <ul className="hm-mega__links">
-                {col.links.map((link) => (
-                  <li key={`${col.title}-${link.href}-${link.label}`} className="hm-mask">
-                    <motion.div variants={rise}>
-                      <Link href={link.href} className="hm-mega__link" onClick={onNavigate}>
-                        <ArrowIcon className="hm-mega__arrow" />
-                        <span>{link.label}</span>
-                      </Link>
+            return (
+              <motion.li
+                key={group.key}
+                className={`hm-mega__row${isOpen ? ' is-open' : ''}`}
+                variants={rise}
+                onMouseEnter={() => {
+                  if (hoverable) setExpanded(group.links ? group.key : null);
+                }}
+              >
+                <div className="hm-mega__head">
+                  <Link
+                    href={group.href}
+                    className="hm-mega__item"
+                    onClick={(event) => {
+                      // Touch: the first tap reveals, the next one follows.
+                      if (group.links && !hoverable && !isOpen) {
+                        event.preventDefault();
+                        setExpanded(group.key);
+                        return;
+                      }
+                      onNavigate();
+                    }}
+                  >
+                    <span>{group.label}</span>
+                  </Link>
+
+                  {group.links ? (
+                    <button
+                      type="button"
+                      className="hm-mega__plus"
+                      aria-expanded={isOpen}
+                      aria-controls={subId}
+                      onClick={() => setExpanded(isOpen ? null : group.key)}
+                    >
+                      <span className="hm-mega__cross" aria-hidden="true" />
+                      <span className="visually-hidden">
+                        {isOpen ? `Hide ${group.label} products` : `Show ${group.label} products`}
+                      </span>
+                    </button>
+                  ) : null}
+                </div>
+
+                <AnimatePresence initial={false}>
+                  {group.links && isOpen ? (
+                    <motion.div
+                      id={subId}
+                      className="hm-mega__sub"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.45, ease: LAND }}
+                    >
+                      <ul className="hm-mega__sublist">
+                        {group.links.map((link) => (
+                          <li key={`${group.key}-${link.href}-${link.label}`}>
+                            <Link
+                              href={link.href}
+                              className="hm-mega__sublink"
+                              onClick={onNavigate}
+                            >
+                              {link.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
                     </motion.div>
-                  </li>
-                ))}
-              </ul>
-            </motion.nav>
-          ))}
-        </div>
-
-        <div className="hm-mega__features">
-          {menu.features.map((feature) => (
-            <Link
-              key={feature.href}
-              href={feature.href}
-              className="hm-mega__feature"
-              onClick={onNavigate}
-            >
-              <motion.div className="hm-mega__frame" variants={frame}>
-                <motion.div className="hm-mega__photo" variants={photo}>
-                  <Image
-                    src={feature.image.url}
-                    alt={feature.image.alt}
-                    fill
-                    loading="lazy"
-                    sizes="(min-width: 62rem) 18vw, 0px"
-                  />
-                </motion.div>
-              </motion.div>
-
-              <div className="hm-mask">
-                <motion.span className="hm-mega__featurefoot" variants={rise}>
-                  <span className="hm-mega__featurelabel">{feature.label}</span>
-                  <span className="hm-mega__caption">{feature.caption}</span>
-                </motion.span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
+                  ) : null}
+                </AnimatePresence>
+              </motion.li>
+            );
+          })}
+        </ul>
+      </nav>
     </motion.div>
   );
 }

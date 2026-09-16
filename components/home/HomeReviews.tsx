@@ -28,7 +28,7 @@ const wordVariants: Variants = {
 const pad = (value: number) => String(value).padStart(2, '0');
 
 /**
- * One review at a time, set large in Bodoni italic, with the others a click
+ * One review at a time, set large in the accent face, with the others a click
  * away.
  *
  * Every quote stays in the page — stacked in one cell, the resting ones
