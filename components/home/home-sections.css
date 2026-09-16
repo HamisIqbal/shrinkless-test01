@@ -190,13 +190,20 @@
 
 .hm-hero {
   overflow: hidden;
-  /* Nothing is drawn in the hero any more, so the pads that used to hold the
-     type clear of the masthead and the fold have nothing to hold: the frame
-     fills the section, and the section's height is the shop sheet's `.hero`
-     (and whatever the admin's Media tab publishes over it). */
+  /* The frame fills the section and Shop now is centred in it, so the pads
+     that used to hold a block of type clear of the masthead and the fold have
+     nothing left to hold. */
   padding-block: 0;
   background: var(--hm-ink);
+  /* The masthead is opaque at every scroll position now, so the hero starts
+     under it rather than behind it: the overlap the shop sheet's `.hero`
+     adds back is taken off here, at all three of its widths. */
+  margin-top: 0;
+  min-height: 92svh;
 }
+
+@media (min-width: 48rem) { .hm-hero { min-height: max(36rem, 94svh); } }
+@media (min-width: 62rem) { .hm-hero { min-height: calc(100svh - 5.25rem); } }
 
 .hm-hero__stage {
   position: absolute;
@@ -216,6 +223,51 @@
 .hm-hero__slide.is-active { z-index: 2; visibility: visible; }
 
 .hm-hero__zoom { position: absolute; inset: 0; }
+
+/* --- the one call to action --------------------------------------------- */
+
+/* Centred in the frame rather than bottom-aligned with the section: the
+   section is bottom-aligned by `.hero`, and the button is not caption copy. */
+.hm-hero__call {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  padding-inline: var(--hm-gutter);
+  /* Only the button is clickable — the rest of the frame stays inert. */
+  pointer-events: none;
+}
+
+.hm-hero__cta {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.95rem clamp(1.75rem, 4vw, 3rem);
+  border: 1px solid var(--hm-white);
+  background: var(--hm-white);
+  color: var(--hm-ink);
+  font-family: var(--hm-display);
+  font-size: clamp(0.75rem, 1.4vw, 0.875rem);
+  font-weight: 600;
+  font-variation-settings: "wdth" 112;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition:
+    background-color 0.5s var(--hm-ease),
+    color 0.5s var(--hm-ease),
+    transform 0.5s var(--hm-ease);
+}
+
+.hm-hero__cta:is(:hover, :focus-visible) {
+  background: transparent;
+  color: var(--hm-white);
+  transform: translateY(-2px);
+}
 
 @keyframes hm-wipe {
   from { clip-path: inset(0 0 0 100%); }
@@ -237,75 +289,40 @@
    -------------------------------------------------------------------------- */
 
 .hm-ig {
-  padding-block: clamp(4rem, 9vw, 8rem) clamp(3rem, 7vw, 6rem);
+  /* No pad at the foot: the rail is the last thing in the band and the shelf
+     under it brings its own top pad, so anything here reads as a hole. */
+  padding-block: clamp(4rem, 9vw, 8rem) 0;
   background: var(--hm-chalk);
   color: var(--hm-ink);
 }
 
 .hm-ig__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1.75rem 3rem;
-  padding-bottom: clamp(2rem, 4vw, 3.5rem);
+  padding-bottom: clamp(1.75rem, 3.5vw, 3rem);
+  text-align: center;
 }
-
-.hm-ig__titles { min-width: 0; }
 
 .hm-ig__title {
-  margin-top: 0.75rem;
   font-family: var(--hm-display);
-  font-size: clamp(2.75rem, 8.6vw, 9rem);
+  font-size: clamp(1.5rem, 3.4vw, 2.75rem);
   font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 0.86;
+  font-variation-settings: "wdth" 112;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
 }
 
-.hm-ig__handle {
-  display: inline-flex;
-  align-items: baseline;
-  color: inherit;
-  font-variation-settings: "wdth" var(--wdth, 125);
-  text-decoration: none;
-}
-
-.hm-ig__at {
+.hm-ig__follow {
   display: inline-block;
-  margin-right: 0.04em;
-  color: var(--hm-smoke);
-  font-weight: 300;
-  transition: transform 0.9s var(--hm-ease), color 0.6s var(--hm-ease);
+  padding-bottom: 0.15em;
+  color: inherit;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  text-decoration: none;
+  transition: background-size 0.6s var(--hm-ease);
 }
 
-.hm-ig__handle:hover .hm-ig__at { color: var(--hm-ink); }
-
-.hm-ig__handle:hover .hm-ig__at,
-.hm-ig__handle:focus-visible .hm-ig__at { transform: rotate(-14deg) translateY(-0.04em); }
-
-.hm-ig__aside {
-  display: grid;
-  justify-items: start;
-  gap: 1rem;
-  max-width: 22rem;
-}
-
-.hm-ig__note {
-  color: var(--hm-stone);
-  font-family: var(--hm-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.12em;
-  line-height: 1.5;
-  text-transform: uppercase;
-}
-
-.hm-ig__empty {
-  max-width: 40rem;
-  color: var(--hm-stone);
-  font-family: var(--hm-sans);
-  font-size: 1.125rem;
-  line-height: 1.6;
-}
+.hm-ig__follow:is(:hover, :focus-visible) { background-size: 100% 1px; }
 
 /* The shared rail, re-proportioned for this band: portrait tiles, wider gaps. */
 .hm-ig .iglane__set {
@@ -331,6 +348,11 @@
   background: var(--hm-white);
   color: var(--hm-ink);
 }
+
+/* The Instagram band ends flush on its rail, so the shelf that follows it
+   carries the whole break between them — and a smaller one, because two full
+   pads there read as a hole in the page. */
+.hm-ig + .hm-shelf { padding-top: clamp(3rem, 6vw, 5rem); }
 
 .hm-shelf__head { display: grid; gap: 1.5rem; align-content: start; }
 
@@ -1038,5 +1060,6 @@
   .hm-shelf__name,
   .hm-look__image,
   .hm-look__label,
-  .hm-ig__at { transition: none; }
+  .hm-ig__follow { transition: none; }
+  .hm-hero__cta { transition: none; }
 }

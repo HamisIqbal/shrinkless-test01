@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { cropStyle } from '@/lib/media/crop';
 import type { HeroSlide } from '@/components/site/HeroSlider';
 import { homeFonts } from '@/components/home/fonts';
@@ -15,13 +16,13 @@ type Props = {
 };
 
 /**
- * The homepage campaign: the photography, and nothing else.
+ * The homepage campaign: the photography, and one way in.
  *
  * Frames are stacked rather than railed — the next one wipes across the last
  * from the right while it settles out of a slow zoom — and the page lifts off
- * them as it scrolls. There is no type, no call to action and no carousel
- * furniture on it: the frame is the whole statement, so the hold is a timer
- * rather than a progress bar, and the only heading is one for the document
+ * them as it scrolls. The only thing drawn over them is Shop now, centred: no
+ * eyebrow, no headline and no carousel furniture, so the hold is a timer
+ * rather than a progress bar and the only heading is one for the document
  * outline that is never drawn.
  *
  * The timer is read from `prefers-reduced-motion` inside an effect, which is
@@ -113,6 +114,13 @@ export function HomeHero({ slides, interval = 6000 }: Props) {
             </div>
           );
         })}
+      </div>
+
+      {/* The one call to action, centred in the frame at every width. */}
+      <div className="hm-hero__call">
+        <Link href="/shop" className="hm-hero__cta">
+          <span>Shop Now</span>
+        </Link>
       </div>
 
       <div id="hero-sentinel" className="hero__sentinel" aria-hidden="true" />

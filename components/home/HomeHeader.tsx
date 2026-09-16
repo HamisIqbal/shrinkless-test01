@@ -43,11 +43,15 @@ export function Roll({ children }: { children: string }) {
 /**
  * The homepage masthead.
  *
- * Behaves exactly like the shop header — transparent over the campaign at
- * rest, solid and shorter from the first scroll, the shop panel on a lazy
- * hover or a pinning click, search in a drop panel, the cart as a sheet — but
+ * Behaves like the shop header — the shop panel on a lazy hover or a pinning
+ * click, search in a drop panel, the cart as a sheet — but
  * drawn as its own thing: links left, the wordmark centred, text utilities
- * right, and an ink sheet that the bar and the menu become together.
+ * right, and an ink sheet that the bar and the search drop become together.
+ *
+ * The bar is white at every scroll position, including over the campaign: the
+ * links have to be readable against whatever photograph the admin publishes,
+ * and a transparent bar could not promise that. It still shortens from the
+ * first scroll.
  */
 export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props) {
   const router = useRouter();
@@ -66,7 +70,6 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
   const hoverTimer = useRef(0);
 
   const panel = megaOpen || searchOpen;
-  const overlaid = !scrolled && !panel;
 
   useEffect(() => {
     let frame = 0;
@@ -181,7 +184,6 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
   const classes = [
     'hm-head',
     homeFonts,
-    overlaid ? 'hm-head--over' : '',
     scrolled ? 'hm-head--compact' : '',
     searchOpen ? 'hm-head--panel' : '',
     megaOpen && !searchOpen ? 'hm-head--menu' : '',
@@ -359,7 +361,7 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
           </form>
         </div>
 
-        <HomeMegaMenu open={megaOpen} id="shop-mega" onNavigate={closeMega} />
+        <HomeMegaMenu menu={menu} open={megaOpen} id="shop-mega" onNavigate={closeMega} />
       </header>
 
       <div
