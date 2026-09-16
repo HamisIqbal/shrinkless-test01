@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import { PRIMARY_NAV, type ShopMenu } from '@/lib/shop/navigation';
-import { SearchIcon, CartIcon, ArrowIcon } from '@/components/site/icons';
+import { SearchIcon, AccountIcon, CartIcon, ArrowIcon } from '@/components/site/icons';
 import { CartSheet } from '@/components/shop/CartSheet';
 import { homeFonts } from '@/components/home/fonts';
-import { HomeMegaMenu } from '@/components/home/HomeMegaMenu';
+import { HomeMegaMenu, type PanelKey } from '@/components/home/HomeMegaMenu';
 import { HomeDrawer } from '@/components/home/HomeDrawer';
 import type { CartViewDTO } from '@/types/dto';
 
@@ -30,6 +30,13 @@ const HOVER_OUT = 220;
 
 const WORDMARK = 'SHRINKLESS'.split('');
 
+/** The three bar words that open the sheet, by the route they point at. */
+const PANEL_BY_HREF: Record<string, PanelKey> = {
+  '/shop': 'shop',
+  '/shop/men': 'men',
+  '/shop/women': 'women',
+};
+
 /** Two copies of a label stacked in a one-line window; hover rolls the second up. */
 export function Roll({ children }: { children: string }) {
   return (
@@ -43,22 +50,29 @@ export function Roll({ children }: { children: string }) {
 /**
  * The homepage masthead.
  *
- * Behaves like the shop header — the shop panel on a lazy hover or a pinning
- * click, search in a drop panel, the cart as a sheet — but
- * drawn as its own thing: links left, the wordmark centred, text utilities
- * right, and an ink sheet that the bar and the search drop become together.
+ * Three bands: the wordmark on the left, the navigation centred, and the three
+ * utilities — search, account, bag — on the right as icons alone. The bar
+ * words are set in Bebas Neue, which is what makes the row read as signage
+ * rather than as interface; the wordmark keeps Archivo's width axis so the
+ * brand is still the one thing on the bar in the brand's own face.
  *
- * The bar is white at every scroll position, including over the campaign: the
- * links have to be readable against whatever photograph the admin publishes,
- * and a transparent bar could not promise that. It still shortens from the
- * first scroll.
+ * Shop, Men and Women each drop the same sheet with their own set of columns,
+ * on a lazy hover or a pinning click. None of them carries a plus: the sheet
+ * dropping is the disclosure. Search opens its own drop panel and the cart
+ * opens as a sheet.
+ *
+ * On a desktop window the bar starts transparent over the campaign, every word
+ * and icon in white, and only becomes paper on the first scroll — so the
+ * photograph runs to the top of the screen. Below that breakpoint it is white
+ * from the first pixel: there the campaign is a tall crop behind a burger and
+ * two icons, and a transparent bar could not promise those stay readable.
  */
 export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props) {
   const router = useRouter();
   const itemCount = cart?.itemCount ?? 0;
 
   const [scrolled, setScrolled] = useState(false);
-  const [megaOpen, setMegaOpen] = useState(false);
+  const [megaPanel, setMegaPanel] = useState<PanelKey | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
@@ -69,6 +83,7 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
   const searchInput = useRef<HTMLInputElement>(null);
   const hoverTimer = useRef(0);
 
+  const megaOpen = megaPanel !== null;
   const panel = megaOpen || searchOpen;
 
   useEffect(() => {
@@ -98,7 +113,7 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
     function onKey(event: KeyboardEvent) {
       if (event.key !== 'Escape') return;
       setPinned(false);
-      setMegaOpen(false);
+      setMegaPanel(null);
       setSearchOpen(false);
     }
 
@@ -112,12 +127,12 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
 
   const closeMega = useCallback(() => {
     setPinned(false);
-    setMegaOpen(false);
+    setMegaPanel(null);
   }, []);
 
   const closePanels = useCallback(() => {
     setPinned(false);
-    setMegaOpen(false);
+    setMegaPanel(null);
     setSearchOpen(false);
   }, []);
 
@@ -139,34 +154,39 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
 
   useEffect(() => clearHover, [clearHover]);
 
-  const hoverOpen = useCallback(() => {
-    if (!canHover()) return;
-    clearHover();
-    hoverTimer.current = window.setTimeout(() => {
-      setSearchOpen(false);
-      setMegaOpen(true);
-    }, HOVER_IN);
-  }, [canHover, clearHover]);
+  const hoverOpen = useCallback(
+    (key: PanelKey) => {
+      if (!canHover()) return;
+      clearHover();
+      hoverTimer.current = window.setTimeout(() => {
+        setSearchOpen(false);
+        setMegaPanel(key);
+      }, HOVER_IN);
+    },
+    [canHover, clearHover],
+  );
 
   const hoverClose = useCallback(() => {
     setHovered(null);
     if (!canHover() || pinned) return;
     clearHover();
-    hoverTimer.current = window.setTimeout(() => setMegaOpen(false), HOVER_OUT);
+    hoverTimer.current = window.setTimeout(() => setMegaPanel(null), HOVER_OUT);
   }, [canHover, clearHover, pinned]);
 
-  function toggleMega() {
+  // Clicking the word the sheet is already showing shuts it; clicking another
+  // swaps the columns under a sheet that stays down.
+  function toggleMega(key: PanelKey) {
     clearHover();
-    const next = !megaOpen;
+    const next = megaPanel === key ? null : key;
     setSearchOpen(false);
-    setPinned(next);
-    setMegaOpen(next);
+    setPinned(next !== null);
+    setMegaPanel(next);
   }
 
   function toggleSearch() {
     clearHover();
     setPinned(false);
-    setMegaOpen(false);
+    setMegaPanel(null);
     setSearchOpen((value) => !value);
   }
 
@@ -178,12 +198,15 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
     setSearchOpen(false);
   }
 
+  // `--over` is the transparent state the bar holds over the top of the
+  // campaign on a desktop window; the stylesheet keeps it to that breakpoint.
   // `--panel` is the ink sheet the search drop becomes with the bar. The shop
-  // panel is a white sheet, so it gets `--menu` instead: the bar goes solid
-  // paper rather than ink, and the two read as one white surface.
+  // sheet is white, so it gets `--menu` instead: the bar goes solid paper
+  // rather than ink, and the two read as one white surface.
   const classes = [
     'hm-head',
     homeFonts,
+    !scrolled && !panel ? 'hm-head--over' : '',
     scrolled ? 'hm-head--compact' : '',
     searchOpen ? 'hm-head--panel' : '',
     megaOpen && !searchOpen ? 'hm-head--menu' : '',
@@ -205,77 +228,76 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
               <span className="visually-hidden">Open menu</span>
             </button>
 
-            <nav aria-label="Main" className="hm-nav">
-              <LayoutGroup id="hm-nav">
-                <ul onMouseLeave={() => setHovered(null)}>
-                  {PRIMARY_NAV.map((item, index) => {
-                    const isShop = item.href === '/shop';
-
-                    return (
-                      <li
-                        key={item.href}
-                        className="hm-nav__item"
-                        onMouseEnter={() => setHovered(index)}
-                        onFocus={() => setHovered(index)}
-                        onBlur={() => setHovered(null)}
-                      >
-                        {isShop ? (
-                          <button
-                            type="button"
-                            className="hm-nav__link"
-                            aria-expanded={megaOpen}
-                            aria-controls="shop-mega"
-                            onClick={toggleMega}
-                            onMouseEnter={hoverOpen}
-                            onFocus={hoverOpen}
-                          >
-                            {item.label}
-                            <span className="hm-nav__plus" aria-hidden="true" />
-                          </button>
-                        ) : (
-                          <Link href={item.href} className="hm-nav__link">
-                            {item.label}
-                            {item.highlight ? (
-                              <span className="hm-nav__flag" aria-hidden="true" />
-                            ) : null}
-                          </Link>
-                        )}
-
-                        <AnimatePresence>
-                          {hovered === index ? (
-                            <motion.span
-                              layoutId="hm-nav-line"
-                              className="hm-nav__line"
-                              aria-hidden="true"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
-                              transition={{ type: 'spring', stiffness: 520, damping: 42, mass: 0.6 }}
-                            />
-                          ) : null}
-                        </AnimatePresence>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </LayoutGroup>
-            </nav>
+            <Link href="/" className="hm-mark">
+              <span className="visually-hidden">Shrinkless, home</span>
+              <span className="hm-mark__word" aria-hidden="true">
+                {WORDMARK.map((letter, index) => (
+                  <span
+                    key={index}
+                    className="hm-mark__char"
+                    style={{ '--i': index } as React.CSSProperties}
+                  >
+                    {letter}
+                  </span>
+                ))}
+              </span>
+            </Link>
           </div>
 
-          <Link href="/" className="hm-mark">
-            <span className="visually-hidden">Shrinkless, home</span>
-            <span className="hm-mark__word" aria-hidden="true">
-              {WORDMARK.map((letter, index) => (
-                <span
-                  key={index}
-                  className="hm-mark__char"
-                  style={{ '--i': index } as React.CSSProperties}
-                >
-                  {letter}
-                </span>
-              ))}
-            </span>
-          </Link>
+          <nav aria-label="Main" className="hm-nav">
+            <LayoutGroup id="hm-nav">
+              <ul onMouseLeave={() => setHovered(null)}>
+                {PRIMARY_NAV.map((item, index) => {
+                  const key = PANEL_BY_HREF[item.href];
+
+                  return (
+                    <li
+                      key={item.href}
+                      className="hm-nav__item"
+                      onMouseEnter={() => setHovered(index)}
+                      onFocus={() => setHovered(index)}
+                      onBlur={() => setHovered(null)}
+                    >
+                      {key ? (
+                        <button
+                          type="button"
+                          className="hm-nav__link"
+                          aria-expanded={megaPanel === key}
+                          aria-controls="shop-mega"
+                          onClick={() => toggleMega(key)}
+                          onMouseEnter={() => hoverOpen(key)}
+                          onFocus={() => hoverOpen(key)}
+                        >
+                          {item.label}
+                        </button>
+                      ) : (
+                        <Link href={item.href} className="hm-nav__link">
+                          {item.label}
+                          {item.highlight ? (
+                            <span className="hm-nav__flag" aria-hidden="true" />
+                          ) : null}
+                        </Link>
+                      )}
+
+                      <AnimatePresence>
+                        {hovered === index ? (
+                          <motion.span
+                            layoutId="hm-nav-line"
+                            className="hm-nav__line"
+                            aria-hidden="true"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ type: 'spring', stiffness: 520, damping: 42, mass: 0.6 }}
+                          />
+                        ) : null}
+                      </AnimatePresence>
+                    </li>
+                  );
+                })}
+              </ul>
+            </LayoutGroup>
+          </nav>
 
           <div className="hm-head__utils">
             {isAdmin ? (
@@ -292,12 +314,12 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
               onClick={toggleSearch}
             >
               <SearchIcon className="hm-util__icon" />
-              <span className="hm-util__text" aria-hidden="true"><Roll>Search</Roll></span>
               <span className="visually-hidden">Search</span>
             </button>
 
             <Link href={signedIn ? '/account' : '/login'} className="hm-util hm-util--account">
-              <span className="hm-util__text"><Roll>{signedIn ? 'Account' : 'Sign in'}</Roll></span>
+              <AccountIcon className="hm-util__icon" />
+              <span className="visually-hidden">{signedIn ? 'Account' : 'Sign in'}</span>
             </Link>
 
             {/* Opens the sheet rather than navigating; /cart is still a real page. */}
@@ -309,7 +331,6 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
               onClick={() => setCartOpen(true)}
             >
               <CartIcon className="hm-util__icon" />
-              <span className="hm-util__text" aria-hidden="true"><Roll>Bag</Roll></span>
               <span className="hm-util__count tnum" aria-hidden="true">
                 <AnimatePresence initial={false} mode="popLayout">
                   <motion.span
@@ -361,7 +382,7 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
           </form>
         </div>
 
-        <HomeMegaMenu menu={menu} open={megaOpen} id="shop-mega" onNavigate={closeMega} />
+        <HomeMegaMenu menu={menu} panel={megaPanel} id="shop-mega" onNavigate={closeMega} />
       </header>
 
       <div

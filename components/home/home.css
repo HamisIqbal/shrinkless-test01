@@ -4,9 +4,10 @@
    prefixed and every element that uses one is rendered by components/home, so
    nothing on any other route can match a rule in this file.
 
-   Black, white and five greys between them. Three faces: Archivo (with its
-   width axis) for display, Space Grotesk as the accent, Geist Mono for
-   the care-label small print. Body copy stays in the site's Inter Tight.
+   Black, white and five greys between them. Four faces: Bebas Neue for the
+   navigation and the category doors, Archivo (with its width axis) for the
+   wordmark and the footer, Space Grotesk as the accent, Geist Mono for the
+   care-label small print. Body copy stays in the site's Inter Tight.
    ========================================================================== */
 
 .hm-head,
@@ -26,6 +27,7 @@
   --hm-line-light: rgba(10, 10, 10, 0.1);
 
   --hm-display: var(--font-hm-display), "Helvetica Neue", Arial, sans-serif;
+  --hm-bebas: var(--font-hm-bebas), "Haettenschweiler", "Arial Narrow", sans-serif;
   --hm-accent: var(--font-hm-accent), "Helvetica Neue", Arial, sans-serif;
   --hm-mono: var(--font-hm-mono), ui-monospace, "SF Mono", Menlo, monospace;
   --hm-sans: var(--font-inter-tight), "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -243,10 +245,12 @@
 
 /* --------------------------------------------------------------------------
    Masthead
-   White at every scroll position — the links sit on paper rather than on the
-   campaign, so they are readable over any photograph the admin publishes.
-   Two states on top of that: `--compact` (after the first scroll) and
-   `--panel` (search is down, and the bar and panel become one ink sheet).
+   Wordmark left, navigation centred, three utility icons right.
+
+   Four independent states: `--over` (transparent over the top of the
+   campaign, desktop only), `--compact` (after the first scroll), `--panel`
+   (search is down, and the bar and panel become one ink sheet) and `--menu`
+   (the shop sheet is down, and the bar goes solid paper to match it).
    -------------------------------------------------------------------------- */
 
 .hm-head {
@@ -262,6 +266,24 @@
     background-color 0.5s var(--hm-ease),
     border-color 0.5s var(--hm-ease),
     color 0.5s var(--hm-ease);
+}
+
+/* The top of the campaign on a desktop window: no bar layer at all, every
+   word and icon in white, straight on the photograph. Kept to the breakpoint
+   where the bar is a row of words — below it the bar is a burger and two
+   marks over a tall crop, and a transparent bar could not promise those stay
+   readable against whatever photograph the admin publishes. */
+@media (min-width: 62rem) {
+  .hm-head--over {
+    background: transparent;
+    border-bottom-color: transparent;
+    color: var(--hm-white);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* On the photograph the ink focus ring would vanish. */
+  .hm-head--over :focus-visible { outline: 2px solid var(--hm-white); }
 }
 
 .hm-head--panel {
@@ -280,8 +302,11 @@
   backdrop-filter: none;
 }
 
-/* 5.25rem at rest. The bar is opaque, so the hero starts under it rather
-   than behind it — see `.hm-hero` in home-sections.css. */
+/* 5.25rem at rest, and the measure the hero's overlap is cut to.
+
+   Three bands rather than three items: the outer two are equal fractions, so
+   the navigation in the middle is centred on the page however much wider the
+   wordmark is than the icons opposite it. */
 .hm-head__bar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -296,7 +321,12 @@
 
 .hm-head--compact .hm-head__bar { min-height: 4rem; }
 
-.hm-head__left { display: flex; align-items: center; min-width: 0; }
+.hm-head__left {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.5rem, 1.5vw, 1.25rem);
+  min-width: 0;
+}
 
 /* --- burger (below the desktop breakpoint) ------------------------------ */
 
@@ -336,14 +366,14 @@
 .hm-burger__lines::after { bottom: 0; transform: scaleX(0.62); }
 .hm-burger:hover .hm-burger__lines::after { transform: none; }
 
-/* --- main navigation ------------------------------------------------------ */
+/* --- main navigation (centred) -------------------------------------------- */
 
-.hm-nav { display: none; }
+.hm-nav { display: none; justify-self: center; }
 
 .hm-nav ul {
   display: flex;
   align-items: center;
-  gap: clamp(1.1rem, 2vw, 2.25rem);
+  gap: clamp(1.25rem, 2.4vw, 2.75rem);
 }
 
 .hm-nav__item { position: relative; }
@@ -356,36 +386,19 @@
   border: 0;
   background: none;
   color: inherit;
-  font-family: var(--hm-display);
-  font-size: 0.75rem;
-  font-weight: 500;
-  font-variation-settings: "wdth" 112;
-  letter-spacing: 0.1em;
+  /* Bebas Neue: caps only, condensed, one weight. The bar is signage, and a
+     condensed face lets the words stand a size larger than a text grotesk
+     could across this measure. None of them carries a plus — the sheet
+     dropping is the disclosure, and three of the five words drop it. */
+  font-family: var(--hm-bebas);
+  font-size: clamp(1rem, 1.35vw, 1.125rem);
+  font-weight: 400;
+  letter-spacing: 0.14em;
   line-height: 1;
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
 }
-
-/* A plus that turns into a cross when the panel is down. */
-.hm-nav__plus {
-  position: relative;
-  width: 0.5rem;
-  height: 0.5rem;
-  transition: transform 0.5s var(--hm-ease);
-}
-
-.hm-nav__plus::before,
-.hm-nav__plus::after {
-  content: "";
-  position: absolute;
-  background: currentColor;
-}
-
-.hm-nav__plus::before { top: 50%; left: 0; width: 100%; height: 1px; }
-.hm-nav__plus::after { left: 50%; top: 0; width: 1px; height: 100%; }
-
-.hm-nav__link[aria-expanded="true"] .hm-nav__plus { transform: rotate(45deg); }
 
 /* Wholesale sells to a different buyer, and carries a mark to say so. */
 .hm-nav__flag {
@@ -399,7 +412,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0.4rem;
+  bottom: 0.55rem;
   height: 1px;
   background: currentColor;
   pointer-events: none;
@@ -407,9 +420,12 @@
 
 /* --- wordmark ------------------------------------------------------------- */
 
+/* Left, beside the burger. Archivo with its width axis rather than Bebas:
+   the bar words are signage, and the brand is the one thing on the row that
+   should not read like the rest of it. */
 .hm-mark {
-  justify-self: center;
   display: block;
+  min-width: 0;
   color: inherit;
   text-decoration: none;
 }
@@ -484,10 +500,17 @@
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
+  transition: opacity 0.4s var(--hm-ease);
 }
 
-.hm-util__icon { width: 1.25rem; height: 1.25rem; flex: none; }
-.hm-util__text { display: none; line-height: 0; }
+.hm-util:is(:hover, :focus-visible) { opacity: 0.6; }
+
+/* Drawn rather than written. Search, account and bag are the three marks
+   every shop uses, so at this size the icon is quicker to find than its name
+   — and three names either side of a centred navigation would have made the
+   row read as two navigations. The names are still there for a screen
+   reader. */
+.hm-util__icon { width: 1.35rem; height: 1.35rem; flex: none; }
 
 .hm-util__count {
   position: relative;
@@ -506,6 +529,10 @@
 
 .hm-util__num { display: block; }
 
+/* The drawer carries the account link on a phone, where the row already has
+   a burger and no room for a fourth mark. Admin is a word rather than a mark:
+   it is not a shopper's control, and there is no icon for it a shopper would
+   have to learn. */
 .hm-util--account,
 .hm-util--admin { display: none; }
 
@@ -515,10 +542,7 @@
   .hm-burger { display: none; }
   .hm-nav { display: block; }
 
-  .hm-util { min-width: 0; }
-  .hm-util__text { display: inline-block; }
-  .hm-util--search .hm-util__icon,
-  .hm-util--bag .hm-util__icon { display: none; }
+  .hm-util { min-width: 2.25rem; }
   .hm-util--account,
   .hm-util--admin { display: inline-flex; }
 }
@@ -815,12 +839,20 @@
   transform: translateX(0.3rem);
 }
 
+/* On the Men and Women sheets the photograph holds the last column on its
+   own, with no name over it — the sheet is already named by the bar word
+   that dropped it. The offset puts its top on the rules the columns beside it
+   draw, which is where their labels end. */
+.hm-mega__col--figure { margin-top: 2.35rem; }
+
 /* The Men and Women photographs, each inside its own column. */
 .hm-mega__figure {
   display: block;
   margin-top: clamp(0.9rem, 1.6vw, 1.4rem);
   text-decoration: none;
 }
+
+.hm-mega__col--figure .hm-mega__figure { margin-top: 0; }
 
 .hm-mega__frame {
   position: relative;
@@ -1180,10 +1212,12 @@
   position: relative;
   z-index: 2;
   padding-inline: 1rem;
-  font-family: var(--hm-display);
-  font-size: clamp(1.5rem, 5vw, 2.25rem);
-  font-weight: 700;
-  font-variation-settings: "wdth" 112;
+  /* Bebas, like the bar and the sections above: the doors are the page's own
+     signage. It carries no bold and no width axis, so the size does the work
+     the weight used to. */
+  font-family: var(--hm-bebas);
+  font-size: clamp(1.75rem, 5.5vw, 2.75rem);
+  font-weight: 400;
   letter-spacing: 0.16em;
   /* The tracking is added to the right of the last letter; trimming it back
      is what keeps the word optically centred. */
@@ -1198,7 +1232,7 @@
 }
 
 @media (min-width: 48rem) {
-  .hm-gw__name { font-size: clamp(1.5rem, 2.2vw, 2rem); }
+  .hm-gw__name { font-size: clamp(1.75rem, 2.6vw, 2.5rem); }
 }
 
 .hm-gw__tile:is(:hover, :focus-visible) .hm-gw__name {

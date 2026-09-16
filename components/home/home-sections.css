@@ -3,6 +3,14 @@
    story, promise and reviews. Same language as home.css (the chrome and the
    Men & Women doors), which this file reads from but never overrides.
 
+   Every heading down the page is set in Bebas Neue, the same face as the
+   navigation and the category doors, so the page speaks in one voice from the
+   bar to the last shelf. It is caps only, condensed and a single weight: the
+   rules below carry no bold and no width axis, and the size is what does the
+   work the weight used to. Running copy and the pull quotes stay in Space
+   Grotesk and Inter Tight — a condensed display face is signage, not reading.
+   The footer keeps Archivo.
+
    Each section root keeps the class the admin's Media tab targets (.hero,
    .iglane, .lookbook, .tiles, .imageband, .quotes, and the two shelves by
    aria-labelledby). Grounds and heights below are set at the same weight as
@@ -31,6 +39,7 @@
   --hm-line-light: rgba(10, 10, 10, 0.12);
 
   --hm-display: var(--font-hm-display), "Helvetica Neue", Arial, sans-serif;
+  --hm-bebas: var(--font-hm-bebas), "Haettenschweiler", "Arial Narrow", sans-serif;
   --hm-accent: var(--font-hm-accent), "Helvetica Neue", Arial, sans-serif;
   --hm-mono: var(--font-hm-mono), ui-monospace, "SF Mono", Menlo, monospace;
   --hm-sans: var(--font-inter-tight), "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -195,15 +204,24 @@
      nothing left to hold. */
   padding-block: 0;
   background: var(--hm-ink);
-  /* The masthead is opaque at every scroll position now, so the hero starts
-     under it rather than behind it: the overlap the shop sheet's `.hero`
-     adds back is taken off here, at all three of its widths. */
+  /* Below the desktop breakpoint the masthead is opaque, so the hero starts
+     under it rather than behind it: the overlap the shop sheet's `.hero` adds
+     back is taken off again here. */
   margin-top: 0;
   min-height: 92svh;
 }
 
 @media (min-width: 48rem) { .hm-hero { min-height: max(36rem, 94svh); } }
-@media (min-width: 62rem) { .hm-hero { min-height: calc(100svh - 5.25rem); } }
+
+/* On a desktop window the bar is transparent over the top of the campaign, so
+   the overlap comes back: the photograph runs to the top of the screen and the
+   section still ends exactly at the fold. */
+@media (min-width: 62rem) {
+  .hm-hero {
+    margin-top: -5.25rem;
+    min-height: calc(100svh + 5.25rem);
+  }
+}
 
 .hm-hero__stage {
   position: absolute;
@@ -239,6 +257,12 @@
   pointer-events: none;
 }
 
+/* Centred in what you can see rather than in the section: on a desktop window
+   the section starts 5.25rem above the top of the screen. */
+@media (min-width: 62rem) {
+  .hm-hero__call { padding-top: 5.25rem; }
+}
+
 .hm-hero__cta {
   pointer-events: auto;
   display: inline-flex;
@@ -249,11 +273,10 @@
   border: 1px solid var(--hm-white);
   background: var(--hm-white);
   color: var(--hm-ink);
-  font-family: var(--hm-display);
-  font-size: clamp(0.75rem, 1.4vw, 0.875rem);
-  font-weight: 600;
-  font-variation-settings: "wdth" 112;
-  letter-spacing: 0.14em;
+  font-family: var(--hm-bebas);
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  font-weight: 400;
+  letter-spacing: 0.18em;
   line-height: 1;
   text-transform: uppercase;
   text-decoration: none;
@@ -302,12 +325,12 @@
 }
 
 .hm-ig__title {
-  font-family: var(--hm-display);
-  font-size: clamp(1.5rem, 3.4vw, 2.75rem);
-  font-weight: 800;
-  font-variation-settings: "wdth" 112;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
+  font-family: var(--hm-bebas);
+  font-size: clamp(1.875rem, 4vw, 3.25rem);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+  text-transform: uppercase;
 }
 
 .hm-ig__follow {
@@ -358,12 +381,11 @@
 
 .hm-shelf__title {
   margin-top: 0.6rem;
-  font-family: var(--hm-display);
-  font-size: clamp(2.75rem, 6.2vw, 6.25rem);
-  font-weight: 800;
-  font-variation-settings: "wdth" var(--wdth, 125);
-  letter-spacing: -0.01em;
-  line-height: 0.86;
+  font-family: var(--hm-bebas);
+  font-size: clamp(3.25rem, 7.4vw, 7.5rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 0.9;
   text-transform: uppercase;
 }
 
@@ -453,10 +475,11 @@
 }
 
 .hm-shelf__name {
-  font-family: var(--hm-display);
-  font-size: 1rem;
-  font-weight: 500;
-  font-variation-settings: "wdth" 100;
+  font-family: var(--hm-bebas);
+  font-size: 1.125rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   transition: transform 0.6s var(--hm-ease);
 }
 
@@ -515,11 +538,11 @@
 }
 
 .hm-shelf .pcard__title {
-  font-family: var(--hm-display);
-  font-size: 0.875rem;
-  font-weight: 600;
-  font-variation-settings: "wdth" 112;
-  letter-spacing: 0.04em;
+  font-family: var(--hm-bebas);
+  font-size: 1.0625rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .hm-shelf .pcard__price {
@@ -561,12 +584,11 @@
 
 .hm-look__title {
   margin-top: 0.6rem;
-  font-family: var(--hm-display);
-  font-size: clamp(2.75rem, min(7vw, 12vh), 7.5rem);
-  font-weight: 800;
-  font-variation-settings: "wdth" 125;
-  letter-spacing: -0.01em;
-  line-height: 0.86;
+  font-family: var(--hm-bebas);
+  font-size: clamp(3.25rem, min(8.2vw, 14vh), 9rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 0.9;
   text-transform: uppercase;
 }
 
@@ -658,11 +680,10 @@
 .hm-look__label {
   padding-bottom: 0.15rem;
   background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
-  font-family: var(--hm-display);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  font-variation-settings: "wdth" 112;
-  letter-spacing: 0.04em;
+  font-family: var(--hm-bebas);
+  font-size: 1.125rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   transition: background-size 0.7s var(--hm-ease);
 }
@@ -765,14 +786,15 @@
 }
 
 .hm-story__title {
-  max-width: 14ch;
-  font-family: var(--hm-display);
-  font-size: clamp(2.25rem, 4.4vw, 4.5rem);
-  font-weight: 700;
-  font-variation-settings: "wdth" 100;
-  letter-spacing: -0.035em;
-  line-height: 0.95;
-  text-transform: none;
+  /* Bebas is condensed, so the same 14 characters take noticeably less width
+     than Archivo's did; the measure is widened to keep the line count. */
+  max-width: 18ch;
+  font-family: var(--hm-bebas);
+  font-size: clamp(2.75rem, 5.2vw, 5.5rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 0.96;
+  text-transform: uppercase;
 }
 
 .hm-story__body {
@@ -878,10 +900,9 @@
 .hm-promise__line { display: inline-block; }
 
 .hm-promise__line--sans {
-  font-family: var(--hm-display);
-  font-weight: 800;
-  font-variation-settings: "wdth" 125;
-  letter-spacing: -0.01em;
+  font-family: var(--hm-bebas);
+  font-weight: 400;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
 }
 
@@ -942,14 +963,13 @@
 }
 
 .hm-quotes__title {
-  max-width: 10ch;
+  max-width: 13ch;
   margin-top: 0.6rem;
-  font-family: var(--hm-display);
-  font-size: clamp(2.25rem, 4vw, 4rem);
-  font-weight: 800;
-  font-variation-settings: "wdth" 112;
-  letter-spacing: -0.01em;
-  line-height: 0.9;
+  font-family: var(--hm-bebas);
+  font-size: clamp(2.75rem, 4.8vw, 4.75rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 0.94;
   text-transform: uppercase;
 }
 
