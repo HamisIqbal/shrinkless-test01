@@ -17,6 +17,13 @@ type Props = {
   onNavigate: () => void;
 };
 
+/** The three bar words that open the sheet, by the route they point at. */
+export const PANEL_BY_HREF: Record<string, PanelKey> = {
+  '/shop': 'shop',
+  '/shop/men': 'men',
+  '/shop/women': 'women',
+};
+
 type Column = {
   key: string;
   /** Omitted on a column that is only a photograph. */
@@ -37,8 +44,12 @@ type Column = {
  * category's photograph holding the last column. The lists are a single entry
  * today because a single entry is what the store sells; they are data rather
  * than markup so the day there are more is an edit here.
+ *
+ * Exported because the phone drawer reads the same set: the menu a shopper
+ * meets on a phone should be the menu they meet on a desktop, and two copies
+ * of it would drift apart the first time one is edited.
  */
-const PANELS: Record<PanelKey, Column[]> = {
+export const PANELS: Record<PanelKey, Column[]> = {
   shop: [
     { key: 'all', label: 'Shop all', href: '/shop', links: [{ label: 'Tees', href: '/shop' }] },
     {

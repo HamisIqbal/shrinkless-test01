@@ -4,7 +4,8 @@ import { useEffect, useId, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AnimatePresence, motion, type Variants } from 'motion/react';
-import type { ShopMenu } from '@/lib/shop/navigation';
+import { PRIMARY_NAV, type ShopMenu } from '@/lib/shop/navigation';
+import { PANELS, PANEL_BY_HREF } from '@/components/home/HomeMegaMenu';
 import { homeFonts } from '@/components/home/fonts';
 
 type Props = {
@@ -44,11 +45,17 @@ const fade: Variants = {
 };
 
 /**
- * The homepage's phone menu: a full-screen ink sheet that drops from the top.
+ * The homepage's phone menu: a full-screen paper sheet that drops from the top.
  *
  * Same contract as the shop drawer — accordions for the columns, a focus
  * trap, Escape to close, the page locked behind it — with the categories set
  * large and rising into place, and the two category frames at the foot.
+ *
+ * White with ink type rather than the ink sheet it was: it carries the same
+ * five words and the same columns as the desktop bar and its sheet, and the
+ * two should read as one menu rendered at two sizes. Each row that has a list
+ * carries a plain plus that becomes a plain cross — no disc around it, the
+ * same mark the desktop sheet uses.
  */
 export function HomeDrawer({
   menu,
@@ -124,16 +131,18 @@ export function HomeDrawer({
     return () => window.clearTimeout(timer);
   }, [open]);
 
-  const rows = [
-    ...menu.columns.map((column) => ({
-      key: column.title,
-      href: column.href ?? '/shop',
-      label: column.title,
-      links: column.links,
-    })),
-    { key: 'wholesale', href: '/wholesale', label: 'Wholesale', links: [] },
-    { key: 'about', href: '/our-story', label: 'About Us', links: [] },
-  ];
+  // The same five words as the desktop bar, opening the same columns the
+  // desktop sheet opens. A phone should not be offered a different shop.
+  const rows = PRIMARY_NAV.map((item) => {
+    const key = PANEL_BY_HREF[item.href];
+    const links = key
+      ? PANELS[key]
+          .filter((column) => column.label)
+          .map((column) => ({ label: column.label as string, href: column.href }))
+      : [];
+
+    return { key: item.href, href: item.href, label: item.label, links };
+  });
 
   return (
     <div className={`hm-drawer ${homeFonts}${open ? ' is-open' : ''}`}>
@@ -182,7 +191,9 @@ export function HomeDrawer({
                         aria-label={`${isOpen ? 'Collapse' : 'Expand'} ${row.label}`}
                         onClick={() => setExpanded(isOpen ? null : row.key)}
                       >
-                        <span className="hm-drawer__plus" aria-hidden="true" />
+                        <span className="hm-drawer__sign" aria-hidden="true">
+                          {isOpen ? '×' : '+'}
+                        </span>
                       </button>
                     ) : null}
                   </div>

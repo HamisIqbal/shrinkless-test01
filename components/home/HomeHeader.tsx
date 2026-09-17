@@ -1,16 +1,17 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import { PRIMARY_NAV, type ShopMenu } from '@/lib/shop/navigation';
 import { SearchIcon, AccountIcon, CartIcon, ArrowIcon } from '@/components/site/icons';
+import { ProductCard } from '@/components/shop/ProductCard';
 import { CartSheet } from '@/components/shop/CartSheet';
 import { homeFonts } from '@/components/home/fonts';
-import { HomeMegaMenu, type PanelKey } from '@/components/home/HomeMegaMenu';
+import { HomeMegaMenu, PANEL_BY_HREF, type PanelKey } from '@/components/home/HomeMegaMenu';
 import { HomeDrawer } from '@/components/home/HomeDrawer';
-import type { CartViewDTO } from '@/types/dto';
+import type { CartViewDTO, ProductDTO } from '@/types/dto';
 
 type Props = {
   menu: ShopMenu;
@@ -19,6 +20,9 @@ type Props = {
   /** Display only — every admin route re-checks the session server-side. */
   isAdmin: boolean;
   storeEmail: string;
+  /** The published catalogue, so the search sheet can show cards before a
+   *  single letter is typed and narrow them as one is. */
+  products: ProductDTO[];
 };
 
 /** How far the page moves before the bar takes its solid, shorter form. */
@@ -29,13 +33,6 @@ const HOVER_IN = 120;
 const HOVER_OUT = 220;
 
 const WORDMARK = 'SHRINKLESS'.split('');
-
-/** The three bar words that open the sheet, by the route they point at. */
-const PANEL_BY_HREF: Record<string, PanelKey> = {
-  '/shop': 'shop',
-  '/shop/men': 'men',
-  '/shop/women': 'women',
-};
 
 /** Two copies of a label stacked in a one-line window; hover rolls the second up. */
 export function Roll({ children }: { children: string }) {
@@ -58,16 +55,21 @@ export function Roll({ children }: { children: string }) {
  *
  * Shop, Men and Women each drop the same sheet with their own set of columns,
  * on a lazy hover or a pinning click. None of them carries a plus: the sheet
- * dropping is the disclosure. Search opens its own drop panel and the cart
- * opens as a sheet.
+ * dropping is the disclosure. Search opens a sheet the size of the window —
+ * the field across the top, the catalogue as cards underneath it — and the
+ * cart opens as a sheet of its own.
  *
  * On a desktop window the bar starts transparent over the campaign, every word
  * and icon in white, and only becomes paper on the first scroll — so the
  * photograph runs to the top of the screen. Below that breakpoint it is white
- * from the first pixel: there the campaign is a tall crop behind a burger and
- * two icons, and a transparent bar could not promise those stay readable.
+ * from the first pixel: there the campaign is a tall crop behind a burger, the
+ * wordmark and three icons, and a transparent bar could not promise those stay
+ * readable. On a phone the row is burger left, wordmark centred, the three
+ * utilities hard right — the wordmark is the middle band of the same grid the
+ * navigation holds on a desktop, so it is centred on the page rather than
+ * squeezed against the burger.
  */
-export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props) {
+export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail, products }: Props) {
   const router = useRouter();
   const itemCount = cart?.itemCount ?? 0;
 
@@ -85,6 +87,23 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
 
   const megaOpen = megaPanel !== null;
   const panel = megaOpen || searchOpen;
+
+  // The sheet opens showing the whole catalogue and narrows as you type, so it
+  // is a way into the shop rather than an empty box waiting to be fed. Matched
+  // on what a shopper can see on the tile — the name, the copy, the category
+  // and the colourways — which is the same reach /shop's own search has.
+  const results = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return products;
+
+    return products.filter(
+      (product) =>
+        product.title.toLowerCase().includes(needle) ||
+        product.description.toLowerCase().includes(needle) ||
+        product.category.toLowerCase().includes(needle) ||
+        product.colors.some((color) => color.toLowerCase().includes(needle)),
+    );
+  }, [products, query]);
 
   useEffect(() => {
     let frame = 0;
@@ -121,8 +140,19 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
     return () => document.removeEventListener('keydown', onKey);
   }, [panel]);
 
+  // The sheet covers the window, so the page behind it should not scroll
+  // under it — and the field is what a shopper came for, so it takes focus.
   useEffect(() => {
-    if (searchOpen) searchInput.current?.focus();
+    if (!searchOpen) return;
+
+    searchInput.current?.focus();
+
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = overflow;
+    };
   }, [searchOpen]);
 
   const closeMega = useCallback(() => {
@@ -200,15 +230,14 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
 
   // `--over` is the transparent state the bar holds over the top of the
   // campaign on a desktop window; the stylesheet keeps it to that breakpoint.
-  // `--panel` is the ink sheet the search drop becomes with the bar. The shop
-  // sheet is white, so it gets `--menu` instead: the bar goes solid paper
-  // rather than ink, and the two read as one white surface.
+  // `--menu` is the solid paper the bar goes when the shop sheet drops, so the
+  // two read as one white surface. Search needs no bar state at all: its sheet
+  // covers the window, bar included.
   const classes = [
     'hm-head',
     homeFonts,
     !scrolled && !panel ? 'hm-head--over' : '',
     scrolled ? 'hm-head--compact' : '',
-    searchOpen ? 'hm-head--panel' : '',
     megaOpen && !searchOpen ? 'hm-head--menu' : '',
   ].filter(Boolean).join(' ');
 
@@ -273,9 +302,6 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
                       ) : (
                         <Link href={item.href} className="hm-nav__link">
                           {item.label}
-                          {item.highlight ? (
-                            <span className="hm-nav__flag" aria-hidden="true" />
-                          ) : null}
                         </Link>
                       )}
 
@@ -352,44 +378,90 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail }: Props)
           </div>
         </div>
 
-        <div
-          id="site-search"
-          className={`hm-search${searchOpen ? ' is-open' : ''}`}
-          inert={!searchOpen}
-        >
-          <form className="hm-search__inner" role="search" onSubmit={submitSearch}>
-            <label htmlFor="site-search-input" className="hm-search__label">
-              Search products
-            </label>
-            <div className="hm-search__field">
-              <input
-                id="site-search-input"
-                ref={searchInput}
-                type="search"
-                className="hm-search__input"
-                placeholder="Search tees, colours, fits"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-              />
-              <button type="submit" className="hm-search__go">
-                <ArrowIcon />
-                <span className="visually-hidden">Search</span>
-              </button>
-            </div>
-            <button type="button" className="hm-search__close" onClick={() => setSearchOpen(false)}>
-              <Roll>Close</Roll>
-            </button>
-          </form>
-        </div>
-
         <HomeMegaMenu menu={menu} panel={megaPanel} id="shop-mega" onNavigate={closeMega} />
       </header>
 
       <div
-        className={`hm-scrim${panel ? ' is-open' : ''}${megaOpen && !searchOpen ? ' is-soft' : ''}`}
+        className={`hm-scrim${megaOpen && !searchOpen ? ' is-open is-soft' : ''}`}
         aria-hidden="true"
         onClick={closePanels}
       />
+
+      {/* The search sheet: the whole window, the field centred across the top
+          of it, and the catalogue laid out underneath as cards — the whole of
+          it until a query narrows it. A drop that covered half the screen was
+          neither a panel nor a page; this is a page.
+
+          Rendered beside the header rather than inside it: the bar carries a
+          backdrop filter, which would make it the containing block for a
+          fixed child and shrink the sheet to the height of the bar. */}
+      <div
+        id="site-search"
+        className={`hm-search ${homeFonts}${searchOpen ? ' is-open' : ''}`}
+        inert={!searchOpen}
+        data-lenis-prevent
+      >
+        <div className="hm-search__sheet">
+          <div className="hm-search__top">
+            <form className="hm-search__form" role="search" onSubmit={submitSearch}>
+              <label htmlFor="site-search-input" className="hm-search__label">
+                Search products
+              </label>
+
+              <div className="hm-search__field">
+                <input
+                  id="site-search-input"
+                  ref={searchInput}
+                  type="search"
+                  className="hm-search__input"
+                  placeholder="Search tees, colours, fits"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                />
+                <button type="submit" className="hm-search__go">
+                  <ArrowIcon />
+                  <span className="visually-hidden">Search</span>
+                </button>
+              </div>
+            </form>
+
+            <button
+              type="button"
+              className="hm-search__close"
+              onClick={() => setSearchOpen(false)}
+            >
+              <Roll>Close</Roll>
+              <span className="hm-search__x" aria-hidden="true" />
+            </button>
+          </div>
+
+          <div className="hm-search__results">
+            <p className="hm-search__count" aria-live="polite">
+              {query.trim()
+                ? `${results.length} ${results.length === 1 ? 'result' : 'results'} for “${query.trim()}”`
+                : 'Everything in the shop'}
+            </p>
+
+            {results.length ? (
+              <ul className="hm-search__grid">
+                {results.map((product, index) => (
+                  <li key={product.id} className="hm-search__cell">
+                    <ProductCard product={product} index={index} />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="hm-search__empty">
+                Nothing matches that yet. Try a colour, a fit, or{' '}
+                <Link href="/shop" onClick={() => setSearchOpen(false)}>
+                  browse the shop
+                </Link>
+                .
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div id="mobile-drawer">
         <HomeDrawer

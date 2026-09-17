@@ -12,6 +12,7 @@
 
 .hm-head,
 .hm-scrim,
+.hm-search,
 .hm-pop,
 .hm-drawer,
 .hm-gw,
@@ -37,9 +38,8 @@
   --hm-gutter: clamp(1.25rem, 4vw, 4.5rem);
 }
 
-/* Focus stays visible on every ground these sections use. */
-.hm-head--panel :focus-visible,
-.hm-drawer :focus-visible,
+/* Focus stays visible on every ground these sections use. The search sheet
+   and the phone drawer are paper, so they keep the default ink ring. */
 .hm-pop :focus-visible,
 .hm-gw :focus-visible,
 .hm-foot :focus-visible {
@@ -47,7 +47,8 @@
   outline-offset: 3px;
 }
 
-.hm-head :focus-visible { outline-offset: 3px; }
+.hm-head :focus-visible,
+.hm-search :focus-visible { outline-offset: 3px; }
 
 /* A one-line window the label rises through. `padding`/`margin` give focus
    rings room without letting the rising text show outside the mask. */
@@ -247,10 +248,10 @@
    Masthead
    Wordmark left, navigation centred, three utility icons right.
 
-   Four independent states: `--over` (transparent over the top of the
-   campaign, desktop only), `--compact` (after the first scroll), `--panel`
-   (search is down, and the bar and panel become one ink sheet) and `--menu`
-   (the shop sheet is down, and the bar goes solid paper to match it).
+   Three independent states: `--over` (transparent over the top of the
+   campaign, desktop only), `--compact` (after the first scroll) and `--menu`
+   (the shop sheet is down, and the bar goes solid paper to match it). Search
+   needs none: its sheet covers the window, masthead included.
    -------------------------------------------------------------------------- */
 
 .hm-head {
@@ -284,12 +285,6 @@
 
   /* On the photograph the ink focus ring would vanish. */
   .hm-head--over :focus-visible { outline: 2px solid var(--hm-white); }
-}
-
-.hm-head--panel {
-  background: var(--hm-ink);
-  border-bottom-color: var(--hm-line-dark);
-  color: var(--hm-white);
 }
 
 /* The shop panel is white, so the bar above it goes solid paper: the two are
@@ -381,7 +376,6 @@
 .hm-nav__link {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
   padding: 0.85rem 0;
   border: 0;
   background: none;
@@ -391,7 +385,10 @@
      could across this measure. None of them carries a plus — the sheet
      dropping is the disclosure, and three of the five words drop it. */
   font-family: var(--hm-bebas);
-  font-size: clamp(1rem, 1.35vw, 1.125rem);
+  /* Set large: on a wide window the bar is the only navigation on the page and
+     it should carry at the distance a desktop is read from. Bebas is condensed
+     enough that five words at this size still sit inside the middle band. */
+  font-size: clamp(1.3rem, 1.9vw, 1.6rem);
   font-weight: 400;
   letter-spacing: 0;
   line-height: 1;
@@ -400,19 +397,11 @@
   cursor: pointer;
 }
 
-/* Wholesale sells to a different buyer, and carries a mark to say so. */
-.hm-nav__flag {
-  width: 0.3rem;
-  height: 0.3rem;
-  border-radius: 999px;
-  background: currentColor;
-}
-
 .hm-nav__line {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0.55rem;
+  bottom: 0.5rem;
   height: 1px;
   background: currentColor;
   pointer-events: none;
@@ -444,11 +433,26 @@
 
 .hm-head--compact .hm-mark__word { font-size: clamp(0.95rem, 1.25vw, 1.2rem); }
 
-/* A phone fits a burger, the word and two marks on one row; the word is what
-   gives way to make that true. */
+/* Below the desktop breakpoint the wordmark takes the middle band of the bar
+   — the band the navigation holds above it — so the brand is centred on the
+   page rather than pushed along by the burger and cut off at the icons.
+
+   `display: contents` dissolves the left group so its burger and wordmark
+   become cells of the bar's own grid; the navigation is `display: none` here
+   and generates no box, so the three cells fall out as burger, wordmark,
+   marks. */
+@media (max-width: 61.9375rem) {
+  .hm-head__bar { gap: 0.5rem; }
+  .hm-head__left { display: contents; }
+  .hm-burger { justify-self: start; }
+  .hm-mark { justify-self: center; }
+}
+
+/* A phone fits a burger, the centred word and three marks on one row; the
+   marks close up to make the room for it. */
 @media (max-width: 30rem) {
   .hm-mark__word,
-  .hm-head--compact .hm-mark__word { font-size: 0.9rem; }
+  .hm-head--compact .hm-mark__word { font-size: 0.95rem; }
 }
 
 .hm-mark__char { display: inline-block; }
@@ -467,6 +471,13 @@
   display: flex;
   align-items: center;
   gap: clamp(0.1rem, 1.5vw, 1.75rem);
+}
+
+/* Hard right on a phone, and tight enough that the three of them leave the
+   centred wordmark its room. */
+@media (max-width: 30rem) {
+  .hm-head__utils { gap: 0.1rem; }
+  .hm-util { min-width: 2.5rem; }
 }
 
 .hm-util {
@@ -516,11 +527,11 @@
 
 .hm-util__num { display: block; }
 
-/* The drawer carries the account link on a phone, where the row already has
-   a burger and no room for a fourth mark. Admin is a word rather than a mark:
-   it is not a shopper's control, and there is no icon for it a shopper would
-   have to learn. */
-.hm-util--account,
+/* Search, account and bag ride together at every size — they are the three
+   marks a shopper reaches for, and hiding one of them on a phone only sends
+   them hunting through the menu for it. Admin is a word rather than a mark:
+   it is not a shopper's control, there is no icon for it a shopper would have
+   to learn, and it waits for a window wide enough to spell it out. */
 .hm-util--admin { display: none; }
 
 /* --- desktop -------------------------------------------------------------- */
@@ -530,22 +541,26 @@
   .hm-nav { display: block; }
 
   .hm-util { min-width: 2.25rem; }
-  .hm-util--account,
   .hm-util--admin { display: inline-flex; }
 }
 
 /* --------------------------------------------------------------------------
-   Search panel
+   Search sheet
+   The whole window, in paper: the field centred across the top and the
+   catalogue laid out under it as cards, narrowing as a query is typed. It
+   used to be a drop that took half the screen — neither a panel you could
+   dismiss by looking away nor a page you could shop from. This is a page.
    -------------------------------------------------------------------------- */
 
 .hm-search {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: var(--hm-ink);
-  color: var(--hm-white);
-  border-bottom: 1px solid var(--hm-line-dark);
+  position: fixed;
+  inset: 0;
+  /* Over the bar, which is 50: the sheet covers the masthead as well, so
+     there is one surface rather than a sheet hanging off a strip. */
+  z-index: 60;
+  overflow: hidden;
+  background: var(--hm-white);
+  color: var(--hm-ink);
   clip-path: inset(0 0 100% 0);
   visibility: hidden;
   transition:
@@ -561,18 +576,33 @@
     visibility 0s;
 }
 
-.hm-search__inner {
+.hm-search__sheet {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Two rows: the close mark hard right, the field centred under it. Stacking
+   them rather than setting them side by side is what keeps the field centred
+   on the page at every width instead of centred in the room left over. */
+.hm-search__top {
+  flex: none;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 1rem 2rem;
-  max-width: 100rem;
-  margin-inline: auto;
-  padding: clamp(1.75rem, 5vw, 3.5rem) var(--hm-gutter) clamp(2rem, 5vw, 4rem);
+  justify-items: end;
+  gap: 0.5rem;
+  padding: clamp(1rem, 2.5vw, 1.75rem) var(--hm-gutter) clamp(1.25rem, 3vw, 2rem);
+  border-bottom: 1px solid var(--hm-line-light);
+}
+
+.hm-search__form {
+  justify-self: center;
+  display: grid;
+  gap: 0.6rem;
+  width: min(100%, 46rem);
 }
 
 .hm-search__label {
-  grid-column: 1 / -1;
+  justify-self: center;
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
   letter-spacing: 0;
@@ -585,7 +615,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  border-bottom: 1px solid rgba(10, 10, 10, 0.18);
 }
 
 .hm-search__field::after {
@@ -595,7 +625,7 @@
   right: 0;
   bottom: -1px;
   height: 1px;
-  background: var(--hm-white);
+  background: var(--hm-ink);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.9s var(--hm-ease);
@@ -606,35 +636,34 @@
 .hm-search__input {
   flex: 1;
   min-width: 0;
-  padding: 0.3em 0;
+  padding: 0.25em 0;
   border: 0;
   background: transparent;
-  color: var(--hm-white);
+  color: var(--hm-ink);
   font-family: var(--hm-display);
-  font-size: clamp(1.5rem, 4vw, 3.25rem);
+  font-size: clamp(1.35rem, 3vw, 2.25rem);
   font-weight: 300;
   font-variation-settings: "wdth" 100;
   letter-spacing: -0.02em;
   outline: 0;
 }
 
-.hm-search__input::placeholder { color: rgba(255, 255, 255, 0.3); }
+.hm-search__input::placeholder { color: rgba(10, 10, 10, 0.32); }
 
 /* The field's own underline draws in on focus; a box around it would double up. */
-.hm-head .hm-search__input:focus-visible { outline: 0; }
+.hm-search__input:focus-visible { outline: 0; }
 .hm-search__input::-webkit-search-cancel-button { display: none; }
 
 .hm-search__go {
   display: grid;
   place-items: center;
   flex: none;
-  width: 3rem;
-  height: 3rem;
-  margin-bottom: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid rgba(10, 10, 10, 0.25);
   border-radius: 999px;
   background: transparent;
-  color: var(--hm-white);
+  color: var(--hm-ink);
   cursor: pointer;
   transition:
     background-color 0.45s var(--hm-ease),
@@ -649,27 +678,101 @@
 }
 
 .hm-search__go:hover {
-  background: var(--hm-white);
-  border-color: var(--hm-white);
-  color: var(--hm-ink);
+  background: var(--hm-ink);
+  border-color: var(--hm-ink);
+  color: var(--hm-white);
 }
 
 .hm-search__go:hover svg { transform: translateX(0.2rem); }
 
 .hm-search__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
   min-height: 2.75rem;
   padding: 0;
   border: 0;
   background: none;
-  color: var(--hm-ash);
+  color: var(--hm-smoke);
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
   letter-spacing: 0;
   text-transform: uppercase;
   cursor: pointer;
+  transition: color 0.4s var(--hm-ease);
 }
 
-.hm-search__close:hover { color: var(--hm-white); }
+.hm-search__close:hover { color: var(--hm-ink); }
+
+.hm-search__x {
+  position: relative;
+  width: 0.875rem;
+  height: 0.875rem;
+  transition: transform 0.6s var(--hm-ease);
+}
+
+.hm-search__x::before,
+.hm-search__x::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+}
+
+.hm-search__x::before { transform: rotate(45deg); }
+.hm-search__x::after { transform: rotate(-45deg); }
+.hm-search__close:hover .hm-search__x { transform: rotate(90deg); }
+
+/* The cards. Everything published until a query narrows it, which is what
+   makes the sheet a way into the shop rather than a box to be fed first. */
+.hm-search__results {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(1.25rem, 3vw, 2.25rem) var(--hm-gutter) clamp(3rem, 6vw, 5rem);
+  -webkit-overflow-scrolling: touch;
+}
+
+.hm-search__count {
+  margin-bottom: clamp(1rem, 2.5vw, 1.75rem);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--hm-smoke);
+}
+
+/* Two to a row from the smallest screen up: a search result is a thumbnail
+   being scanned, not the single wide tile the shop grid opens with. */
+.hm-search .hm-search__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.25rem, 3vw, 2.25rem) clamp(0.75rem, 1.5vw, 1.5rem);
+  max-width: 100rem;
+  margin-inline: auto;
+}
+
+@media (min-width: 48rem) {
+  .hm-search .hm-search__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 75rem) {
+  .hm-search .hm-search__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.hm-search__cell { min-width: 0; }
+
+.hm-search__empty {
+  max-width: 34rem;
+  font-family: var(--hm-sans);
+  font-size: 1rem;
+  color: var(--hm-graphite);
+}
+
+.hm-search__empty a { color: inherit; }
 
 /* --------------------------------------------------------------------------
    Shop panel (desktop)
@@ -876,6 +979,9 @@
 
 /* --------------------------------------------------------------------------
    Phone menu
+   Paper rather than ink: it carries the same five words and the same columns
+   as the desktop bar and its sheet, and the two should read as one menu drawn
+   at two sizes.
    -------------------------------------------------------------------------- */
 
 .hm-drawer {
@@ -898,8 +1004,8 @@
   inset: 0;
   display: flex;
   flex-direction: column;
-  background: var(--hm-ink);
-  color: var(--hm-white);
+  background: var(--hm-white);
+  color: var(--hm-ink);
 }
 
 .hm-drawer__bar {
@@ -908,7 +1014,7 @@
   justify-content: space-between;
   min-height: 4rem;
   padding-inline: var(--hm-gutter);
-  border-bottom: 1px solid var(--hm-line-dark);
+  border-bottom: 1px solid var(--hm-line-light);
 }
 
 .hm-drawer__title {
@@ -927,7 +1033,7 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--hm-white);
+  color: var(--hm-ink);
   font-family: var(--hm-mono);
   font-size: 0.6875rem;
   letter-spacing: 0;
@@ -967,7 +1073,7 @@
   padding: 1rem var(--hm-gutter) 2.5rem;
 }
 
-.hm-drawer__item { border-bottom: 1px solid var(--hm-line-dark); }
+.hm-drawer__item { border-bottom: 1px solid var(--hm-line-light); }
 
 .hm-drawer__row {
   display: flex;
@@ -979,7 +1085,7 @@
 .hm-drawer__link {
   display: block;
   padding-block: 0.95rem 0.8rem;
-  color: var(--hm-white);
+  color: var(--hm-ink);
   font-family: var(--hm-display);
   font-size: clamp(2rem, 10vw, 3.25rem);
   font-weight: 700;
@@ -990,41 +1096,29 @@
   text-decoration: none;
 }
 
+/* A plain plus that becomes a plain cross — the same mark the desktop sheet
+   uses, typed rather than drawn, with no disc around it. */
 .hm-drawer__expand {
   display: grid;
   place-items: center;
   flex: none;
   width: 2.75rem;
   height: 2.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 999px;
+  border: 0;
   background: none;
-  color: var(--hm-white);
+  color: var(--hm-ink);
   cursor: pointer;
-  transition:
-    background-color 0.4s var(--hm-ease),
-    color 0.4s var(--hm-ease);
+  transition: opacity 0.4s var(--hm-ease);
 }
 
-.hm-drawer__expand[aria-expanded="true"] { background: var(--hm-white); color: var(--hm-ink); }
+.hm-drawer__expand:is(:hover, :focus-visible) { opacity: 0.55; }
 
-.hm-drawer__plus {
-  position: relative;
-  width: 0.75rem;
-  height: 0.75rem;
-  transition: transform 0.5s var(--hm-ease);
+.hm-drawer__sign {
+  font-family: var(--hm-sans);
+  font-size: 1.5rem;
+  font-weight: 300;
+  line-height: 1;
 }
-
-.hm-drawer__plus::before,
-.hm-drawer__plus::after {
-  content: "";
-  position: absolute;
-  background: currentColor;
-}
-
-.hm-drawer__plus::before { top: 50%; left: 0; width: 100%; height: 1px; }
-.hm-drawer__plus::after { left: 50%; top: 0; width: 1px; height: 100%; }
-.hm-drawer__expand[aria-expanded="true"] .hm-drawer__plus { transform: rotate(45deg); }
 
 .hm-drawer__sub { overflow: hidden; }
 
@@ -1036,13 +1130,13 @@
 .hm-drawer__sublink {
   display: block;
   padding-block: 0.55rem;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--hm-graphite);
   font-family: var(--hm-sans);
   font-size: 1rem;
   text-decoration: none;
 }
 
-.hm-drawer__sublink:hover { color: var(--hm-white); }
+.hm-drawer__sublink:hover { color: var(--hm-ink); }
 
 .hm-drawer__features {
   display: grid;
@@ -1057,7 +1151,7 @@
   display: block;
   aspect-ratio: 4 / 5;
   overflow: hidden;
-  background: var(--hm-coal);
+  background: var(--hm-mist);
 }
 
 .hm-drawer__frame img { object-fit: cover; }
@@ -1088,7 +1182,7 @@
   flex-wrap: wrap;
   gap: 0.25rem 1.75rem;
   padding-top: 0.5rem;
-  border-top: 1px solid var(--hm-line-dark);
+  border-top: 1px solid var(--hm-line-light);
 }
 
 .hm-drawer__util {
@@ -1098,7 +1192,7 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--hm-ash);
+  color: var(--hm-smoke);
   font-family: var(--hm-mono);
   font-size: 0.75rem;
   letter-spacing: 0;
@@ -1107,7 +1201,7 @@
   cursor: pointer;
 }
 
-.hm-drawer__util:hover { color: var(--hm-white); }
+.hm-drawer__util:hover { color: var(--hm-ink); }
 
 /* --------------------------------------------------------------------------
    Men & Women

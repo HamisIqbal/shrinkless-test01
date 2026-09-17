@@ -268,8 +268,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 3rem;
-  padding: 0.95rem clamp(2rem, 4.5vw, 3.5rem);
+  /* The one thing on the campaign to press, and sized to say so — large
+     enough on a phone to be the obvious target over a full-bleed photograph,
+     larger again on a desktop window where the frame around it is wider. */
+  min-height: 3.75rem;
+  padding: 1.15rem clamp(3rem, 6vw, 4.75rem);
   /* A lozenge rather than a rectangle. The rest of the page is hard-edged, so
      rounding the one button on the campaign is what marks it as the thing to
      press; the radius is larger than the button is tall, which makes the ends
@@ -279,7 +282,7 @@
   background: var(--hm-white);
   color: var(--hm-ink);
   font-family: var(--hm-bebas);
-  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  font-size: clamp(1.5rem, 2.4vw, 1.9rem);
   font-weight: 400;
   letter-spacing: 0;
   line-height: 1;

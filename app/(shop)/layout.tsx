@@ -1,4 +1,5 @@
 import { getStoreSettings } from '@/lib/services/settings';
+import { listPublishedProducts } from '@/lib/services/products';
 import { readCartView } from '@/lib/cart-session';
 import { buildShopMenu } from '@/lib/shop/menu.server';
 import { auth } from '@/auth';
@@ -15,11 +16,16 @@ import { HomeHeader } from '@/components/home/HomeHeader';
 import { HomeFooter } from '@/components/home/HomeFooter';
 
 export default async function ShopLayout({ children }: LayoutProps<'/'>) {
-  const [settings, cart, session, menu] = await Promise.all([
+  const [settings, cart, session, menu, products] = await Promise.all([
     getStoreSettings(),
     readCartView(),
     auth(),
     buildShopMenu(),
+    // The homepage's search sheet shows cards rather than a bare field, so it
+    // needs the catalogue. Read here rather than fetched on open: the store is
+    // small enough to hand over whole, and a sheet that opens already full is
+    // the point of it.
+    listPublishedProducts({ sizes: [], colors: [], sort: 'newest', q: '', minPrice: null, maxPrice: null, gender: null }),
   ]);
 
   return (
@@ -45,6 +51,7 @@ export default async function ShopLayout({ children }: LayoutProps<'/'>) {
             signedIn={Boolean(session?.user)}
             isAdmin={isAdminSession(session)}
             storeEmail={settings.storeEmail}
+            products={products}
           />
         }
         rest={
