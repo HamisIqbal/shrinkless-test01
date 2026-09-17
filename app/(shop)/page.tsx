@@ -114,8 +114,8 @@ export default async function HomePage() {
       />
 
       {/* Photography between two shelves of product cards, so the page does
-          not read as three shops in a row: the reel, the two chapters and the
-          promise run back to back. */}
+          not read as three shops in a row: the gallery, the two chapters
+          and the promise run back to back. */}
       <HomeLookbook />
 
       <HomeStory chapters={statement(media, copy)} />

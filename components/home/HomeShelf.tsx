@@ -61,15 +61,9 @@ export function HomeShelf({ headingId, eyebrow, heading, link, products, layout,
         scrollTrigger: { trigger: section, start: 'top 80%', once: true },
       });
 
-      gsap.fromTo(
-        section.querySelector('.hm-shelf__title'),
-        { '--wdth': 62 },
-        {
-          '--wdth': 125,
-          ease: 'none',
-          scrollTrigger: { trigger: section, start: 'top 90%', end: 'top 30%', scrub: 0.8 },
-        },
-      );
+      // The title's width axis used to open with the scroll here. It is set in
+      // Bebas now, which has no width axis — so the tween drove a custom
+      // property nothing read, and cost a scrubbed trigger per shelf to do it.
 
       gsap.from(section.querySelectorAll('.hm-shelf__index li, .hm-shelf__aside > *'), {
         y: 20,

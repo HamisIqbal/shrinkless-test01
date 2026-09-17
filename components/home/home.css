@@ -259,10 +259,13 @@
   top: 0;
   z-index: 50;
   color: var(--hm-ink);
-  background: rgba(255, 255, 255, 0.94);
+  /* Opaque paper rather than 94% and a 16px backdrop blur. A sticky bar with
+     a backdrop filter asks the compositor to re-blur a strip the width of the
+     window on every scrolled frame, which is most of what the page's scroll
+     was spending itself on — and under a bar this close to white the blur was
+     never visible enough to be worth a frame. */
+  background: var(--hm-white);
   border-bottom: 1px solid var(--hm-line-light);
-  -webkit-backdrop-filter: saturate(1.4) blur(16px);
-  backdrop-filter: saturate(1.4) blur(16px);
   transition:
     background-color 0.5s var(--hm-ease),
     border-color 0.5s var(--hm-ease),
@@ -433,23 +436,27 @@
 
 .hm-head--compact .hm-mark__word { font-size: clamp(0.95rem, 1.25vw, 1.2rem); }
 
-/* Below the desktop breakpoint the wordmark takes the middle band of the bar
-   — the band the navigation holds above it — so the brand is centred on the
-   page rather than pushed along by the burger and cut off at the icons.
+/* Below the desktop breakpoint the bar is two bands rather than three: the
+   burger and the wordmark together on the left, the three marks hard right.
 
-   `display: contents` dissolves the left group so its burger and wordmark
-   become cells of the bar's own grid; the navigation is `display: none` here
-   and generates no box, so the three cells fall out as burger, wordmark,
-   marks. */
+   Centred, the wordmark had only the sliver of bar the icons left it and ran
+   under the search mark on a narrow phone. Beside the burger it has the whole
+   left of the row to grow into, and the marks opposite are never crowded. */
 @media (max-width: 61.9375rem) {
-  .hm-head__bar { gap: 0.5rem; }
-  .hm-head__left { display: contents; }
-  .hm-burger { justify-self: start; }
-  .hm-mark { justify-self: center; }
+  .hm-head__bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1rem;
+  }
+
+  .hm-head__left {
+    justify-self: start;
+    gap: 0.55rem;
+  }
+
+  .hm-mark { justify-self: start; }
 }
 
-/* A phone fits a burger, the centred word and three marks on one row; the
-   marks close up to make the room for it. */
+/* A phone fits the burger, the word beside it and three marks on one row. */
 @media (max-width: 30rem) {
   .hm-mark__word,
   .hm-head--compact .hm-mark__word { font-size: 0.95rem; }
@@ -473,11 +480,37 @@
   gap: clamp(0.1rem, 1.5vw, 1.75rem);
 }
 
-/* Hard right on a phone, and tight enough that the three of them leave the
-   centred wordmark its room. */
-@media (max-width: 30rem) {
-  .hm-head__utils { gap: 0.1rem; }
-  .hm-util { min-width: 2.5rem; }
+/* Hard right below the desktop breakpoint, and evenly spaced: search,
+   account and bag are three identical squares with one gap between them.
+
+   The bag's counter is what used to break that rhythm — inline beside the
+   mark it made the third button half as wide again as the other two, so the
+   gap either side of it read differently from the gap between the first two.
+   Here the counter rides the corner of the bag instead, which is where a
+   count belongs on a mark this size and leaves all three squares equal. */
+@media (max-width: 61.9375rem) {
+  .hm-head__utils { gap: 0.9rem; }
+
+  .hm-util {
+    width: 2.25rem;
+    min-width: 2.25rem;
+  }
+
+  .hm-util--bag { position: relative; }
+
+  .hm-util--bag .hm-util__count {
+    position: absolute;
+    top: 0.1rem;
+    right: -0.15rem;
+    min-width: 0.95rem;
+    height: 0.95rem;
+    padding-inline: 0.18rem;
+    font-size: 0.5rem;
+  }
+}
+
+@media (max-width: 22.5rem) {
+  .hm-head__utils { gap: 0.6rem; }
 }
 
 .hm-util {

@@ -118,8 +118,7 @@ export function HomeScene({ as: Tag = 'section', className, children, ...rest }:
 
 /**
  * Rendered once, last on the page. Triggers are made section by section as
- * each one mounts, and the pinned lookbook adds scroll length above the ones
- * after it — so once everything is in, positions are sorted and measured
+ * each one mounts — so once everything is in, positions are sorted and measured
  * again, and again when late photographs and fonts change the page's height.
  */
 export function HomeScrollSync() {

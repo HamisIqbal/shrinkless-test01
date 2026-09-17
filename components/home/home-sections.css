@@ -569,7 +569,11 @@
 .hm-shelf .pcard__frame img { transition: transform 1.2s var(--hm-ease); }
 
 /* --------------------------------------------------------------------------
-   Lookbook reel
+   Gallery
+
+   One word, then pictures. Below the desk breakpoint the frames are a reel a
+   thumb swipes; above it they stack into a single window in the middle of the
+   section with a small arrow either side.
    -------------------------------------------------------------------------- */
 
 .hm-look {
@@ -579,45 +583,33 @@
   color: var(--hm-white);
 }
 
-.hm-look .hm-eyebrow { color: var(--hm-ash); }
-
 .hm-look__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1.5rem 3rem;
   padding-bottom: clamp(1.75rem, 4.5vh, 3.25rem);
+  text-align: center;
 }
 
+/* Centred and heavy: the section's only word, so it carries the whole head on
+   its own rather than sitting beside an eyebrow and a link. */
 .hm-look__title {
-  margin-top: 0.6rem;
+  margin: 0;
   font-family: var(--hm-bebas);
-  font-size: clamp(3.25rem, min(8.2vw, 14vh), 9rem);
-  font-weight: 400;
+  font-size: clamp(3rem, 7.4vw, 8rem);
+  font-weight: 700;
   letter-spacing: 0;
   line-height: 0.9;
+  text-align: center;
   text-transform: uppercase;
 }
 
-.hm-look__serif {
-  font-family: var(--hm-accent);
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  text-transform: none;
-}
-
-.hm-look__aside { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; }
-
-.hm-look__count {
-  color: var(--hm-ash);
-  font-family: var(--hm-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0;
-  text-transform: uppercase;
+.hm-look__stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.75rem, 2vw, 2rem);
 }
 
 .hm-look__viewport {
+  min-width: 0;
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
@@ -649,8 +641,8 @@
   background: var(--hm-coal);
 }
 
-/* Frames alternate tall and wide, and the wide ones sit lower: a reel with a
-   rhythm rather than a row of equal boxes. */
+/* Reel rhythm: frames alternate tall and wide, and the wide ones sit lower.
+   Only below the desk breakpoint — the stacked window is one shape. */
 .hm-look__item--tall .hm-look__frame {
   height: clamp(20rem, 54vh, 36rem);
   aspect-ratio: 4 / 5;
@@ -662,76 +654,98 @@
   margin-top: clamp(2.5rem, 12vh, 8rem);
 }
 
-/* Wider than the window by the drift, so the parallax never shows an edge. */
-.hm-look__photo {
-  position: absolute;
-  inset: 0 -10%;
-}
+.hm-look__photo { position: absolute; inset: 0; }
 
 .hm-look__image { transition: transform 1.2s var(--hm-ease); }
 .hm-look__tile:hover .hm-look__image { transform: scale(calc(var(--crop-z, 1) * 1.05)); }
 
-.hm-look__cap {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-  padding-top: 0.85rem;
-}
+/* The arrows belong to the stacked window, so a phone never sees them. */
+.hm-look__arrow { display: none; }
 
-.hm-look__num {
-  color: var(--hm-smoke);
-  font-family: var(--hm-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0;
-}
+/* --- desk: one frame, centred, an arrow either side ----------------------- */
 
-.hm-look__label {
-  padding-bottom: 0.15rem;
-  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
-  font-family: var(--hm-bebas);
-  font-size: 1.125rem;
-  font-weight: 400;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  transition: background-size 0.7s var(--hm-ease);
-}
+@media (min-width: 62rem) {
+  .hm-look__stage { padding-inline: var(--hm-gutter); }
 
-.hm-look__tile:hover .hm-look__label,
-.hm-look__tile:focus-visible .hm-look__label { background-size: 100% 1px; }
-
-.hm-look__foot { display: none; }
-
-.hm-look__progress {
-  position: relative;
-  display: block;
-  height: 1px;
-  background: var(--hm-line-dark);
-}
-
-.hm-look__bar {
-  position: absolute;
-  inset: 0;
-  background: var(--hm-white);
-  transform: scaleX(0);
-  transform-origin: left;
-}
-
-/* Desk, motion allowed: the section pins and GSAP runs the reel. */
-@media (min-width: 62rem) and (prefers-reduced-motion: no-preference) {
-  .hm-look {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: 100svh;
-    padding-block: 5.5rem 2.5rem;
+  .hm-look__viewport {
+    flex: 0 1 auto;
+    overflow: visible;
+    scroll-snap-type: none;
   }
 
-  .hm-look__viewport { overflow: hidden; scroll-snap-type: none; }
-
-  .hm-look__foot {
-    display: block;
-    padding-top: clamp(1.5rem, 4vh, 2.5rem);
+  /* Every frame in the same grid cell. The cell is the window, so each
+     photograph is cut to one shape and stepping through never resizes the
+     section or opens a gap at an edge. */
+  .hm-look__track {
+    display: grid;
+    width: auto;
+    padding-inline: 0;
+    gap: 0;
   }
+
+  .hm-look__item,
+  .hm-look__item--tall,
+  .hm-look__item--wide {
+    grid-area: 1 / 1;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.55s var(--hm-ease), visibility 0s linear 0.55s;
+  }
+
+  .hm-look__item[data-active] {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.55s var(--hm-ease), visibility 0s;
+  }
+
+  /* One window for all of them, stated as a width and a height rather than an
+     aspect ratio: the frame is a block inside a stretched grid cell, so left
+     to `auto` its width would come from the cell and the ratio would set the
+     height from that. Written this way the window is the same box whatever
+     the window it sits in, and `cover` on the photograph inside is what fits
+     a tall original and a wide one to it without letterboxing either. */
+  .hm-look__stage { --hm-look-w: min(40rem, 86vw, 58vh); }
+
+  .hm-look__item--tall .hm-look__frame,
+  .hm-look__item--wide .hm-look__frame {
+    width: var(--hm-look-w);
+    height: calc(var(--hm-look-w) * 1.25);
+    margin: 0 auto;
+    aspect-ratio: auto;
+  }
+
+  .hm-look__arrow {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 1px solid var(--hm-line-dark);
+    border-radius: 999px;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    transition: border-color 0.4s var(--hm-ease), background-color 0.4s var(--hm-ease);
+  }
+
+  .hm-look__arrow:is(:hover, :focus-visible) {
+    border-color: var(--hm-white);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .hm-look__arrow[disabled] { opacity: 0.3; cursor: default; }
+
+  /* Drawn rather than typed, so the two arrows are the same mark mirrored. */
+  .hm-look__chev {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-top: 1.5px solid currentColor;
+    border-right: 1.5px solid currentColor;
+  }
+
+  .hm-look__arrow--prev .hm-look__chev { transform: translateX(0.1rem) rotate(-135deg); }
+  .hm-look__arrow--next .hm-look__chev { transform: translateX(-0.1rem) rotate(45deg); }
 }
 
 /* --------------------------------------------------------------------------
@@ -1087,7 +1101,6 @@
   .hm-shelf__cell,
   .hm-shelf__name,
   .hm-look__image,
-  .hm-look__label,
   .hm-ig__follow { transition: none; }
   .hm-hero__cta { transition: none; }
 }

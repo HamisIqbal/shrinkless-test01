@@ -64,10 +64,11 @@ export function Roll({ children }: { children: string }) {
  * photograph runs to the top of the screen. Below that breakpoint it is white
  * from the first pixel: there the campaign is a tall crop behind a burger, the
  * wordmark and three icons, and a transparent bar could not promise those stay
- * readable. On a phone the row is burger left, wordmark centred, the three
- * utilities hard right — the wordmark is the middle band of the same grid the
- * navigation holds on a desktop, so it is centred on the page rather than
- * squeezed against the burger.
+ * readable. On a phone the row is the burger and the wordmark together on the
+ * left and the three utilities hard right, evenly spaced, the bag's counter
+ * riding the corner of its mark so all three sit as equal squares. Centred,
+ * the wordmark had only the sliver of bar the icons left it and ran under the
+ * search mark; beside the burger it has the whole left of the row.
  */
 export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail, products }: Props) {
   const router = useRouter();
@@ -392,8 +393,8 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail, products
           it until a query narrows it. A drop that covered half the screen was
           neither a panel nor a page; this is a page.
 
-          Rendered beside the header rather than inside it: the bar carries a
-          backdrop filter, which would make it the containing block for a
+          Rendered beside the header rather than inside it, so no filter or
+          transform the bar ever takes can make it the containing block for a
           fixed child and shrink the sheet to the height of the bar. */}
       <div
         id="site-search"
