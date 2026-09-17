@@ -1739,13 +1739,11 @@ body:has(.admin) {
 /* --------------------------------------------------------------------------
    Media
 
-   Reuses the settings screen's group shape — a titled aside beside a column of
-   fields — because these two screens do the same kind of work and should not
-   look like two different applications. What is new is the slot card: a
-   preview large enough to judge a photograph by, with its fields beside it.
+   The shapes a slot is drawn with wherever it appears: its title, the line
+   saying where on the site it is seen, the mark for whether it is still the
+   frame the site shipped with, and the two-column body that puts the crop
+   stages beside the address and the alt text.
    -------------------------------------------------------------------------- */
-
-.admin .media { display: grid; }
 
 .admin .mediaslot { margin-bottom: var(--ad-s-3); }
 .admin .mediaslot:last-child { margin-bottom: 0; }
@@ -2062,283 +2060,214 @@ body:has(.admin) {
   color: var(--ad-ink-3);
 }
 
-/* Desktop | Mobile. A pair of pills in one field-coloured trough, so it reads
-   as one control with two states rather than as two buttons. */
-.admin .viewtoggle {
-  display: inline-flex;
-  gap: 0.2rem;
-  padding: 0.2rem;
-  border: 1px solid var(--ad-field-line);
-  border-radius: var(--ad-r-pill);
-  background: var(--ad-white);
-}
-
-.admin .viewtoggle__btn {
-  appearance: none;
-  border: 0;
-  padding: 0.4rem 0.9rem;
-  border-radius: var(--ad-r-pill);
-  background: transparent;
-  color: var(--ad-ink-2);
-  font: inherit;
-  font-size: var(--ad-t-micro);
-  font-weight: 600;
-  letter-spacing: var(--ad-track-label);
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 160ms ease, color 160ms ease;
-}
-
-.admin .viewtoggle__btn:hover { color: var(--ad-ink); }
-
-.admin .viewtoggle__btn--on {
-  background: var(--ad-ink);
-  color: var(--ad-onink);
-}
-
 /* --------------------------------------------------------------------------
-   The contextual panel
+   The media list
 
-   Only the controls that belong to the photograph in hand: what it is, how it
-   sits in its frame, and the two ways back out.
+   A register of what the storefront is using, not a rehearsal of it. This was
+   the shop in a full-screen frame with a panel beside it; the frame took the
+   whole screen to show one page at a time and could only ever judge a crop at
+   one width. So it is a list now: every image the site is built from, grouped
+   by the page it stands on, each row folded shut until somebody wants it.
+
+   Rows reuse the `.mediaslot__*` shapes below rather than inventing a second
+   set: a row's title, its location line and its Changed mark are the same
+   three things they always were, and only the folding is new.
    -------------------------------------------------------------------------- */
 
-.admin .inspector { display: grid; gap: var(--ad-s-3); align-content: start; }
+.admin .medialist { display: grid; gap: var(--ad-s-4); }
 
-.admin .inspector__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--ad-s-2);
-}
-
-.admin .inspector__title {
-  margin: 0;
-  font-size: var(--ad-t-body);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.admin .inspector__where {
-  margin: 0.2rem 0 0;
-  font-size: var(--ad-t-small);
-  line-height: 1.5;
-  color: var(--ad-ink-3);
-}
-
-.admin .inspector__close { flex: none; }
-
-.admin .inspector__meta {
-  display: flex;
-  align-items: center;
-  gap: var(--ad-s-2);
-  margin: 0;
-  flex-wrap: wrap;
-}
-
-.admin .inspector__ratio {
-  font-size: var(--ad-t-micro);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: var(--ad-track-label);
-  text-transform: uppercase;
-  color: var(--ad-ink-3);
-}
-
-/* The carousel's running order, where the carousel is what is selected. */
-.admin .inspector__frames {
+/* The bar stays with the list, because the count of unpublished changes is
+   what tells an admin whether the work is done, and it is no use at the top of
+   a page they have scrolled off. */
+.admin .medialist__bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--ad-s-2);
-  flex-wrap: wrap;
-  padding: var(--ad-s-2) 0;
-  border-block: 1px solid var(--ad-line);
-}
-
-.admin .inspector__framelabel {
-  font-size: var(--ad-t-micro);
-  font-weight: 600;
-  letter-spacing: var(--ad-track-label);
-  text-transform: uppercase;
-  color: var(--ad-ink-3);
-}
-
-.admin .inspector__framebuttons { display: flex; gap: 0.25rem; flex-wrap: wrap; }
-
-.admin .inspector__body { display: grid; gap: var(--ad-s-3); }
-.admin .inspector__body .adfield { margin: 0; }
-
-/* One stage here, not two, so the holder can have the whole column. */
-.admin .inspector .cropfield { --crop-max-h: 16rem; }
-.admin .inspector .cropview { max-width: 100%; }
-
-.admin .inspector__foot {
-  display: flex;
-  align-items: center;
-  gap: var(--ad-s-2);
-  flex-wrap: wrap;
-  padding-top: var(--ad-s-3);
-  border-top: 1px solid var(--ad-line);
-}
-
-.admin .inspector__foot .anotice { flex: 1 1 100%; margin: 0; }
-
-/* --------------------------------------------------------------------------
-   The visual editor
-
-   The Media tab is not a page in the panel; it is the shop, full screen, with
-   a bar over the top of it. So this block is chrome around a window and almost
-   nothing else — everything inside the frame is the storefront's own
-   stylesheet, and the only job here is to give it a real viewport, a way out,
-   and somewhere to put the controls once something has been clicked.
-
-   The stage's padding is 24px on purpose rather than a token: the editor
-   measures this box and scales the frame to fit inside it, and the two numbers
-   have to be the same one.
-   -------------------------------------------------------------------------- */
-
-.admin .mediaedit {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  background: var(--ad-paper);
-}
-
-.admin .mediaedit__bar {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
   gap: var(--ad-s-3);
-  padding: var(--ad-s-2) var(--ad-s-3);
+  flex-wrap: wrap;
+  padding-block: var(--ad-s-2);
   background: var(--ad-white);
   border-bottom: 1px solid var(--ad-line);
 }
 
-.admin .mediaedit__mid {
+.admin .medialist__count {
+  margin: 0;
+  font-size: var(--ad-t-small);
+  color: var(--ad-ink-2);
+}
+
+.admin .medialist__acts { display: flex; gap: var(--ad-s-2); align-items: center; }
+
+.admin .medialist__note { flex: 1 1 100%; margin: 0; }
+
+.admin .mediagroup { display: grid; gap: var(--ad-s-3); }
+
+.admin .mediagroup__head { display: grid; gap: 0.2rem; }
+
+.admin .mediagroup__title {
+  margin: 0;
+  font-size: var(--ad-t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  color: var(--ad-ink-3);
+}
+
+.admin .mediagroup__note {
+  margin: 0;
+  font-size: var(--ad-t-small);
+  line-height: 1.5;
+  color: var(--ad-ink-2);
+}
+
+.admin .mediagroup__list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* --------------------------------------------------------------------------
+   One row
+   -------------------------------------------------------------------------- */
+
+.admin .mediarow { border-top: 1px solid var(--ad-line); }
+.admin .mediarow:first-child { border-top: 0; }
+
+.admin .mediarow__head {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: var(--ad-s-3);
-  flex-wrap: wrap;
+  padding-block: var(--ad-s-2);
 }
 
-.admin .mediaedit__page { margin: 0; min-width: 9rem; }
-
-.admin .mediaedit__devices .viewtoggle__btn {
-  display: inline-flex;
+/* The whole left side is the control: a thumbnail and a title are what a
+   person aims at, and a separate disclosure caret would be a smaller target
+   for the same job. */
+.admin .mediarow__toggle {
+  display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--ad-s-3);
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
 }
 
-.admin .mediaedit__icon { width: 1.05rem; height: 1.05rem; flex: none; }
+.admin .mediarow__toggle:focus-visible { outline: 2px solid var(--ad-ink-3); outline-offset: 3px; }
 
-.admin .mediaedit__acts {
+/* The carousel's frames overlap into one stack, so a slot holding six
+   photographs takes no more width in the register than a slot holding one. */
+.admin .mediarow__thumbs { display: flex; flex: none; }
+.admin .mediarow__thumbs > * + * { margin-left: -1.25rem; }
+
+/* The height is fixed and the width follows the frame's own shape, so the
+   register shows at a glance which of these is the 9:16 carousel and which is
+   the 3:1 band. */
+.admin .mediarow__thumb {
+  position: relative;
+  display: block;
+  height: 3.5rem;
+  width: auto;
+  min-width: 2rem;
+  max-width: 6rem;
+  overflow: hidden;
+  border-radius: var(--ad-r-inner);
+  border: 1px solid var(--ad-line);
+  background: var(--ad-paper);
+}
+
+.admin .mediarow__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* A section has no photograph, so its mark is the ground it is set to — and
+   the same diagonal the "page's own" swatch uses when it is set to nothing. */
+.admin .mediarow__ground {
+  flex: none;
+  width: 3.5rem;
+  height: 2.25rem;
+  border-radius: var(--ad-r-inner);
+  border: 1px solid var(--ad-line);
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 1px),
+    var(--ad-line) calc(50% - 1px),
+    var(--ad-line) calc(50% + 1px),
+    transparent calc(50% + 1px)
+  );
+}
+
+.admin .mediarow__titles { display: grid; gap: 0.15rem; min-width: 0; }
+
+.admin .mediarow__marks {
   display: flex;
   align-items: center;
   gap: var(--ad-s-2);
-  justify-self: end;
+  flex: none;
 }
 
-.admin .mediaedit__note { margin: 0; }
-
-@media (max-width: 64rem) {
-  .admin .mediaedit__devicename { display: none; }
-  .admin .mediaedit__note { display: none; }
-}
-
-.admin .mediaedit__body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  min-height: 0;
-}
-
-@media (min-width: 64rem) {
-  .admin .mediaedit__body--open { grid-template-columns: minmax(0, 1fr) 23rem; }
-}
-
-/* The stage. A dark-free ground on purpose: the shop is judged against the
-   paper the rest of the panel is on, not against a lightbox. */
-.admin .mediaedit__stage {
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-width: 0;
-  min-height: 0;
-  padding: 24px;
-  overflow: hidden;
-}
-
-.admin .mediaedit__viewport {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--ad-r-inner);
-  background: var(--ad-white);
-  box-shadow: var(--ad-lift);
-}
-
-.admin .mediaedit__frame {
-  display: block;
-  border: 0;
-  background: var(--ad-white);
-}
-
-.admin .mediaedit__hint {
-  position: absolute;
-  left: 50%;
-  bottom: 0.5rem;
-  transform: translateX(-50%);
-  margin: 0;
-  max-width: min(46rem, calc(100% - 2rem));
-  padding: 0.3rem 0.7rem;
+/* Louder than the Changed pill on purpose: Changed is a fact about the site,
+   and this is work that will be lost if the tab is closed. */
+.admin .mediarow__dirty {
+  padding: 0.2rem 0.5rem;
   border-radius: var(--ad-r-pill);
-  background: color-mix(in oklab, var(--ad-white) 88%, transparent);
+  background: var(--ad-acid);
+  color: var(--ad-ink);
+  font-size: var(--ad-t-micro);
+  letter-spacing: var(--ad-track-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+@media (max-width: 48rem) {
+  .admin .mediarow__dirty { display: none; }
+}
+
+.admin .mediarow__panel {
+  padding: var(--ad-s-3) 0 var(--ad-s-3);
+  border-top: 1px dashed var(--ad-line);
+}
+
+.admin .mediarow__note {
+  margin: 0;
   font-size: var(--ad-t-small);
-  text-align: center;
-  color: var(--ad-ink-2);
-  pointer-events: none;
+  color: var(--ad-ink-3);
 }
 
-/* The panel stands still against the side of the frame, because a crop is
-   judged against the page behind it. */
-.admin .mediaedit__panel {
-  min-height: 0;
-  overflow: auto;
-  border-left: 1px solid var(--ad-line);
-  border-radius: 0;
-  background: var(--ad-white);
-  padding: var(--ad-s-3);
-}
+/* Two stages at once is the point of the panel, so they get the room: the
+   crop column leads and the address and alt text sit beside it. */
+.admin .mediarow__panel .cropfield { --crop-max-h: 15rem; }
 
-@media (max-width: 63.999rem) {
-  .admin .mediaedit__panel {
-    position: absolute;
-    inset: auto 0 0 0;
-    max-height: 60%;
-    border-left: 0;
-    border-top: 1px solid var(--ad-line);
-    box-shadow: var(--ad-lift);
-  }
-}
+.admin .mediarow__height { display: flex; align-items: center; gap: var(--ad-s-2); }
 
-.admin .mediaedit__height { display: flex; align-items: center; gap: var(--ad-s-2); }
-
-.admin .mediaedit__height input[type='range'] {
+.admin .mediarow__height input[type='range'] {
   flex: 1 1 auto;
   min-width: 0;
   accent-color: var(--ad-ink);
 }
 
-.admin .mediaedit__height input[type='number'] { width: 5.5rem; }
+.admin .mediarow__height input[type='number'] { width: 5.5rem; }
 
-.admin .mediaedit__unit { font-size: 0.75rem; color: var(--ad-ink-3); }
+.admin .mediarow__unit { font-size: 0.75rem; color: var(--ad-ink-3); }
 
 /* The grounds a band can be set to. A row of the actual colours rather than a
    select of their names: the choice is a visual one, so the control is the
    swatches themselves — the site's own three, and then a wheel and a hex box
    for any other colour. */
-.admin .mediaedit__colours { margin-bottom: var(--ad-s-3); }
+.admin .mediarow__colours { margin-bottom: var(--ad-s-3); }
 
 .admin .swatches {
   display: flex;

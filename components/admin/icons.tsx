@@ -192,38 +192,3 @@ export function ExitIcon({ className }: IconProps) {
   );
 }
 
-/* --------------------------------------------------------------------------
-   The three widths
-
-   Drawn as one family: the same rounded screen at three proportions, so the
-   row reads as one control rather than three unrelated objects. The laptop
-   carries a base line, which is the only thing that tells it from the tablet
-   at 20 units.
-   -------------------------------------------------------------------------- */
-
-export function LaptopIcon({ className }: IconProps) {
-  return (
-    <svg {...base(className)}>
-      <rect x="3" y="4.5" width="14" height="9" rx="1.5" />
-      <path d="M1.75 16.25h16.5" />
-    </svg>
-  );
-}
-
-export function TabletIcon({ className }: IconProps) {
-  return (
-    <svg {...base(className)}>
-      <rect x="5" y="2.75" width="10" height="14.5" rx="1.75" />
-      <path d="M8.75 14.75h2.5" />
-    </svg>
-  );
-}
-
-export function PhoneIcon({ className }: IconProps) {
-  return (
-    <svg {...base(className)}>
-      <rect x="6.5" y="2.75" width="7" height="14.5" rx="1.75" />
-      <path d="M9 14.75h2" />
-    </svg>
-  );
-}

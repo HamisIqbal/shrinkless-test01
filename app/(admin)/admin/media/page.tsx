@@ -1,25 +1,34 @@
 import { MediaManager } from '@/components/admin/MediaManager';
+import { PageHead } from '@/components/admin/PageHead';
 import { requireAdminPage } from '@/lib/auth/guards';
 import { listMediaPages } from '@/lib/services/site-media';
 
 /**
- * The storefront's photography and the height of its bands, edited on the page
- * they belong to.
+ * Every photograph the storefront uses, page by page.
  *
- * No page head and no panel around it: this tab is the site, full screen, with
- * the editor's own bar over the top of it. The admin shell is still underneath
- * — Close returns to it — but nothing of it shows while the editor is open,
- * because a sidebar beside a page you are art-directing is a smaller page and
- * a worse decision.
+ * A register, not a rehearsal. This tab used to be the shop itself in a
+ * full-screen frame with the controls beside it; it is now a list of the
+ * images the site is actually built from, each one replaceable by upload or by
+ * address and croppable for the desk and the phone separately.
  *
  * The pages, their slots and the home page's sections all come from
  * `lib/services/site-media.ts` — the same registry the storefront renders from
- * — so the editor cannot offer a frame or a band the site does not have.
+ * — so the list cannot offer a frame or a band the site does not have, and
+ * cannot miss one it does.
  */
 export default async function AdminMediaPage() {
   await requireAdminPage('media:read');
 
   const pages = await listMediaPages();
 
-  return <MediaManager pages={pages} />;
+  return (
+    <>
+      <PageHead
+        title="Media"
+        sub="The photography the storefront is built from, and the height and ground of the homepage's bands. Words live on Content; product photography lives on each product."
+      />
+
+      <MediaManager pages={pages} />
+    </>
+  );
 }

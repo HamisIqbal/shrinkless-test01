@@ -83,6 +83,40 @@ describe('saveMediaSlot', () => {
     expect(media.editorial.heather.focus).toBeUndefined();
   });
 
+  /* The phone's own placement. The editor this replaced cropped against a
+     desktop-shaped preview and blanked this pair on the way out, so a 16:9
+     hero and a 9:16 one were published from one decision. The list crops both
+     stages, so the pair has to survive the round trip — and has to stay absent
+     when nobody has moved the phone, because absent is what `mobileView`
+     reads as "follow the desktop". */
+  it('carries the phone’s own crop through, and leaves it absent until there is one', async () => {
+    await saveMediaSlot(editorialSlotId('torso'), {
+      url: 'https://example.com/a.jpg',
+      alt: 'A frame',
+      focus: '50% 20%',
+      zoom: 1.4,
+      mobileFocus: '30% 80%',
+      mobileZoom: 2,
+    });
+
+    await saveMediaSlot(editorialSlotId('heather'), {
+      url: 'https://example.com/b.jpg',
+      alt: 'A frame',
+      focus: '50% 20%',
+      zoom: 1.4,
+      mobileFocus: '',
+    });
+
+    const media = await getSiteMedia();
+
+    expect(media.editorial.torso.mobileFocus).toBe('30% 80%');
+    expect(media.editorial.torso.mobileZoom).toBe(2);
+
+    expect(media.editorial.heather.zoom).toBe(1.4);
+    expect(media.editorial.heather.mobileFocus).toBeUndefined();
+    expect(media.editorial.heather.mobileZoom).toBeUndefined();
+  });
+
   /* The regression that took the editorial band off the site, and this test
      asserted it: an id was echoed back exactly as stored. But "as readily as a
      URL" has to mean it renders, and every component hands `url` straight to
@@ -296,19 +330,19 @@ describe('listMediaSlots', () => {
 });
 
 describe('listMediaPages', () => {
-  it('offers the four pages the editor edits, and no others', async () => {
+  /* Only the pages that have photography. Our Story is a film and a column of
+     copy and the FAQ carries no pictures at all, so listing either would be a
+     heading with nothing under it — which reads as a page whose images failed
+     rather than as a page that has none. */
+  it('offers the two pages that have images, and no others', async () => {
     const pages = await listMediaPages();
 
-    expect(pages.map((page) => page.id)).toEqual([
-      'home',
-      'our-story',
-      'why-shrinkless',
-      'faq',
-    ]);
+    expect(pages.map((page) => page.id)).toEqual(['home', 'why-shrinkless']);
 
     for (const page of pages) {
       expect(page.label).toBeTruthy();
       expect(page.path.startsWith('/')).toBe(true);
+      expect(page.slots.length).toBeGreaterThan(0);
     }
   });
 
@@ -363,8 +397,12 @@ describe('listMediaPages', () => {
 
     for (const page of pages) {
       if (page.id === 'home') {
-        expect(page.sections.map((section) => section.id)).toContain('hero');
-        expect(page.sections.map((section) => section.id)).toContain('footer');
+        // Every band the page has, in the order the page runs them — the list
+        // draws its section rows straight from this, so one missing here is a
+        // band nobody can set.
+        expect(page.sections.map((section) => section.id)).toEqual(
+          HOME_SECTIONS.map((section) => section.id),
+        );
       } else {
         expect(page.sections).toEqual([]);
       }
@@ -491,40 +529,32 @@ describe('section settings', () => {
 });
 
 describe('getMediaLayer', () => {
-  it('names every photograph on the page by the address it renders from', async () => {
+  /* The layer used to carry the page's photographs as well, so a visual editor
+     running in an iframe could find each frame by the address it had been
+     rendered from. The Media tab edits the registry directly now, so the
+     stylesheet is all that is left — and it is the half every visitor was
+     being served anyway. */
+  it('is a page’s own stylesheet and nothing else', async () => {
     const layer = await getMediaLayer('home');
 
     expect(layer.page).toBe('home');
-    expect(layer.frames.length).toBeGreaterThan(0);
-
-    for (const frame of layer.frames) {
-      expect(frame.url, frame.key).toBeTruthy();
-      expect(frame.label, frame.key).toBeTruthy();
-    }
-
-    // The carousel is the one slot holding several, so its frames are the ones
-    // that need telling apart.
-    expect(layer.frames.some((entry) => entry.key.startsWith(`${HERO_SLOT}#`))).toBe(true);
+    expect(Object.keys(layer).sort()).toEqual(['css', 'page']);
   });
 
-  it('carries a saved frame rather than the one the site shipped with', async () => {
-    await saveMediaSlot(editorialSlotId('promise'), frame('https://example.com/new-band.jpg'));
-
-    const layer = await getMediaLayer('home');
-    const band = layer.frames.find((entry) => entry.slotId === editorialSlotId('promise'));
-
-    expect(band?.url).toBe('https://example.com/new-band.jpg');
-  });
-
-  it('offers the home page’s sections and no other page’s', async () => {
-    const home = await getMediaLayer('home');
+  it('serves nothing for a page with no sections and nothing saved', async () => {
     const faq = await getMediaLayer('faq');
 
-    expect(home.sections.map((section) => section.id)).toEqual(
-      HOME_SECTIONS.map((section) => section.id),
-    );
-    expect(faq.sections).toEqual([]);
+    expect(faq.page).toBe('faq');
     expect(faq.css).toBe('');
+  });
+
+  /* Section height and ground are home-page controls, so a saved height must
+     not leak into the stylesheet another page serves. */
+  it('keeps the home page’s sections to the home page', async () => {
+    await saveSectionSettings([{ sectionId: 'lookbook', height: 480 }]);
+
+    expect((await getMediaLayer('home')).css).toContain('.lookbook');
+    expect((await getMediaLayer('why-shrinkless')).css).toBe('');
   });
 
   it('serves the saved heights and grounds as the page’s own stylesheet', async () => {

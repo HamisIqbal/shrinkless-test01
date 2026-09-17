@@ -656,23 +656,28 @@ export type MediaPageView = {
   sections: MediaSectionView[];
 };
 
-/** The pages the editor offers, in the order it lists them. */
+/**
+ * The pages the editor lists, in the order it lists them.
+ *
+ * Only the two that have photography. Our Story is a film and a column of
+ * copy, and the FAQ carries no pictures at all — listing either would be a
+ * heading with nothing under it, which reads as a page whose images failed to
+ * load rather than as a page that has none. Both still serve their layout
+ * overrides through `getMediaLayer`; they simply have nothing to edit here.
+ */
 const MEDIA_PAGES = [
-  { id: 'home', label: 'Home', path: '/' },
-  { id: 'our-story', label: 'Our Story', path: '/our-story' },
+  { id: 'home', label: 'Homepage', path: '/' },
   { id: 'why-shrinkless', label: 'Why Shrinkless', path: '/why-shrinkless' },
-  { id: 'faq', label: 'FAQ', path: '/faq' },
 ] as const;
 
 /**
  * Which slots stand on a page, in the order the page runs them.
  *
  * Home carries the carousel, the category doors, the lookbook rail, the story
- * tiles and the promise band; Why Shrinkless carries the four points. The
- * other two have no photography of their own — the Our Story film is set in
- * the page rather than in a slot, and the FAQ carries none — so they open as
- * themselves with nothing to select, which is the truth rather than an empty
- * panel pretending otherwise.
+ * tiles and the promise band; Why Shrinkless carries the four points. Any
+ * other page answers with nothing, which is why only these two are listed in
+ * `MEDIA_PAGES` — the storefront still calls this for every page it serves,
+ * because the layer it feeds also carries the section stylesheet.
  */
 function slotIdsFor(pageId: string): string[] {
   if (pageId === 'home') {
@@ -716,7 +721,14 @@ async function slotsFor(pageId: string): Promise<MediaSlotView[]> {
     .filter((slot): slot is MediaSlotView => Boolean(slot));
 }
 
-/** Every page the editor offers, with its slots and — on Home — its sections. */
+/**
+ * Every page the editor lists, with its slots and — on Home — its sections.
+ *
+ * A frame standing on both pages is listed under both: the lookbook rail
+ * carries four of the frames Why Shrinkless is built from. They are one slot
+ * either way, so editing from either place moves both, which is exactly what
+ * the storefront already does.
+ */
 export async function listMediaPages(): Promise<MediaPageView[]> {
   const [settings, ...perPage] = await Promise.all([
     getSectionSettings(),
@@ -743,81 +755,30 @@ export async function listMediaPages(): Promise<MediaPageView[]> {
    The storefront's side
    -------------------------------------------------------------------------- */
 
-/** One photograph the editor may select, as the page is rendering it. */
-export type MediaLayerFrame = {
-  /** `hero#0` — the slot, and which frame of it where a slot holds several. */
-  key: string;
-  slotId: string;
-  index: number;
-  label: string;
-  /** The address this frame is being rendered from, so the layer can find the
-   *  element showing it without the storefront carrying editor markup. */
-  url: string;
-};
-
-export type MediaLayerSection = {
-  id: string;
-  label: string;
-  selector: string;
-  /** As `HOME_SECTIONS` means it — so the preview raises the same property the
-   *  published stylesheet will. */
-  fixed?: boolean;
-};
-
 export type MediaLayerData = {
   page: string;
   /** The saved section heights and grounds, already built. Served to every
-   *  visitor. */
+   *  visitor, in the first paint. */
   css: string;
-  frames: MediaLayerFrame[];
-  sections: MediaLayerSection[];
 };
 
 /**
- * Everything one page needs to serve its own layout overrides, and to answer
- * the editor when it is opened inside one.
+ * The layout overrides one page is serving.
  *
- * The frames travel as addresses rather than as markers because the
- * storefront's components are not this tab's to change: the page renders the
- * photograph it was given, and the layer finds it again by the address it was
- * rendered from.
+ * This used to carry the page's photographs as well, so the visual editor
+ * running inside an iframe could find each frame by the address it had been
+ * rendered from. The Media tab is a list now — it edits the registry directly
+ * rather than the page — so the only thing left to hand the storefront is the
+ * stylesheet, which is what every visitor was getting from here anyway.
+ *
+ * Every page calls this, not just the two the editor lists: a page with no
+ * sections and nothing saved gets an empty string and renders nothing.
  */
 export async function getMediaLayer(pageId: string): Promise<MediaLayerData> {
-  const [settings, slots] = await Promise.all([
+  const settings =
     pageId === 'home'
-      ? getSectionSettings()
-      : Promise.resolve({} as Record<string, SectionSetting>),
-    slotsFor(pageId),
-  ]);
+      ? await getSectionSettings()
+      : ({} as Record<string, SectionSetting>);
 
-  const frames: MediaLayerFrame[] = [];
-
-  for (const slot of slots) {
-    slot.frames.forEach((frame, index) => {
-      const many = slot.frames.length > 1;
-
-      frames.push({
-        key: many ? `${slot.slotId}#${index}` : slot.slotId,
-        slotId: slot.slotId,
-        index,
-        label: many ? `${slot.label} ${index + 1}` : slot.label,
-        url: frame.url,
-      });
-    });
-  }
-
-  return {
-    page: pageId,
-    css: sectionSettingCss(settings),
-    frames,
-    sections:
-      pageId === 'home'
-        ? HOME_SECTIONS.map(({ id, label, selector, fixed }) => ({
-            id,
-            label,
-            selector,
-            ...(fixed ? { fixed: true } : {}),
-          }))
-        : [],
-  };
+  return { page: pageId, css: sectionSettingCss(settings) };
 }
