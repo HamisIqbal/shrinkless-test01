@@ -4,13 +4,8 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { AuthError } from 'next-auth';
 import { auth, signIn, signOut } from '@/auth';
-import { EmailTakenError, createUser, verifyCredentials } from '@/lib/services/users';
+import { EmailTakenError, createUser } from '@/lib/services/users';
 import { loginSchema, registerSchema } from '@/lib/validation/auth';
-import {
-  CODE_TTL_MS,
-  adminLockState,
-  issueAdminChallenge,
-} from '@/lib/services/two-factor';
 import {
   MAX_RESETS_PER_DAY,
   RESET_TTL_MS,
@@ -20,19 +15,13 @@ import {
 import { passwordResetMail } from '@/lib/email/password-reset';
 import { absoluteUrl } from '@/lib/site';
 import { forgotPasswordSchema, resetPasswordSchema } from '@/lib/validation/auth';
-import { adminCodeMail, adminCodeRecipient, maskEmail } from '@/lib/email/admin-code';
 import { sendMail } from '@/lib/email/send';
 import { mergeGuestCartIntoUserCart } from '@/lib/services/cart';
 import { persistCartId, readCartId } from '@/lib/cart-session';
 import { LIMITS, consume, reset, retryAfterMinutes } from '@/lib/security/rate-limit';
 import { headers } from 'next/headers';
 
-export type AuthResult =
-  | { ok: true }
-  | { ok: false; error: string }
-  /** The password was right and the account is an admin: a code is in the
-   *  mailbox and the form has a second step to render. */
-  | { step: 'code'; sentTo: string; error?: string };
+export type AuthResult = { ok: true } | { ok: false; error: string };
 
 const GENERIC_LOGIN_ERROR = 'That email and password combination is not correct.';
 const THROTTLED_ERROR = (minutes: number) =>
@@ -52,19 +41,6 @@ async function clientAddress(): Promise<string> {
 
   return forwarded.split(',')[0]?.trim() || 'unknown';
 }
-const BAD_CODE_ERROR = 'That code is not right, or it has expired. Send a new one.';
-const LOCKED_ERROR = (minutes: number) =>
-  `Too many incorrect codes. Admin sign-in is locked for ${minutes} ${
-    minutes === 1 ? 'minute' : 'minutes'
-  }.`;
-const MAIL_FAILED_ERROR =
-  'Your password was right, but the code could not be emailed. Check the mail settings and try again.';
-
-/** Whole minutes, rounded up, for a message a person reads. */
-function minutesFrom(ms: number): number {
-  return Math.max(1, Math.ceil(ms / 60_000));
-}
-
 /**
  * Where a sign-in lands.
  *
@@ -141,45 +117,8 @@ export async function registerAction(formData: FormData): Promise<AuthResult> {
 }
 
 /**
- * Issues a second factor and mails it. Returns the step the form should show.
- *
- * A cooldown-suppressed resend is deliberately indistinguishable from a fresh
- * send in the copy: the live code is still the right one to type.
- */
-async function startAdminChallenge(
-  userId: string,
-  accountEmail: string,
-): Promise<AuthResult> {
-  const recipient = adminCodeRecipient(accountEmail);
-  const masked = maskEmail(recipient);
-
-  let issued;
-  try {
-    issued = await issueAdminChallenge(userId, recipient);
-  } catch {
-    return { ok: false, error: 'Could not start the sign-in. Try again.' };
-  }
-
-  if (issued.code) {
-    try {
-      await sendMail(adminCodeMail(recipient, issued.code, CODE_TTL_MS / 60_000));
-    } catch (error) {
-      // Never strand an admin with a code they cannot read: drop the challenge
-      // so the next attempt starts clean, and say what went wrong.
-      console.error('admin 2FA mail failed', error);
-      return { ok: false, error: MAIL_FAILED_ERROR };
-    }
-  }
-
-  return { step: 'code', sentTo: masked };
-}
-
-/**
- * Two passes for an admin, one for everyone else.
- *
- * Pass one carries the password and gets a code in the mail. Pass two carries
- * the password *and* the code, and only then does signIn() run — so a session
- * is never minted anywhere except behind both factors.
+ * One pass for everyone. An email and a password that match an account mint
+ * the session; an admin lands in the panel rather than the account page.
  */
 export async function loginAction(formData: FormData): Promise<AuthResult> {
   const parsed = loginSchema.safeParse({
@@ -190,9 +129,6 @@ export async function loginAction(formData: FormData): Promise<AuthResult> {
   if (!parsed.success) {
     return { ok: false, error: GENERIC_LOGIN_ERROR };
   }
-
-  const rawCode = formData.get('code');
-  const code = typeof rawCode === 'string' ? rawCode.trim() : '';
 
   // Two budgets: one for the account under attack, one for the source. Both
   // are consumed before any password is verified, so a throttled attacker
@@ -214,62 +150,16 @@ export async function loginAction(formData: FormData): Promise<AuthResult> {
     return { ok: false, error: THROTTLED_ERROR(retryAfterMinutes(worst)) };
   }
 
-  if (!code) {
-    // Check the password here so a non-admin never pays for a second round
-    // trip, and so an admin's code is only ever mailed on a *correct*
-    // password — the mailbox is not an oracle for password guessing.
-    const user = await verifyCredentials(parsed.data.email, parsed.data.password);
-    if (!user) return { ok: false, error: GENERIC_LOGIN_ERROR };
-
-    if (user.role === 'admin') {
-      // Five wrong codes closes admin sign-in for an hour. Checked before a
-      // new code is issued as well as when one is verified, so a locked-out
-      // attacker cannot keep a fresh code arriving in the real admin's inbox.
-      const lock = await adminLockState(user.id);
-      if (lock.locked) {
-        return { ok: false, error: LOCKED_ERROR(minutesFrom(lock.retryAfterMs)) };
-      }
-
-      // Mailing a code costs money and fills an inbox, so it gets its own
-      // budget on top of the password one.
-      const sends = await consume(
-        `2fa:${user.id}`,
-        LIMITS.twoFactorSend.limit,
-        LIMITS.twoFactorSend.windowMs,
-      );
-
-      if (!sends.allowed) {
-        return { ok: false, error: THROTTLED_ERROR(retryAfterMinutes(sends)) };
-      }
-
-      return startAdminChallenge(user.id, user.email);
-    }
-  }
-
   try {
     await signIn('credentials', {
       email: parsed.data.email,
       password: parsed.data.password,
-      code,
       redirect: false,
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      // With a code in hand the password was already proven, so the only new
-      // way to fail is the code itself. Keep the form on step two — unless
-      // that guess was the one that closed the lock, in which case there is
-      // nothing left to type and the form should say so plainly.
-      if (code) {
-        const user = await verifyCredentials(parsed.data.email, parsed.data.password);
-        const lock = user ? await adminLockState(user.id) : null;
-
-        if (lock?.locked) {
-          return { ok: false, error: LOCKED_ERROR(minutesFrom(lock.retryAfterMs)) };
-        }
-
-        const recipient = adminCodeRecipient(parsed.data.email);
-        return { step: 'code', sentTo: maskEmail(recipient), error: BAD_CODE_ERROR };
-      }
+      // The same answer for a wrong password and an address with no account
+      // behind it, so the form cannot be used to enumerate accounts.
       return { ok: false, error: GENERIC_LOGIN_ERROR };
     }
     throw error;
@@ -293,9 +183,8 @@ export async function logoutAction(): Promise<void> {
 /* --------------------------------------------------------------------------
    Forgotten passwords
 
-   Customers only. An admin who cannot sign in has a second factor and a
-   mailbox; handing that same mailbox the power to replace the password would
-   collapse two factors back into one.
+   Customers only. An admin password is set out of band with
+   `npm run seed:admin`, so a mailbox is never a path into the back office.
    -------------------------------------------------------------------------- */
 
 export type ForgotResult =

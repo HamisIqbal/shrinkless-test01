@@ -12,7 +12,7 @@ Nothing was replaced. This builds on what the store already had:
 |---|---|
 | Framework | Next 16, App Router, Server Components + Server Actions |
 | Database | MongoDB via Mongoose 9, models in `lib/db/models` |
-| Auth | NextAuth v5, JWT sessions, credentials provider, admin 2FA |
+| Auth | NextAuth v5, JWT sessions, credentials provider |
 | Validation | Zod schemas in `lib/validation` |
 | Images | Cloudinary, signed direct uploads |
 | Email | Resend, via `lib/email` |
@@ -173,7 +173,7 @@ escaped and length capped. `perPage` is capped at 100.
 | Sensitive data leakage | `passwordHash` excluded at query; payment `raw` payload never mapped into a DTO; only brand + last4 exposed |
 | Exposed secrets | Cloudinary and Resend secrets are server-only; the browser receives a signature, never a key |
 | Insecure file upload | Signed, folder-scoped, direct to Cloudinary; the signature endpoint requires `products:write` |
-| Rate limiting | Login (per email and per address), 2FA sends, and public sign-up forms. Fixed-window counters in Mongo, so they work across serverless instances |
+| Rate limiting | Login (per email and per address), password resets, and public sign-up forms. Fixed-window counters in Mongo, so they work across serverless instances |
 | Session security | JWT, `AUTH_SECRET`-signed; role read from the signed token, not from a client-writable field |
 | CSRF | Server Actions carry Next's built-in origin check; no custom cross-origin mutation endpoints exist |
 

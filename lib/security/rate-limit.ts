@@ -100,15 +100,10 @@ export const LIMITS = {
   login: { limit: 10, windowMs: 15 * 60 * 1000 },
   /** Sign-in attempts from one address, whatever email they name. */
   loginByIp: { limit: 30, windowMs: 15 * 60 * 1000 },
-  /** Second-factor codes mailed for one account. Costs real email. */
-  twoFactorSend: { limit: 8, windowMs: 60 * 60 * 1000 },
   /** Newsletter and back-in-stock sign-ups from one address. */
   publicWrite: { limit: 20, windowMs: 60 * 60 * 1000 },
   /** Password reset links mailed for one address, per day. Counted against
    *  the address typed into the form whether or not an account exists, so
    *  being throttled never confirms that one does. */
   passwordReset: { limit: 5, windowMs: 24 * 60 * 60 * 1000 },
-  /** Wrong admin sign-in codes. Spending this budget locks admin sign-in for
-   *  the rest of the window. */
-  adminCode: { limit: 5, windowMs: 60 * 60 * 1000 },
 } as const;

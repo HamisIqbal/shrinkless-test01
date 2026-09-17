@@ -47,10 +47,9 @@ function limitKey(email: string): string {
  * has been used five times for that address — never that the address is a
  * customer here.
  *
- * Admin accounts are never issued a link. An admin holds a second factor
- * precisely so that one compromised mailbox is not enough; a reset link that
- * replaced the password from that same mailbox would hand back everything the
- * second factor was bought to protect.
+ * Admin accounts are never issued a link. A mailbox that anyone has read
+ * access to must not be a path to the back office; an admin password is set
+ * out of band, with `npm run seed:admin`.
  */
 export async function requestPasswordReset(
   email: string,

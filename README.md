@@ -34,7 +34,7 @@ required to boot:
 | --- | --- | --- |
 | `MONGODB_URI` | yes | Everything is stored here. |
 | `AUTH_SECRET` | yes | Signs session cookies. |
-| `RESEND_API_KEY`, `EMAIL_FROM` | for admin sign-in | The admin's second factor is emailed. Without it no admin can sign in. |
+| `RESEND_API_KEY`, `EMAIL_FROM` | for outbound mail | Password reset links and wholesale enquiries. Without it those mails are never sent. |
 | `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` | for checkout | Without them the checkout page says payments are unavailable rather than failing at the moment someone tries to pay. |
 | `CLOUDINARY_*` | for image upload | Product and site photography. Reading existing images needs only the public cloud name. |
 | `INSTAGRAM_ACCESS_TOKEN` | optional | The community band — above New arrivals on the homepage, above the footer elsewhere. Without it that band is a plain invitation to follow — see [`docs/instagram.md`](docs/instagram.md). |
