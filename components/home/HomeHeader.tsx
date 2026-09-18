@@ -23,6 +23,12 @@ type Props = {
   /** The published catalogue, so the search sheet can show cards before a
    *  single letter is typed and narrow them as one is. */
   products: ProductDTO[];
+  /**
+   * Whether this page opens on full-bleed media, so the bar may start
+   * transparent over it. False on a page set on paper, where white type on a
+   * transparent bar would be white type on a white page.
+   */
+  over?: boolean;
 };
 
 /** How far the page moves before the bar takes its solid, shorter form. */
@@ -59,18 +65,21 @@ export function Roll({ children }: { children: string }) {
  * the field across the top, the catalogue as cards underneath it — and the
  * cart opens as a sheet of its own.
  *
- * On a desktop window the bar starts transparent over the campaign, every word
- * and icon in white, and only becomes paper on the first scroll — so the
- * photograph runs to the top of the screen. Below that breakpoint it is white
- * from the first pixel: there the campaign is a tall crop behind a burger, the
- * wordmark and three icons, and a transparent bar could not promise those stay
- * readable. On a phone the row is the burger and the wordmark together on the
- * left and the three utilities hard right, evenly spaced, the bag's counter
- * riding the corner of its mark so all three sit as equal squares. Centred,
+ * On a page that opens on full-bleed media the bar starts transparent over it,
+ * every word and icon in white, and only becomes paper on the first scroll —
+ * so the photograph runs to the top of the screen. Which pages those are is
+ * `lib/shop/chrome.ts`'s answer, not this component's.
+ *
+ * Below the desktop breakpoint it is white from the first pixel: there the
+ * campaign is a tall crop behind a burger, the wordmark and three icons, and a
+ * transparent bar could not promise those stay readable. On a phone the row is
+ * the burger and the wordmark together on the left and the three utilities
+ * hard right, evenly spaced, the bag's counter riding the corner of its mark
+ * so all three sit as equal squares. Centred,
  * the wordmark had only the sliver of bar the icons left it and ran under the
  * search mark; beside the burger it has the whole left of the row.
  */
-export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail, products }: Props) {
+export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail, products, over = false }: Props) {
   const router = useRouter();
   const itemCount = cart?.itemCount ?? 0;
 
@@ -237,7 +246,7 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail, products
   const classes = [
     'hm-head',
     homeFonts,
-    !scrolled && !panel ? 'hm-head--over' : '',
+    over && !scrolled && !panel ? 'hm-head--over' : '',
     scrolled ? 'hm-head--compact' : '',
     megaOpen && !searchOpen ? 'hm-head--menu' : '',
   ].filter(Boolean).join(' ');

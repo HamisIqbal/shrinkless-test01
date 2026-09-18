@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { getStoreSettings } from '@/lib/services/settings';
 import { listPublishedProducts } from '@/lib/services/products';
 import { readCartView } from '@/lib/cart-session';
@@ -7,16 +8,14 @@ import { isAdminSession } from '@/lib/auth/guards';
 import { SmoothScroll } from '@/components/ui/SmoothScroll';
 import { Motion } from '@/components/ui/Motion';
 import { ToastProvider } from '@/components/ui/Toast';
+import { ANNOUNCE_COOKIE, isDismissed } from '@/lib/shop/announcement';
 import { AnnounceBar } from '@/components/site/AnnounceBar';
-import { Header } from '@/components/site/Header';
-import { Footer } from '@/components/site/Footer';
+import { Chrome } from '@/components/site/Chrome';
 import { FooterReveal } from '@/components/site/FooterReveal';
-import { HomeSwitch } from '@/components/home/HomeSwitch';
-import { HomeHeader } from '@/components/home/HomeHeader';
 import { HomeFooter } from '@/components/home/HomeFooter';
 
 export default async function ShopLayout({ children }: LayoutProps<'/'>) {
-  const [settings, cart, session, menu, products] = await Promise.all([
+  const [settings, cart, session, menu, products, jar] = await Promise.all([
     getStoreSettings(),
     readCartView(),
     auth(),
@@ -26,7 +25,10 @@ export default async function ShopLayout({ children }: LayoutProps<'/'>) {
     // small enough to hand over whole, and a sheet that opens already full is
     // the point of it.
     listPublishedProducts({ sizes: [], colors: [], sort: 'newest', q: '', minPrice: null, maxPrice: null, gender: null }),
+    cookies(),
   ]);
+
+  const dismissed = isDismissed(settings.announcement, jar.get(ANNOUNCE_COOKIE)?.value);
 
   return (
     <Motion>
@@ -37,45 +39,27 @@ export default async function ShopLayout({ children }: LayoutProps<'/'>) {
 
       <a href="#main" className="skiplink">Skip to content</a>
 
-      {/* The homepage draws its own header and footer; every other shop route
-          keeps the standard ones. See HomeSwitch. The homepage carries no
-          announcement bar at all — its announcements are the pop-up the page
-          itself renders — so `/` gets nothing here. */}
-      <HomeSwitch home={null} rest={<AnnounceBar message={settings.announcement} />} />
+      {/* Every storefront page carries the bar now, the homepage included.
+          Whether it has already been put away is read here rather than in the
+          browser: a bar that appears and then vanishes is a flash and a shift
+          on every single page load, and reading storage while rendering is a
+          hydration mismatch. */}
+      <AnnounceBar message={settings.announcement} dismissed={dismissed} />
 
-      <HomeSwitch
-        home={
-          <HomeHeader
-            menu={menu}
-            cart={cart}
-            signedIn={Boolean(session?.user)}
-            isAdmin={isAdminSession(session)}
-            storeEmail={settings.storeEmail}
-            products={products}
-          />
-        }
-        rest={
-          <Header
-            menu={menu}
-            cart={cart}
-            signedIn={Boolean(session?.user)}
-            isAdmin={isAdminSession(session)}
-            storeEmail={settings.storeEmail}
-          />
-        }
+      <Chrome
+        menu={menu}
+        cart={cart}
+        signedIn={Boolean(session?.user)}
+        isAdmin={isAdminSession(session)}
+        storeEmail={settings.storeEmail}
+        products={products}
       />
 
-      {/* The Instagram band is no longer bolted on here. Every route but the
-          homepage gets it from app/(shop)/(instagram-last)/layout.tsx; the
-          homepage places it itself, above New arrivals. */}
       <main id="main">{children}</main>
       </div>
 
       <FooterReveal>
-        <HomeSwitch
-          home={<HomeFooter storeEmail={settings.storeEmail} />}
-          rest={<Footer storeEmail={settings.storeEmail} />}
-        />
+        <HomeFooter storeEmail={settings.storeEmail} />
       </FooterReveal>
     </div>
     </ToastProvider>
