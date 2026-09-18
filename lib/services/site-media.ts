@@ -139,6 +139,36 @@ const EDITORIAL: Record<string, EditorialDefinition> = {
     default: PRODUCT_IMAGES['womens-organic-tee'][1],
     ratios: RAIL,
   },
+  storyOne: {
+    label: 'Our Story (First chapter)',
+    where: 'Our Story — the photograph beside “the shirt that stopped fitting”',
+    default: PRODUCT_IMAGES['mens-organic-tee'][1],
+    ratios: WIDE,
+  },
+  storyTwo: {
+    label: 'Our Story (Second chapter)',
+    where: 'Our Story — the photograph beside the cloth',
+    default: PRODUCT_IMAGES['womens-everyday-tee'][1],
+    ratios: WIDE,
+  },
+  storyThree: {
+    label: 'Our Story (Third chapter)',
+    where: 'Our Story — the photograph beside the making',
+    default: PRODUCT_IMAGES['mens-long-sleeve-tee'][0],
+    ratios: WIDE,
+  },
+  storyStatement: {
+    label: 'Our Story (Closing band)',
+    where: 'Our Story — the full-bleed band the page closes on',
+    default: PRODUCT_IMAGES['womens-everyday-tee'][0],
+    ratios: BAND,
+  },
+  tradeStatement: {
+    label: 'Wholesale (Closing band)',
+    where: 'Wholesale — the full-bleed band above the enquiry',
+    default: PRODUCT_IMAGES['womens-boxy-tee'][0],
+    ratios: BAND,
+  },
 };
 
 export type EditorialSlot = keyof typeof EDITORIAL & string;
@@ -472,6 +502,9 @@ const WHY_ORDER: EditorialSlot[] = ['fabric', 'folded', 'hanging', 'craft'];
 /** `app/(shop)/page.tsx` — the two statement tiles. */
 const STORY_ORDER: EditorialSlot[] = ['torso', 'heather'];
 
+/** Our Story, in the order the page runs them: three chapters, then the band. */
+const OUR_STORY_ORDER: EditorialSlot[] = ['storyOne', 'storyTwo', 'storyThree', 'storyStatement'];
+
 /* --------------------------------------------------------------------------
    The home page's sections
 
@@ -659,25 +692,30 @@ export type MediaPageView = {
 /**
  * The pages the editor lists, in the order it lists them.
  *
- * Only the two that have photography. Our Story is a film and a column of
- * copy, and the FAQ carries no pictures at all — listing either would be a
- * heading with nothing under it, which reads as a page whose images failed to
- * load rather than as a page that has none. Both still serve their layout
- * overrides through `getMediaLayer`; they simply have nothing to edit here.
+ * Only the pages that have photography. The FAQ carries no pictures at all —
+ * listing it would be a heading with nothing under it, which reads as a page
+ * whose images failed to load rather than as a page that has none. It still
+ * serves its layout overrides through `getMediaLayer`; it simply has nothing
+ * to edit here.
  */
 const MEDIA_PAGES = [
   { id: 'home', label: 'Homepage', path: '/' },
+  { id: 'our-story', label: 'Our Story', path: '/our-story' },
   { id: 'why-shrinkless', label: 'Why Shrinkless', path: '/why-shrinkless' },
+  { id: 'wholesale', label: 'Wholesale', path: '/wholesale' },
 ] as const;
 
 /**
  * Which slots stand on a page, in the order the page runs them.
  *
  * Home carries the carousel, the category doors, the lookbook rail, the story
- * tiles and the promise band; Why Shrinkless carries the four points. Any
- * other page answers with nothing, which is why only these two are listed in
- * `MEDIA_PAGES` — the storefront still calls this for every page it serves,
- * because the layer it feeds also carries the section stylesheet.
+ * tiles and the promise band; Our Story carries its three chapters and its
+ * closing band; Why Shrinkless carries the four points; Wholesale carries the
+ * band it closes on. The catalogue pages compose the two category doors, which
+ * are edited on Home where they are composed rather than in a second place —
+ * so they are not listed. Any other page answers with nothing, because the
+ * storefront still calls this for every page it serves: the layer it feeds
+ * also carries the section stylesheet.
  */
 function slotIdsFor(pageId: string): string[] {
   if (pageId === 'home') {
@@ -694,7 +732,11 @@ function slotIdsFor(pageId: string): string[] {
     ];
   }
 
+  if (pageId === 'our-story') return OUR_STORY_ORDER.map(editorialSlotId);
+
   if (pageId === 'why-shrinkless') return WHY_ORDER.map(editorialSlotId);
+
+  if (pageId === 'wholesale') return [editorialSlotId('tradeStatement')];
 
   return [];
 }

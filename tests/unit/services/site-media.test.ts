@@ -330,14 +330,19 @@ describe('listMediaSlots', () => {
 });
 
 describe('listMediaPages', () => {
-  /* Only the pages that have photography. Our Story is a film and a column of
-     copy and the FAQ carries no pictures at all, so listing either would be a
-     heading with nothing under it — which reads as a page whose images failed
-     rather than as a page that has none. */
-  it('offers the two pages that have images, and no others', async () => {
+  /* Only the pages that have photography. The FAQ carries no pictures at all,
+     and the catalogue pages compose the two category doors that are already
+     edited on Home — listing them again would be one photograph with two
+     places to change it. */
+  it('offers the pages that have images, and no others', async () => {
     const pages = await listMediaPages();
 
-    expect(pages.map((page) => page.id)).toEqual(['home', 'why-shrinkless']);
+    expect(pages.map((page) => page.id)).toEqual([
+      'home',
+      'our-story',
+      'why-shrinkless',
+      'wholesale',
+    ]);
 
     for (const page of pages) {
       expect(page.label).toBeTruthy();

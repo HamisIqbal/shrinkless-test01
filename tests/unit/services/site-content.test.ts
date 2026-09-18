@@ -123,17 +123,20 @@ describe('listContentPages', () => {
     ]);
   });
 
-  it('leaves the two shop landings out of the editor but keeps their wording', async () => {
+  it('leaves the shop landings out of the editor but keeps their wording', async () => {
     const pages = await listContentPages();
     const ids = pages.map((page) => page.id);
 
-    expect(ids).not.toContain('men');
-    expect(ids).not.toContain('women');
+    for (const hidden of ['men', 'women', 'shop', 'wholesale']) {
+      expect(ids).not.toContain(hidden);
+    }
 
     // The storefront still renders them, so the fields must survive.
     const copy = await getSiteContent();
     expect(copy['shop.men.title']).toBe('Men');
     expect(copy['shop.women.title']).toBe('Women');
+    expect(copy['shop.all.title']).toBe('All Products');
+    expect(copy['wholesale.lede']).toBeTruthy();
   });
 
   it('gives every page at least one editable field', async () => {
@@ -165,7 +168,21 @@ describe('listContentPages', () => {
 
     expect(new Set(keys).size).toBe(keys.length);
 
-    const hidden = ['shop.men.title', 'shop.women.title', 'wholesale.title'];
+    const hidden = [
+      'shop.men.title',
+      'shop.women.title',
+      'shop.all.eyebrow',
+      'shop.all.title',
+      'shop.all.lede',
+      'wholesale.title',
+      'wholesale.lede',
+      'wholesale.terms.1',
+      'wholesale.terms.2',
+      'wholesale.terms.3',
+      'wholesale.terms.4',
+      'wholesale.statement',
+      'wholesale.cta',
+    ];
     expect(keys.sort()).toEqual(CONTENT_KEYS.filter((key) => !hidden.includes(key)).sort());
   });
 

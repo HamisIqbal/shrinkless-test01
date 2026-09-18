@@ -313,6 +313,31 @@ const PAGES: ContentPageDefinition[] = [
   },
 
   {
+    id: 'shop',
+    label: 'All Products',
+    path: '/shop',
+    hidden: true,
+    sections: [
+      {
+        id: 'head',
+        label: 'Page head',
+        note: 'The type over the unfiltered grid. Men and Women have heads of their own.',
+        tone: 'paper',
+        fields: [
+          { key: 'shop.all.eyebrow', label: 'Eyebrow', kind: 'eyebrow', default: 'Collection' },
+          { key: 'shop.all.title', label: 'Title', kind: 'heading', default: 'All Products' },
+          {
+            key: 'shop.all.lede',
+            label: 'Lede',
+            kind: 'lede',
+            default: 'Every Shrinkless style, in every colour we currently make it.',
+          },
+        ],
+      },
+    ],
+  },
+
+  {
     id: 'men',
     label: 'Men',
     path: '/shop/men',
@@ -363,6 +388,88 @@ const PAGES: ContentPageDefinition[] = [
             default:
               'Founded in 2015 by Nicholas Bowles, Shrinkless was created from a simple belief: your favorite T-shirt shouldn’t change after you wash it. Frustrated by shirts that lost their fit, shape, and feel after just a few washes, Nicholas set out to create something better. Today, Shrinkless makes garment-dyed organic cotton tees that are made in the USA and designed to keep their fit, feel, and character wash after wash. We believe a great T-shirt should be simple, comfortable, and built to last, which is why we focus on quality materials, thoughtful craftsmanship, and timeless design rather than chasing trends. From the way our tees feel when you first put them on to the way they become part of your everyday wardrobe, everything we do comes back to one idea: make a T-shirt you can count on. No unnecessary fuss, no disposable fashion, just exceptionally comfortable tees made to be worn, washed, and worn again. That’s Shrinkless.',
           },
+        ],
+      },
+      {
+        id: 'chapters',
+        label: 'The three chapters',
+        note: 'A title and a paragraph each, beside their photographs. The photographs are edited on Media.',
+        tone: 'paper',
+        columns: 2,
+        fields: [
+          {
+            key: 'story.ch1.title',
+            label: 'First — title',
+            kind: 'heading',
+            default: 'The shirt that stopped fitting',
+            group: 'one',
+          },
+          {
+            key: 'story.ch1.body',
+            label: 'First — paragraph',
+            kind: 'body',
+            default:
+              'Every wardrobe has one. It fitted the day it was bought, and three washes later the hem sat high and the shoulders had moved. Cotton shrinks because it was stretched to be knitted, and heat lets it go back. Most tees are sold before that happens.',
+            group: 'one',
+          },
+          {
+            key: 'story.ch2.title',
+            label: 'Second — title',
+            kind: 'heading',
+            default: 'A cloth that has already moved',
+            group: 'two',
+          },
+          {
+            key: 'story.ch2.body',
+            label: 'Second — paragraph',
+            kind: 'body',
+            default:
+              'Ours is washed and dyed as a finished garment, at temperatures past anything a home machine reaches. The shrinking happens here, before it is yours. What arrives has already been through what it is about to go through.',
+            group: 'two',
+          },
+          {
+            key: 'story.ch3.title',
+            label: 'Third — title',
+            kind: 'heading',
+            default: 'Made where we can stand in the room',
+            group: 'three',
+          },
+          {
+            key: 'story.ch3.body',
+            label: 'Third — paragraph',
+            kind: 'body',
+            default:
+              'Cut, sewn, dyed and washed in the United States, in workshops we visit. It costs more than the alternative and it is the reason the tee behaves the way it does.',
+            group: 'three',
+          },
+        ],
+      },
+      {
+        id: 'spec',
+        label: 'The care-label strip',
+        note: 'Four short facts, set like a care label. Keep them to a few words each.',
+        tone: 'paper',
+        columns: 2,
+        fields: [
+          { key: 'story.spec.1', label: 'First', kind: 'label', default: 'Made in USA' },
+          { key: 'story.spec.2', label: 'Second', kind: 'label', default: 'Organic cotton' },
+          { key: 'story.spec.3', label: 'Third', kind: 'label', default: 'Garment dyed' },
+          { key: 'story.spec.4', label: 'Fourth', kind: 'label', default: 'Holds its fit' },
+        ],
+      },
+      {
+        id: 'close',
+        label: 'The closing band',
+        note: 'One line over the full-bleed photograph, and the button under it.',
+        tone: 'ink',
+        fields: [
+          {
+            key: 'story.statement',
+            label: 'Statement',
+            kind: 'heading',
+            default: 'Buy it once. Wash it forever.',
+          },
+          { key: 'story.cta', label: 'Button', kind: 'button', default: 'Shop the tees' },
         ],
       },
     ],
@@ -455,6 +562,21 @@ const PAGES: ContentPageDefinition[] = [
             kind: 'body',
             default: 'Proudly made in the USA.',
             group: 'four',
+          },
+        ],
+      },
+      {
+        id: 'proof',
+        label: 'The proof',
+        note: 'One figure, set large, and the line that explains it.',
+        tone: 'paper',
+        fields: [
+          { key: 'why.proof.figure', label: 'Figure', kind: 'heading', default: 'Under 1%' },
+          {
+            key: 'why.proof.caption',
+            label: 'Caption',
+            kind: 'label',
+            default: 'Shrinkage after fifty home washes, measured across the body and the sleeve.',
           },
         ],
       },
@@ -597,7 +719,43 @@ const PAGES: ContentPageDefinition[] = [
         label: 'Page head',
         note: 'The title over the line sheet. The styles below it come from the catalogue.',
         tone: 'ink',
-        fields: [{ key: 'wholesale.title', label: 'Title', kind: 'heading', default: 'Wholesale' }],
+        fields: [
+          { key: 'wholesale.title', label: 'Title', kind: 'heading', default: 'Wholesale' },
+          {
+            key: 'wholesale.lede',
+            label: 'Lede',
+            kind: 'lede',
+            default: 'Ten styles, made to order, on terms we agree with you directly.',
+          },
+        ],
+      },
+      {
+        id: 'terms',
+        label: 'The terms strip',
+        note: 'The four facts a buyer looks for first. Keep them to a few words each.',
+        tone: 'ink',
+        columns: 2,
+        fields: [
+          { key: 'wholesale.terms.1', label: 'First', kind: 'label', default: 'MOQ 150 units' },
+          { key: 'wholesale.terms.2', label: 'Second', kind: 'label', default: 'Ten styles' },
+          { key: 'wholesale.terms.3', label: 'Third', kind: 'label', default: 'Made to order' },
+          { key: 'wholesale.terms.4', label: 'Fourth', kind: 'label', default: 'Four to six weeks' },
+        ],
+      },
+      {
+        id: 'close',
+        label: 'The closing band',
+        note: 'One line over the full-bleed photograph, and the button under it.',
+        tone: 'ink',
+        fields: [
+          {
+            key: 'wholesale.statement',
+            label: 'Statement',
+            kind: 'heading',
+            default: 'Tell us what you need.',
+          },
+          { key: 'wholesale.cta', label: 'Button', kind: 'button', default: 'Request a quote' },
+        ],
       },
     ],
   },
