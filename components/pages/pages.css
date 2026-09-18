@@ -1,0 +1,216 @@
+/* ==========================================================================
+   The section vocabulary the storefront's pages are composed from.
+
+   Same language as home-sections.css and built on the same tokens, which
+   hm-core.css holds — this file declares none of its own. Headings are Bebas,
+   the same face as the masthead and the homepage's own bands; running copy is
+   Space Grotesk and small print is the mono. Every rule describes a finished
+   resting state: the motion in HomeScene moves elements *into* these, so a
+   page with reduced motion or no JavaScript shows the completed layout.
+   ========================================================================== */
+
+/* --- the opener ----------------------------------------------------------- */
+
+.pg-open {
+  position: relative;
+  display: grid;
+  align-items: end;
+  overflow: hidden;
+  min-height: 78svh;
+  padding-block: clamp(4rem, 12vh, 9rem);
+  background: var(--hm-ink);
+  color: var(--hm-white);
+}
+
+/* The masthead is transparent over this at desktop width, so the media runs to
+   the top of the screen the way the campaign does. */
+@media (min-width: 62rem) {
+  .pg-open {
+    margin-top: calc(var(--hm-head-h) * -1);
+    min-height: calc(86svh + var(--hm-head-h) - var(--hm-announce));
+    padding-top: calc(var(--hm-head-h) + 4rem);
+  }
+}
+
+/* A parallax layer at p=6 travels 6% of its own height each way, so it must
+   overscan its section by at least p/(1-2p) ≈ 6.8% on each side — rounded up
+   to 8% — or a strip of ground shows mid-scroll. */
+.pg-open__stage { position: absolute; inset: -8% 0; z-index: 0; }
+
+.pg-open__image,
+.pg-open__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Enough ground for white type over an unknown photograph — the admin can
+   publish anything here, so the scrim cannot depend on what is behind it. */
+.pg-open__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to top, rgba(10, 10, 10, 0.78) 0%, rgba(10, 10, 10, 0.25) 45%, rgba(10, 10, 10, 0.35) 100%);
+}
+
+.pg-open__inner { position: relative; z-index: 2; }
+
+.pg-open__title {
+  margin: 0;
+  font-family: var(--hm-bebas);
+  font-size: clamp(3rem, 11vw, 9rem);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.88;
+  text-transform: uppercase;
+}
+
+.pg-open__body {
+  max-width: 46ch;
+  margin: clamp(1rem, 2.5vw, 1.75rem) 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-family: var(--hm-accent);
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  line-height: 1.6;
+}
+
+/* --- the chapters --------------------------------------------------------- */
+
+.pg-chapters {
+  padding-block: clamp(4rem, 12vh, 9rem);
+  background: var(--hm-chalk);
+  color: var(--hm-ink);
+}
+
+.pg-chapter {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+}
+
+.pg-chapter + .pg-chapter { margin-top: clamp(4rem, 10vh, 8rem); }
+
+@media (min-width: 62rem) {
+  .pg-chapter { grid-template-columns: 1fr 1fr; }
+  .pg-chapter--right .pg-chapter__frame { order: 2; }
+}
+
+.pg-chapter__frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 3 / 2;
+}
+
+@media (max-width: 61.9375rem) {
+  .pg-chapter__frame { aspect-ratio: 4 / 5; }
+}
+
+.pg-chapter__image { object-fit: cover; }
+
+.pg-chapter__index { margin: 0 0 clamp(0.75rem, 1.5vw, 1.25rem); }
+
+.pg-chapter__title {
+  margin: 0;
+  font-family: var(--hm-bebas);
+  font-size: clamp(2.25rem, 5vw, 4.25rem);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+.pg-chapter__body {
+  max-width: 44ch;
+  margin: clamp(0.9rem, 2vw, 1.5rem) 0 0;
+  color: var(--hm-stone);
+  font-family: var(--hm-accent);
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  line-height: 1.65;
+}
+
+/* --- the care-label strip ------------------------------------------------- */
+
+.pg-spec {
+  padding-block: clamp(2rem, 5vh, 3.5rem);
+  border-block: 1px solid var(--hm-line-light);
+  background: var(--hm-chalk);
+  color: var(--hm-ink);
+}
+
+.pg-spec__row {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 0;
+  padding-inline: var(--hm-gutter);
+  list-style: none;
+}
+
+@media (min-width: 48rem) {
+  .pg-spec__row { grid-template-columns: repeat(4, 1fr); }
+}
+
+.pg-spec__item {
+  padding-block: clamp(0.75rem, 2vw, 1.25rem);
+  color: var(--hm-stone);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.pg-spec__item + .pg-spec__item { border-inline-start: 1px solid var(--hm-line-light); padding-inline-start: 1rem; }
+
+/* --- the closing band ----------------------------------------------------- */
+
+.pg-statement {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  min-height: clamp(26rem, 70svh, 42rem);
+  padding-block: clamp(4rem, 10vh, 8rem);
+  background: var(--hm-ink);
+  color: var(--hm-white);
+  text-align: center;
+}
+
+/* A parallax layer at p=8 travels 8% of its own height each way, so it must
+   overscan its section by at least p/(1-2p) ≈ 9.5% on each side — rounded up
+   to 10% — or a strip of ground shows mid-scroll. */
+.pg-statement__media { position: absolute; inset: -10% 0; z-index: 0; }
+.pg-statement__image { object-fit: cover; }
+
+.pg-statement__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(10, 10, 10, 0.5);
+}
+
+.pg-statement__inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.pg-statement__line {
+  max-width: 18ch;
+  margin: 0;
+  font-family: var(--hm-bebas);
+  font-size: clamp(2.5rem, 8vw, 6.5rem);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+/* The pill sits on a photograph here, so its focus ring must not be ink. */
+.pg-open :focus-visible,
+.pg-statement :focus-visible {
+  outline: 2px solid var(--hm-white);
+  outline-offset: 3px;
+}
