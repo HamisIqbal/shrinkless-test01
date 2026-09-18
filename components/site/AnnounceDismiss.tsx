@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from 'react';
 import { ANNOUNCE_COOKIE, ANNOUNCE_MAX_AGE, announcementTag } from '@/lib/shop/announcement';
-import { homeFonts } from '@/components/home/fonts';
+import { homeMono } from '@/components/home/fonts';
 
 /**
  * The bar's close button, and the only part of the bar that is client-side.
@@ -32,7 +32,7 @@ export function AnnounceDismiss({ message, children }: { message: string; childr
   };
 
   return (
-    <div className={`announce ${homeFonts}`}>
+    <div className={`announce ${homeMono}`}>
       {children}
 
       <button type="button" className="announce__close" onClick={close}>
