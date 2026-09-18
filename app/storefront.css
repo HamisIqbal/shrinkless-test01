@@ -471,17 +471,36 @@
 
 /* --------------------------------------------------------------------------
    Announcement ticker
-   The track holds the message twice and travels exactly half its own width, so
-   copy two lands where copy one began and the loop has no seam.
+
+   Charcoal, white, and closeable. The track holds the message twice and
+   travels exactly half its own width, so copy two lands where copy one began
+   and the loop has no seam.
+
+   The scrolling viewport is inset by the close button's width: the track is
+   wider than the screen and never stops moving, so type would otherwise pass
+   underneath the button. The height is declared rather than left to the type,
+   because `--hm-announce-h` in hm-core.css states it as a fact and the
+   campaign's fold is measured against it.
    -------------------------------------------------------------------------- */
 
 .announce {
-  overflow: hidden;
-  background: var(--color-ink);
-  color: var(--color-white);
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: var(--hm-announce-h, 2.25rem);
+  background: var(--hm-coal, #151515);
+  color: var(--hm-white, #ffffff);
+  font-family: var(--font-hm-mono), ui-monospace, Menlo, monospace;
   font-size: var(--text-meta);
   letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+.announce__viewport {
+  flex: 1;
+  overflow: hidden;
+  /* The button's width plus its gutter. */
+  padding-inline-end: 2.5rem;
 }
 
 .announce__track {
@@ -495,11 +514,31 @@
 .announce__item {
   display: inline-flex;
   align-items: center;
-  padding-block: 0.3rem;
   white-space: nowrap;
 }
 
 .announce__dot { padding-inline: var(--space-4); opacity: 0.5; }
+
+.announce__close {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.65;
+  transition: opacity 0.3s var(--hm-ease, ease);
+}
+
+.announce__close:is(:hover, :focus-visible) { opacity: 1; }
+.announce__close:focus-visible { outline: 2px solid var(--hm-white, #fff); outline-offset: -3px; }
+
+.announce__x { width: 0.85rem; height: 0.85rem; }
 
 @keyframes announce-roll {
   from { transform: translate3d(0, 0, 0); }
