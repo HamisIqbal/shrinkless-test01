@@ -142,7 +142,7 @@ const EDITORIAL: Record<string, EditorialDefinition> = {
   storyOne: {
     label: 'Our Story (First chapter)',
     where: 'Our Story — the photograph beside “the shirt that stopped fitting”',
-    default: PRODUCT_IMAGES['mens-organic-tee'][1],
+    default: PRODUCT_IMAGES['womens-boxy-tee'][0],
     ratios: WIDE,
   },
   storyTwo: {
@@ -166,7 +166,7 @@ const EDITORIAL: Record<string, EditorialDefinition> = {
   tradeStatement: {
     label: 'Wholesale (Closing band)',
     where: 'Wholesale — the full-bleed band above the enquiry',
-    default: PRODUCT_IMAGES['womens-boxy-tee'][0],
+    default: PRODUCT_IMAGES['mens-organic-tee'][1],
     ratios: BAND,
   },
 };
