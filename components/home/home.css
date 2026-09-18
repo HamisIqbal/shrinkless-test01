@@ -311,7 +311,7 @@
   align-items: center;
   gap: 1rem;
   max-width: 100rem;
-  min-height: 5.25rem;
+  min-height: var(--hm-head-h);
   margin-inline: auto;
   padding-inline: var(--hm-gutter);
   transition: min-height 0.5s var(--hm-ease);

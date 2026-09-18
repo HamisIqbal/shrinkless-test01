@@ -149,11 +149,21 @@
 
 /* On a desktop window the bar is transparent over the top of the campaign, so
    the overlap comes back: the photograph runs to the top of the screen and the
-   section still ends exactly at the fold. */
+   section still ends where it did.
+
+   The negative margin clears the masthead only — an announcement bar sits
+   above the masthead in flow and is not part of what has to be climbed over.
+   The height is a different matter: a bar pushes everything below it down the
+   screen by its own height, so the same distance comes back off the section or
+   the campaign hangs past the fold by exactly the height of the bar.
+
+   `--hm-announce` is zero unless a bar is actually rendered, so this one
+   expression covers a page with a bar, a page without one, and the moment a
+   shopper closes it. */
 @media (min-width: 62rem) {
   .hm-hero {
-    margin-top: -5.25rem;
-    min-height: calc(100svh + 5.25rem);
+    margin-top: calc(var(--hm-head-h) * -1);
+    min-height: calc(100svh + var(--hm-head-h) - var(--hm-announce));
   }
 }
 
@@ -192,9 +202,9 @@
 }
 
 /* Centred in what you can see rather than in the section: on a desktop window
-   the section starts 5.25rem above the top of the screen. */
+   the section starts a masthead's height above the top of the screen. */
 @media (min-width: 62rem) {
-  .hm-hero__call { padding-top: 5.25rem; }
+  .hm-hero__call { padding-top: var(--hm-head-h); }
 }
 
 .hm-hero__cta {
