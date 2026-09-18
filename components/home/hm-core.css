@@ -1,0 +1,135 @@
+/* ==========================================================================
+   The shared core.
+
+   The tokens and the primitives every section in the homepage's language is
+   built from — colours, faces, easings, the gutter and the two measurements
+   the masthead and the announcement bar publish about themselves.
+
+   Split out of home-sections.css so a page that is not the homepage can
+   depend on 4KB of vocabulary rather than on 30KB about the homepage's own
+   bands. home-sections.css and home.css read from here and never override it.
+   ========================================================================== */
+
+:root {
+  --hm-ink: #0a0a0a;
+  --hm-coal: #151515;
+  --hm-graphite: #2a2a29;
+  --hm-stone: #5c5c58;
+  --hm-smoke: #8e8e8a;
+  --hm-ash: #b8b8b3;
+  --hm-mist: #e4e4e1;
+  --hm-chalk: #f2f2f0;
+  --hm-white: #ffffff;
+  --hm-line-dark: rgba(255, 255, 255, 0.16);
+  --hm-line-light: rgba(10, 10, 10, 0.12);
+
+  --hm-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --hm-curtain: cubic-bezier(0.76, 0, 0.24, 1);
+  --hm-gutter: clamp(1.25rem, 4vw, 4.5rem);
+
+  /* The masthead's own height. It was written as a bare 5.25rem in two places
+     in home-sections.css, where it drove the campaign's fold arithmetic. It is
+     a measurement the bar publishes about itself, so it belongs here. */
+  --hm-head-h: 5.25rem;
+
+  /* What the announcement bar occupies when it is on the page. Declared rather
+     than measured: a JavaScript measurement would land a frame late and shift
+     the campaign under it. The bar's CSS sets this exact height. */
+  --hm-announce-h: 2.25rem;
+
+  /* What the bar *currently* occupies — zero unless one is actually rendered.
+     Set by the `:has()` rule below, so dismissing the bar (which unmounts it)
+     returns this to zero with no JavaScript coordination at all. */
+  --hm-announce: 0rem;
+}
+
+/* The five faces below are aliases for next/font variables (--font-hm-*),
+   and those variables are only ever created on an element carrying the
+   `homeFonts` class (see fonts.ts) — nowhere else do they exist. A custom
+   property whose var() points at an undefined variable with no fallback is
+   invalid at computed-value time on the element that declares it, and it is
+   that invalid value which inherits. Put these on :root and there is no
+   guarantee a `homeFonts` ancestor is in reach, so the whole page could
+   inherit invalid values and lose Bebas Neue outright. So instead they are
+   declared only on the roots that also carry `homeFonts`, where the
+   variables they alias are always real. */
+.hm-hero,
+.hm-ig,
+.hm-shelf,
+.hm-look,
+.hm-story,
+.hm-promise,
+.hm-quotes,
+.pg-open,
+.pg-chapters,
+.pg-spec,
+.pg-statement,
+.pg-head,
+.pg-proof,
+.pg-sheet {
+  --hm-display: var(--font-hm-display), "Helvetica Neue", Arial, sans-serif;
+  --hm-bebas: var(--font-hm-bebas), "Haettenschweiler", "Arial Narrow", sans-serif;
+  --hm-accent: var(--font-hm-accent), "Helvetica Neue", Arial, sans-serif;
+  --hm-mono: var(--font-hm-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  --hm-sans: var(--font-inter-tight), "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* The shell is the only place an announcement bar ever renders. */
+.shell:has(.announce) { --hm-announce: var(--hm-announce-h); }
+
+/* --------------------------------------------------------------------------
+   A dark ground.
+
+   Wholesale is set on ink. Rather than a second copy of every primitive, the
+   ground swaps what "ink" and "paper" mean and the primitives follow.
+   -------------------------------------------------------------------------- */
+
+.hm-dark {
+  --hm-ink: #f2f2f0;
+  --hm-chalk: #151515;
+  --hm-white: #0a0a0a;
+  --hm-stone: #b8b8b3;
+  --hm-smoke: #8e8e8a;
+  --hm-line-light: rgba(255, 255, 255, 0.16);
+  color: var(--hm-ink);
+  background: var(--hm-chalk);
+}
+
+/* --------------------------------------------------------------------------
+   Shared pieces
+   -------------------------------------------------------------------------- */
+
+.hm-wrap {
+  width: 100%;
+  max-width: 100rem;
+  margin-inline: auto;
+  padding-inline: var(--hm-gutter);
+}
+
+.hm-eyebrow {
+  display: block;
+  color: var(--hm-stone);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+/* Big type needs room above its capitals and below its baseline inside a mask. */
+.hm-mask--tall {
+  padding-block: 0.1em;
+  margin-block: -0.1em;
+}
+
+/* One word, one window: the word rises through it. */
+.hm-wordmask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding: 0.06em 0.08em 0.12em 0;
+  margin: -0.06em -0.08em -0.12em 0;
+}
+
+.hm-word { display: inline-block; }

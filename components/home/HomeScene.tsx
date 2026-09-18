@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type ElementType, type ReactNode } from 'react';
 import { gsap, ScrollTrigger, useGsap, MOTION_OK } from '@/components/home/gsap';
+import './hm-core.css';
 import './home-sections.css';
 
 type Props = {

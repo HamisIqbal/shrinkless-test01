@@ -19,80 +19,14 @@
    still replace them.
    ========================================================================== */
 
-.hm-hero,
-.hm-ig,
-.hm-shelf,
-.hm-look,
-.hm-story,
-.hm-promise,
-.hm-quotes {
-  --hm-ink: #0a0a0a;
-  --hm-coal: #151515;
-  --hm-graphite: #2a2a29;
-  --hm-stone: #5c5c58;
-  --hm-smoke: #8e8e8a;
-  --hm-ash: #b8b8b3;
-  --hm-mist: #e4e4e1;
-  --hm-chalk: #f2f2f0;
-  --hm-white: #ffffff;
-  --hm-line-dark: rgba(255, 255, 255, 0.16);
-  --hm-line-light: rgba(10, 10, 10, 0.12);
-
-  --hm-display: var(--font-hm-display), "Helvetica Neue", Arial, sans-serif;
-  --hm-bebas: var(--font-hm-bebas), "Haettenschweiler", "Arial Narrow", sans-serif;
-  --hm-accent: var(--font-hm-accent), "Helvetica Neue", Arial, sans-serif;
-  --hm-mono: var(--font-hm-mono), ui-monospace, "SF Mono", Menlo, monospace;
-  --hm-sans: var(--font-inter-tight), "Helvetica Neue", Helvetica, Arial, sans-serif;
-
-  --hm-ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --hm-curtain: cubic-bezier(0.76, 0, 0.24, 1);
-  --hm-gutter: clamp(1.25rem, 4vw, 4.5rem);
-}
+/* Tokens and the shared primitives now live in hm-core.css, which HomeScene
+   imports — so they are in scope wherever a section renders. */
 
 .hm-look :focus-visible,
 .hm-promise :focus-visible {
   outline: 2px solid var(--hm-white);
   outline-offset: 3px;
 }
-
-/* --------------------------------------------------------------------------
-   Shared pieces
-   -------------------------------------------------------------------------- */
-
-.hm-wrap {
-  width: 100%;
-  max-width: 100rem;
-  margin-inline: auto;
-  padding-inline: var(--hm-gutter);
-}
-
-.hm-eyebrow {
-  display: block;
-  color: var(--hm-stone);
-  font-family: var(--hm-mono);
-  font-size: 0.6875rem;
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 1.4;
-  text-transform: uppercase;
-}
-
-/* Big type needs room above its capitals and below its baseline inside a mask. */
-.hm-mask--tall {
-  padding-block: 0.1em;
-  margin-block: -0.1em;
-}
-
-/* One word, one window: the word rises through it. */
-.hm-wordmask {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: top;
-  padding: 0.06em 0.08em 0.12em 0;
-  margin: -0.06em -0.08em -0.12em 0;
-}
-
-.hm-word { display: inline-block; }
 
 /* --- the pill ------------------------------------------------------------- */
 
