@@ -1,9 +1,15 @@
 import { listWholesaleProducts } from '@/lib/services/wholesale';
 import { getContentLayer, getSiteContent } from '@/lib/services/site-content';
+import { getStoreSettings } from '@/lib/services/settings';
+import { getSiteMedia } from '@/lib/services/site-media';
 import { ContentLayer } from '@/components/site/ContentLayer';
 import { productFilterSchema } from '@/lib/validation/catalogue';
 import { ShopBrowser } from '@/components/shop/ShopBrowser';
 import { WholesaleGrid } from '@/components/shop/WholesaleGrid';
+import { CatalogueHead } from '@/components/pages/CatalogueHead';
+import { SpecStrip } from '@/components/pages/SpecStrip';
+import { StatementBand } from '@/components/pages/StatementBand';
+import { homeFonts } from '@/components/home/fonts';
 import type { WholesaleProductDTO } from '@/types/dto';
 
 export const metadata = {
@@ -38,7 +44,13 @@ export default async function WholesalePage(props: PageProps<'/wholesale'>) {
   const rawSearch = await props.searchParams;
   const filter = productFilterSchema.parse(rawSearch);
 
-  const [all, copy] = await Promise.all([listWholesaleProducts(), getSiteContent()]);
+  const [all, copy, media, layer, settings] = await Promise.all([
+    listWholesaleProducts(),
+    getSiteContent(),
+    getSiteMedia(),
+    getContentLayer('wholesale'),
+    getStoreSettings(),
+  ]);
 
   // Filter options describe the whole line sheet, not the current result
   // set — otherwise filtering to Women removes Men from the gender chips and
@@ -83,27 +95,54 @@ export default async function WholesalePage(props: PageProps<'/wholesale'>) {
   }
 
   return (
-    <div className="band band--ink tradesheet">
-      <div className="wrap">
-        <header className="tradesheet__head">
-          <h1 className="display tradesheet__title">{copy['wholesale.title']}</h1>
-        </header>
-
-        <ContentLayer {...(await getContentLayer('wholesale'))} />
-
-        <ShopBrowser
-          filter={filter}
-          sizes={sizes}
-          colors={colors}
-          genders={genders}
-          priceFloor={priceFloor}
-          priceCeiling={priceCeiling}
-          basePath="/wholesale"
-          count={styles.length}
-          grid={<WholesaleGrid styles={styles} />}
-          emptyMessage="Nothing matches that. Clear a filter and try again."
+    <>
+      <div className="hm-dark tradesheet">
+        <CatalogueHead
+          title={copy['wholesale.title']}
+          lede={copy['wholesale.lede']}
+          count={all.length}
         />
+
+        {/* The four facts a buyer looks for before anything else. They were
+            somewhere further down the page, or on a style's own page. */}
+        <SpecStrip
+          label="Trade terms"
+          items={[
+            copy['wholesale.terms.1'],
+            copy['wholesale.terms.2'],
+            copy['wholesale.terms.3'],
+            copy['wholesale.terms.4'],
+          ]}
+        />
+
+        <div className={`band band--tight band--ink pg-sheet ${homeFonts}`}>
+          <div className="wrap">
+            <ContentLayer {...layer} />
+
+            <ShopBrowser
+              filter={filter}
+              sizes={sizes}
+              colors={colors}
+              genders={genders}
+              priceFloor={priceFloor}
+              priceCeiling={priceCeiling}
+              basePath="/wholesale"
+              count={styles.length}
+              grid={<WholesaleGrid styles={styles} />}
+              emptyMessage="Nothing matches that. Clear a filter and try again."
+            />
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Outside `.hm-dark`: that wrapper flips `--hm-white` to near-black for
+          the two painted grounds above, which would put dark type — and the
+          pill — on this band's own dark photo scrim. */}
+      <StatementBand
+        image={media.editorial.tradeStatement}
+        statement={copy['wholesale.statement']}
+        cta={{ href: `mailto:${settings.storeEmail}?subject=Wholesale%20enquiry`, label: copy['wholesale.cta'] }}
+      />
+    </>
   );
 }

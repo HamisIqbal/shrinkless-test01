@@ -317,3 +317,16 @@
 
 .pg-head--lit .pg-head__lede { color: rgba(255, 255, 255, 0.82); }
 .pg-head--lit :focus-visible { outline: 2px solid var(--hm-white); outline-offset: 3px; }
+
+/* --- on ink --------------------------------------------------------------- */
+
+/* Wholesale is set on ink. `.hm-dark` swaps what the tokens mean, so the
+   sections above need no dark copies of themselves — only the two grounds that
+   are painted rather than inherited have to be told. */
+.hm-dark .pg-head,
+.hm-dark .pg-spec {
+  background: var(--hm-chalk);
+  color: var(--hm-ink);
+}
+
+.hm-dark .pg-spec { border-block-color: var(--hm-line-light); }
