@@ -20,7 +20,7 @@ export default async function ShopLayout({ children }: LayoutProps<'/'>) {
     readCartView(),
     auth(),
     buildShopMenu(),
-    // The homepage's search sheet shows cards rather than a bare field, so it
+    // Every page's search sheet shows cards rather than a bare field, so it
     // needs the catalogue. Read here rather than fetched on open: the store is
     // small enough to hand over whole, and a sheet that opens already full is
     // the point of it.

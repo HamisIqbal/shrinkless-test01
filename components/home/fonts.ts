@@ -1,11 +1,13 @@
 import { Archivo, Bebas_Neue, Space_Grotesk, Geist_Mono } from 'next/font/google';
 
 /**
- * The homepage chrome's four faces. Scoped per component by class: each home
- * component puts `homeFonts` on its own root, so the display, Bebas and
- * accent variables exist only inside the header, menus, category doors and
- * footer on `/`. The mono face travels further on its own — see `homeMono`
- * below — because the announcement bar wears it across the whole storefront.
+ * The chrome's four faces. Scoped per component by class: each component that
+ * uses them puts `homeFonts` on its own root, so the display, Bebas and
+ * accent variables exist only inside the header, menus, category doors,
+ * footer, and the other pages that now compose from the same section
+ * vocabulary — not just `/`. The mono face travels further on its own — see
+ * `homeMono` below — because the announcement bar wears it across the whole
+ * storefront.
  *
  * Bebas Neue is the voice of the page itself: the navigation, the campaign's
  * one button, and every section heading down to the category doors. It is a

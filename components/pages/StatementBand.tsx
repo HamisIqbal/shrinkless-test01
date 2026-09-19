@@ -16,9 +16,10 @@ type Props = {
 /**
  * The full-bleed line a page closes on.
  *
- * `HomePromise`'s shape with its scrubbed parallax traded for the once-only
- * reveal in `HomeScene`: the homepage can afford a scrubbed band because it
- * has one, and these pages would each add another.
+ * `HomePromise`'s shape: the photograph still drifts on a scrubbed
+ * `data-hm-parallax`, tied to scroll position throughout. The statement and
+ * its button are different — they enter once, via `HomeScene`'s
+ * `data-hm-rise` and `data-hm-fade`, and stay put after that.
  */
 export function StatementBand({ image, statement, cta, sectionClass = '' }: Props) {
   return (

@@ -1,8 +1,9 @@
 /* ==========================================================================
    Homepage chrome — the masthead, menus, the announcement pop-up, the Men &
-   Women doors and the footer, on `/` only. Every selector here is `hm-`
-   prefixed and every element that uses one is rendered by components/home, so
-   nothing on any other route can match a rule in this file.
+   Women doors and the footer. `components/site/Chrome.tsx` loads this file on
+   every storefront page now, not just `/`, but the doors and the rest of the
+   homepage-only markup still only exist on `/`, so their rules simply have
+   nothing to match elsewhere. Every selector here is `hm-` prefixed.
 
    Black, white and five greys between them. Four faces: Bebas Neue for the
    navigation and the category doors, Archivo (with its width axis) for the

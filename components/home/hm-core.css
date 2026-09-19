@@ -7,7 +7,8 @@
 
    Split out of home-sections.css so a page that is not the homepage can
    depend on 4KB of vocabulary rather than on 30KB about the homepage's own
-   bands. home-sections.css and home.css read from here and never override it.
+   bands. home-sections.css reads from here and never overrides it. home.css
+   keeps its own chrome token block, separate from this one.
    ========================================================================== */
 
 :root {

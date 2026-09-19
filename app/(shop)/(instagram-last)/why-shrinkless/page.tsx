@@ -7,6 +7,7 @@ import { HomeScene } from '@/components/home/HomeScene';
 import { PageOpener } from '@/components/pages/PageOpener';
 import { ChapterBand, type Chapter } from '@/components/pages/ChapterBand';
 import { StatementBand } from '@/components/pages/StatementBand';
+import { HomeScrollSync } from '@/components/home/HomeScene';
 
 export const metadata = {
   title: 'Why Shrinkless',
@@ -69,6 +70,8 @@ export default async function WhyShrinklessPage() {
       <ContentLayer {...layer} />
 
       <MediaLayer {...mediaLayer} />
+
+      <HomeScrollSync />
     </>
   );
 }

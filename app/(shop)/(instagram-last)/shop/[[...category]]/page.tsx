@@ -9,6 +9,7 @@ import { CatalogueHead } from '@/components/pages/CatalogueHead';
 import { HomeGateway } from '@/components/home/HomeGateway';
 import { SHOPPABLE } from '@/lib/shop/navigation';
 import { homeFonts } from '@/components/home/fonts';
+import { HomeScrollSync } from '@/components/home/HomeScene';
 
 export const metadata = { title: 'Shop' };
 
@@ -123,6 +124,8 @@ export default async function ShopPage(props: PageProps<'/shop/[[...category]]'>
           image: categoryImage(media, slug),
         }))}
       />
+
+      <HomeScrollSync />
     </>
   );
 }

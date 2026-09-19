@@ -6,6 +6,7 @@ import { PageOpener } from '@/components/pages/PageOpener';
 import { ChapterBand, type Chapter } from '@/components/pages/ChapterBand';
 import { SpecStrip } from '@/components/pages/SpecStrip';
 import { StatementBand } from '@/components/pages/StatementBand';
+import { HomeScrollSync } from '@/components/home/HomeScene';
 
 export const metadata = {
   title: 'Our Story',
@@ -73,6 +74,8 @@ export default async function OurStoryPage() {
       <ContentLayer {...layer} />
 
       <MediaLayer {...mediaLayer} />
+
+      <HomeScrollSync />
     </>
   );
 }

@@ -10,6 +10,7 @@ import { CatalogueHead } from '@/components/pages/CatalogueHead';
 import { SpecStrip } from '@/components/pages/SpecStrip';
 import { StatementBand } from '@/components/pages/StatementBand';
 import { homeFonts } from '@/components/home/fonts';
+import { HomeScrollSync } from '@/components/home/HomeScene';
 import type { WholesaleProductDTO } from '@/types/dto';
 
 export const metadata = {
@@ -143,6 +144,8 @@ export default async function WholesalePage(props: PageProps<'/wholesale'>) {
         statement={copy['wholesale.statement']}
         cta={{ href: `mailto:${settings.storeEmail}?subject=Wholesale%20enquiry`, label: copy['wholesale.cta'] }}
       />
+
+      <HomeScrollSync />
     </>
   );
 }
