@@ -3281,13 +3281,11 @@
 
 .pagehead { padding-bottom: var(--space-5); }
 .pagehead__title { padding-block: var(--space-2) var(--space-4); max-width: 20ch; }
-.pagehead__lede { color: var(--color-muted-text); }
 
-/* Our Story and Why Shrinkless read as a centred editorial column rather
-   than the left-aligned spec-sheet pageheads elsewhere. */
+/* FAQ reads as a centred editorial column rather than the left-aligned
+   spec-sheet pageheads elsewhere. */
 .pagehead--center { text-align: center; }
-.pagehead--center .pagehead__title,
-.pagehead--center .pagehead__lede { margin-inline: auto; }
+.pagehead--center .pagehead__title { margin-inline: auto; }
 
 /* A hairline above repeated pagehead blocks stacked with no photography
    between them, so consecutive statements still read as distinct beats. */
@@ -3370,8 +3368,6 @@
     line-height: 1.7;
   }
 }
-
-.shopcta { padding-block: var(--space-2) var(--space-6); text-align: center; }
 
 .authform { display: grid; gap: var(--space-4); max-width: 26rem; padding-top: var(--space-5); }
 
