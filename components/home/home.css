@@ -1263,6 +1263,12 @@
 
 .hm-gw__cell { display: block; }
 
+/* A door with no partner — a catalogue page for a category that isn't part of
+   the fixed men/women pair — spans both columns rather than sitting in column
+   1 beside a blank ink half. The homepage always renders `SHOPPABLE`, a fixed
+   pair, so this can only ever match a single-category gateway elsewhere. */
+.hm-gw__cell:only-child { grid-column: 1 / -1; }
+
 .hm-gw__tile {
   position: relative;
   display: grid;
@@ -1280,6 +1286,13 @@
 
 @media (min-width: 48rem) {
   .hm-gw__tile { height: clamp(36rem, 96svh, 58rem); }
+
+  /* Full row at that height would run taller than the screen — over 100rem
+     wide, the tall portrait shape the pair uses. A lone door is shaped
+     landscape instead. The Media tab's stored crop is a 3:4 frame meant for
+     the portrait shape; `object-fit: cover` plus the admin's own focus point
+     still centre the subject, just cropped to a wider strip of the frame. */
+  .hm-gw__cell:only-child .hm-gw__tile { height: auto; aspect-ratio: 21 / 9; }
 }
 
 /* Inset past the tile on every side: the blur feathers the photograph's edge,

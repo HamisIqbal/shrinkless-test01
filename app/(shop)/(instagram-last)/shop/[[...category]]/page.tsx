@@ -36,14 +36,19 @@ export default async function ShopPage(props: PageProps<'/shop/[[...category]]'>
   // out" rather than "that page does not exist". The set of real categories is
   // now a database question, so a new one is navigable the moment it is
   // created rather than the next time this file is edited.
-  if (categorySlug) {
-    const categories = await shoppableCategories();
-    if (!categories.some((entry) => entry.slug === categorySlug)) notFound();
-  }
+  const categories = categorySlug ? await shoppableCategories() : [];
+  if (categorySlug && !categories.some((entry) => entry.slug === categorySlug)) notFound();
 
   const filter = productFilterSchema.parse(rawSearch);
   const copy = await getSiteContent();
   const media = await getSiteMedia();
+
+  // The category itself, once it has passed the check above — read off the
+  // same list rather than queried again, so a category the admin has created
+  // (anything past Men and Women) still has a name to put over its grid.
+  const activeCategory = categorySlug
+    ? categories.find((entry) => entry.slug === categorySlug)
+    : undefined;
 
   // Men and Women open on their own photograph; the unfiltered grid has no art
   // of its own, and a stand-in would be a lie about the page. Both facts are
@@ -79,6 +84,12 @@ export default async function ShopPage(props: PageProps<'/shop/[[...category]]'>
     <>
       {lit ? (
         <CatalogueHead title={lit.title} count={all.length} image={lit.image} />
+      ) : activeCategory ? (
+        // A category with no minimal-title key of its own — anything the
+        // admin has added beyond Men and Women — still gets its own name
+        // rather than the unfiltered grid's, with no eyebrow, lede or
+        // photograph it does not have.
+        <CatalogueHead title={activeCategory.label} count={all.length} />
       ) : (
         <CatalogueHead
           eyebrow={copy['shop.all.eyebrow']}
