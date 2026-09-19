@@ -4842,3 +4842,114 @@
 .pdp--trade .swatch--on .swatch__name { color: var(--color-paper); }
 
 .pdp--trade .swatch__dot { border-color: rgba(245, 244, 240, 0.35); }
+
+/* --------------------------------------------------------------------------
+   The collection controls, in the storefront's voice
+
+   Appended rather than edited into the blocks above: what is restated here is
+   only what carries voice — the face, the size, the tracking, the colour and
+   the radius. Every rule about where a control sits and how it behaves is left
+   untouched further up this file, which is why the filter panel still works
+   exactly as it did.
+
+   The tokens come from components/home/hm-core.css, which the layout loads
+   through the masthead, so they resolve on every storefront page.
+
+   `.chip`, `.swatch` and `.filters__*` are not only this panel's — the same
+   class names are VariantPicker's and QuickView's size and colour pickers
+   (QuickView can render inside this same `.pg-sheet`, from a grid card), plus
+   WholesaleBuyPanel and an admin colour picker. Product and quick-view bodies
+   are out of scope for this task, so every selector below is scoped under
+   `.pg-sheet .filters` (the panel's own controls) rather than left bare.
+   `.filters__toggle` and `.filters__dot` render in `.shoplayout__bar`, above
+   the grid, not inside the form, so those two are scoped there instead.
+   -------------------------------------------------------------------------- */
+
+.pg-sheet .filters .filters__legend,
+.pg-sheet .filters .filters__price,
+.pg-sheet .filters .filters__hint,
+.pg-sheet .shoplayout__bar,
+.pg-sheet .shoplayout__sheetbar {
+  color: var(--hm-stone);
+  font-family: var(--hm-mono, ui-monospace, Menlo, monospace);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.pg-sheet .filters .filters__input,
+.pg-sheet .filters .filters__select,
+.pg-sheet .filters .filters__color {
+  font-family: var(--hm-mono, ui-monospace, Menlo, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.pg-sheet .filters .filters__input { border-bottom-color: var(--hm-line-light); }
+.pg-sheet .filters .filters__input:focus-visible { border-bottom-color: var(--hm-ink); }
+
+/* The chips become pills, the same shape as the pill the pages call to action
+   with — a store should have one idea of what a rounded control looks like. */
+.pg-sheet .filters .chip {
+  border-radius: 999px;
+  border-color: var(--hm-line-light);
+  color: var(--hm-ink);
+  font-family: var(--hm-mono, ui-monospace, Menlo, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.pg-sheet .filters .chip--on {
+  background: var(--hm-ink);
+  border-color: var(--hm-ink);
+  color: var(--hm-white);
+}
+
+/* `.swatch` is dropped here: the panel's own colour picker is `.filters__color`
+   (a labelled row holding a `.swatchdot`), never a bare `.swatch` — that class
+   belongs only to VariantPicker/QuickView/WholesaleBuyPanel, out of scope. */
+.pg-sheet .filters .chip:has(:focus-visible),
+.pg-sheet .filters .filters__color:has(:focus-visible) {
+  outline-color: var(--hm-ink);
+}
+
+/* The toggle that collapses the filter column, and the count beside it, live
+   in the bar above the grid rather than inside the form above. */
+.pg-sheet .shoplayout__bar .filters__toggle {
+  font-family: var(--hm-mono, ui-monospace, Menlo, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.pg-sheet .shoplayout__bar .filters__dot { background: var(--hm-ink); }
+
+/* On ink — the wholesale line sheet. `.hm-dark` has already swapped what the
+   tokens mean, so these rules need no dark variants of their own; only the
+   one that paints a colour rather than inheriting it has to be told. */
+.hm-dark .pg-sheet .filters .chip--on {
+  background: var(--hm-ink);
+  color: var(--hm-chalk);
+}
+
+/* The phone sheet is its own paper surface regardless of the page it opened
+   from — `.shoplayout__aside` above sets that literally, in this same media
+   query, for exactly this reason ("the sheet is paper regardless of the page
+   it opened from"). It is the one surface under `.hm-dark` that is not
+   actually ink, so the swap above has to be undone at the sheet's own root:
+   every rule above reaches the sheet through inheritance, so undoing it once,
+   here, keeps the chip, its on-state, the colour rows and the labels correct
+   without a second, sheet-specific copy of each rule. */
+@media (max-width: 61.9375rem) {
+  .hm-dark .pg-sheet .shoplayout__aside {
+    --hm-ink: #0a0a0a;
+    --hm-chalk: #f2f2f0;
+    --hm-white: #ffffff;
+    --hm-stone: #5c5c58;
+    --hm-line-light: rgba(10, 10, 10, 0.12);
+  }
+}
