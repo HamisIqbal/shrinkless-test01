@@ -499,8 +499,11 @@
 .announce__viewport {
   flex: 1;
   overflow: hidden;
-  /* The button's width plus its gutter. */
-  padding-inline-end: 2.5rem;
+  /* Overflow clips to the padding box, so padding here would let the
+     max-content track paint straight through it and under the button. A
+     margin instead shortens the viewport itself, so its clip edge stops
+     short of the button. */
+  margin-inline-end: 2.5rem;
 }
 
 .announce__track {
@@ -528,7 +531,7 @@
   width: 2.5rem;
   padding: 0;
   border: 0;
-  background: none;
+  background: var(--hm-coal, #151515);
   color: inherit;
   cursor: pointer;
   opacity: 0.65;

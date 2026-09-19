@@ -30,7 +30,7 @@ export function AnnounceBar({ message, dismissed = false }: { message?: string; 
           {[0, 1].map((half) => (
             <div className="announce__half" key={half} aria-hidden={half === 1 || undefined}>
               {copies.map((i) => (
-                <span className="announce__item" key={i}>
+                <span className="announce__item" key={i} aria-hidden={half === 1 || i > 0 || undefined}>
                   {text}
                   <span className="announce__dot" aria-hidden="true">&bull;</span>
                 </span>
