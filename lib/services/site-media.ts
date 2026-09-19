@@ -69,7 +69,7 @@ export const HERO_RATIOS: ViewRatios = {
   mobile: { w: 9, h: 16 },
 };
 
-/** `.gateway__frame` and `.tiles__frame` — 3:4 from 48rem up, 4:5 below. */
+/** `.gateway__frame` — 3:4 from 48rem up, 4:5 below. */
 export const CATEGORY_RATIOS: ViewRatios = {
   desktop: { w: 3, h: 4 },
   mobile: { w: 4, h: 5 },

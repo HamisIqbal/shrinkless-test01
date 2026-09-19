@@ -25,107 +25,9 @@
 
 .tiles { padding-block: var(--space-7); background: var(--color-paper); }
 
-.tiles__head { padding-bottom: var(--space-5); max-width: 34rem; }
-.tiles__title { padding-top: var(--space-2); }
-
-.tiles__grid { display: grid; gap: var(--spacing-rule); }
-
-@media (min-width: 48rem) {
-  .tiles__grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .tiles__grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .tiles__grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-@media (min-width: 62rem) {
-  .tiles__grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
-
-.tiles__tile {
-  position: relative;
-  display: block;
-  color: var(--color-white);
-  text-decoration: none;
-}
-
-.tiles__frame {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-  background: var(--color-paper-deep);
-}
-
-.tiles__grid--tall .tiles__frame { aspect-ratio: 3 / 4; }
-
-/* A grid that is not inside a `.wrap` is full-bleed, so the same thing that
-   happens to the category doors happens here — see `.gateway__frame`. The
-   contained grids are already held to the measure and are left alone. */
-.tiles > .tiles__grid .tiles__frame { width: 100%; max-height: 100svh; }
-
-@media (min-width: 62rem) {
-  .tiles__grid--tall .tiles__frame { aspect-ratio: 4 / 5; }
-}
-
 .tiles__image {
   object-fit: cover;
   transition: transform var(--dur-4) var(--ease-out);
-}
-
-.tiles__tile--link:hover .tiles__image,
-.tiles__tile--link:focus-visible .tiles__image {
-  transform: scale(calc(var(--crop-z, 1) * 1.04));
-}
-
-/* Weighted to the foot, where the type is. A flat tint strong enough to carry
-   white text over a pale frame would grey out the whole photograph. */
-.tiles__wash {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(10, 10, 10, 0.78) 0%,
-    rgba(10, 10, 10, 0.5) 38%,
-    rgba(10, 10, 10, 0.16) 72%,
-    rgba(10, 10, 10, 0.08) 100%
-  );
-}
-
-.tiles__body {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  display: grid;
-  gap: var(--space-2);
-  justify-items: start;
-  padding: clamp(1.25rem, 2.5vw, 2.25rem);
-}
-
-.tiles__index {
-  font-size: var(--text-meta);
-  letter-spacing: 0.16em;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.tiles__label {
-  font-size: var(--text-sub);
-  font-weight: 500;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  max-width: 16ch;
-}
-
-.tiles__copy {
-  max-width: 32ch;
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.86);
-}
-
-/* The text block is anchored to the foot of the frame, so a one-line body
-   pushes its title lower than a two-line neighbour's and the row of titles
-   stops being a row. Reserving two lines keeps them level. */
-@media (min-width: 48rem) {
-  .tiles__grid--4 .tiles__copy { min-height: 3em; }
 }
 
 /* --------------------------------------------------------------------------
@@ -2103,14 +2005,6 @@
 .colophon__legal { padding-top: var(--space-4); }
 
 /* --------------------------------------------------------------------------
-   Shop
-   -------------------------------------------------------------------------- */
-
-.shoppage__head { padding-bottom: var(--space-6); max-width: 52rem; }
-.shoppage__title { padding-block: var(--space-2) var(--space-3); }
-.shoppage__intro { color: var(--color-muted-text); }
-
-/* --------------------------------------------------------------------------
    Collection layout
    Filters in a column beside the grid. A bar across the top pushed the first
    row of products most of the way down the page.
@@ -3290,88 +3184,6 @@
 .pagehead--center { text-align: center; }
 .pagehead--center .pagehead__title { margin-inline: auto; }
 
-/* A hairline above repeated pagehead blocks stacked with no photography
-   between them, so consecutive statements still read as distinct beats. */
-.pagehead--rule { padding-top: var(--space-6); border-top: var(--spacing-rule) solid var(--color-muted); }
-
-/* Our Story is one film, run as a hero: no measure, no frame, no radius — it
-   spans the viewport edge to edge. Width is the only dimension ever set, so the
-   picture keeps its own proportions and is never squeezed on one axis. Desktop
-   centres the copy on the film; narrower screens set it underneath, and only a
-   phone trims the sides (about 17.5% each, from the centre). */
-.storyfilm { padding-block: 0; }
-
-.storyfilm__stage { position: relative; }
-
-.storyfilm__video {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.storyfilm__copy {
-  padding: var(--space-6) clamp(1.25rem, 4vw, 4.5rem);
-  text-align: center;
-}
-
-.storyfilm__column { max-width: 74ch; margin-inline: auto; }
-
-.storyfilm__title {
-  font-size: var(--text-head);
-  font-weight: 700;
-  line-height: 0.98;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  color: var(--color-white);
-}
-
-.storyfilm__body {
-  padding-top: var(--space-4);
-  font-size: 1.0625rem;
-  line-height: 1.75;
-  color: var(--color-paper);
-}
-
-/* A phone crops rather than shrinks: the picture is widened past the viewport
-   and pulled back by half the difference, so its centre is what survives. */
-@media (max-width: 47.999rem) {
-  .storyfilm__stage { overflow: hidden; }
-
-  .storyfilm__video {
-    width: 154%;
-    margin-inline-start: -27%;
-  }
-}
-
-/* Desktop: the copy sits centred on the film, under a scrim that carries the
-   text without touching the video itself. */
-@media (min-width: 62rem) {
-  .storyfilm__copy {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    overflow-y: auto;
-    padding: clamp(2rem, 1rem + 3vw, 5rem);
-    background: linear-gradient(
-      to bottom,
-      rgb(0 0 0 / 0.20) 0%,
-      rgb(0 0 0 / 0.55) 50%,
-      rgb(0 0 0 / 0.20) 100%
-    );
-    text-shadow: 0 1px 3px rgb(0 0 0 / 0.55);
-  }
-
-  .storyfilm__title { font-size: var(--text-display); }
-
-  .storyfilm__body {
-    padding-top: var(--space-5);
-    font-size: clamp(1rem, 0.9rem + 0.25vw, 1.1875rem);
-    line-height: 1.7;
-  }
-}
-
 .authform { display: grid; gap: var(--space-4); max-width: 26rem; padding-top: var(--space-5); }
 
 .authform .field > input,
@@ -3814,54 +3626,6 @@
      Declared once here so the two halves stay in step at every width. */
   --trade-gap: var(--space-5);
   --trade-rule: var(--spacing-rule) solid rgba(245, 244, 240, 0.16);
-}
-
-.tradesheet__head {
-  max-width: 60rem;
-  padding-bottom: var(--space-5);
-  border-bottom: var(--trade-rule);
-}
-
-.tradesheet__title {
-  margin-top: var(--space-2);
-}
-
-.tradesheet__intro {
-  margin-top: var(--space-4);
-  max-width: 52ch;
-  color: var(--color-paper);
-}
-
-/* Four facts a buyer checks before they read a single price. A definition
-   list because that is what they are, and a grid because a stack of eight
-   lines would push the line sheet itself below the fold. */
-.tradesheet__terms {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3) var(--space-4);
-  margin-top: var(--space-5);
-}
-
-.tradesheet__term dt {
-  font-size: var(--text-meta);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-muted);
-}
-
-.tradesheet__term dd {
-  margin-top: 0.35rem;
-  font-size: 0.9375rem;
-  line-height: 1.4;
-}
-
-.tradesheet__empty {
-  margin-top: var(--space-6);
-  color: var(--color-muted);
-}
-
-@media (min-width: 48rem) {
-  .tradesheet__terms { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 /* The "a filter is on" dot sits on the toggle button, which is always on the
