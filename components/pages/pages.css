@@ -243,3 +243,77 @@
   line-height: 1.6;
   text-transform: uppercase;
 }
+
+/* --- a collection's head -------------------------------------------------- */
+
+.pg-head {
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(2.5rem, 7vh, 5rem);
+  background: var(--hm-chalk);
+  color: var(--hm-ink);
+}
+
+/* With a photograph it is a band, not a hero: the grid below is the page. */
+.pg-head--lit {
+  display: grid;
+  align-items: end;
+  min-height: clamp(18rem, 44svh, 28rem);
+  background: var(--hm-ink);
+  color: var(--hm-white);
+}
+
+/* A parallax layer at p=5 travels 5% of its own height each way, so it must
+   overscan its section by at least p/(1-2p) ≈ 5.6% on each side — rounded up
+   to 6% — or a strip of ground shows mid-scroll. */
+.pg-head__media { position: absolute; inset: -6% 0; z-index: 0; }
+.pg-head__image { object-fit: cover; }
+
+.pg-head__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to top, rgba(10, 10, 10, 0.7), rgba(10, 10, 10, 0.2));
+}
+
+.pg-head__inner { position: relative; z-index: 2; }
+
+.pg-head__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  margin-top: 0.5rem;
+}
+
+.pg-head__title {
+  margin: 0;
+  font-family: var(--hm-bebas);
+  font-size: clamp(2.75rem, 9vw, 7rem);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.88;
+  text-transform: uppercase;
+}
+
+.pg-head__count {
+  margin: 0;
+  color: var(--hm-smoke);
+  font-family: var(--hm-mono);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+}
+
+.pg-head--lit .pg-head__count { color: rgba(255, 255, 255, 0.72); }
+
+.pg-head__lede {
+  max-width: 46ch;
+  margin: clamp(0.9rem, 2vw, 1.4rem) 0 0;
+  color: var(--hm-stone);
+  font-family: var(--hm-accent);
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  line-height: 1.6;
+}
+
+.pg-head--lit .pg-head__lede { color: rgba(255, 255, 255, 0.82); }
+.pg-head--lit :focus-visible { outline: 2px solid var(--hm-white); outline-offset: 3px; }

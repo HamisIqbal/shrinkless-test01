@@ -4,6 +4,11 @@ import { productFilterSchema } from '@/lib/validation/catalogue';
 import { shoppableCategories } from '@/lib/shop/menu.server';
 import { getSiteContent } from '@/lib/services/site-content';
 import { ShopBrowser } from '@/components/shop/ShopBrowser';
+import { categoryImage, getSiteMedia } from '@/lib/services/site-media';
+import { CatalogueHead } from '@/components/pages/CatalogueHead';
+import { HomeGateway } from '@/components/home/HomeGateway';
+import { SHOPPABLE } from '@/lib/shop/navigation';
+import { homeFonts } from '@/components/home/fonts';
 
 export const metadata = { title: 'Shop' };
 
@@ -14,11 +19,6 @@ export const metadata = { title: 'Shop' };
 const MINIMAL_TITLE_KEYS: Record<string, string> = {
   men: 'shop.men.title',
   women: 'shop.women.title',
-};
-
-const FALLBACK = {
-  title: 'All Products',
-  copy: 'Every Shrinkless style, in every colour we currently make it.',
 };
 
 export default async function ShopPage(props: PageProps<'/shop/[[...category]]'>) {
@@ -43,6 +43,20 @@ export default async function ShopPage(props: PageProps<'/shop/[[...category]]'>
 
   const filter = productFilterSchema.parse(rawSearch);
   const copy = await getSiteContent();
+  const media = await getSiteMedia();
+
+  // Men and Women open on their own photograph; the unfiltered grid has no art
+  // of its own, and a stand-in would be a lie about the page. Both facts are
+  // read off one value, so the type narrows without an assertion.
+  const minimalKey = categorySlug ? MINIMAL_TITLE_KEYS[categorySlug] : undefined;
+  const lit = categorySlug && minimalKey
+    ? { title: copy[minimalKey], image: categoryImage(media, categorySlug) }
+    : null;
+
+  // The door to the other collection, so Men and Women cross-link the way the
+  // homepage's two doors do.
+  const others = SHOPPABLE.filter(({ slug }) => slug !== categorySlug);
+
   const products = await listPublishedProducts(filter, categorySlug);
 
   // The filter options describe the category, not the current result set —
@@ -60,35 +74,44 @@ export default async function ShopPage(props: PageProps<'/shop/[[...category]]'>
   const priceCeiling = prices.length ? Math.ceil(Math.max(...prices)) : 0;
 
   const basePath = categorySlug ? `/shop/${categorySlug}` : '/shop';
-  const minimalKey = categorySlug ? MINIMAL_TITLE_KEYS[categorySlug] : undefined;
-  const minimalTitle = minimalKey ? copy[minimalKey] : undefined;
 
   return (
-    <div className="band band--tight shoppage">
-      <div className="wrap">
-        <header className="shoppage__head">
-          {minimalTitle ? (
-            <h1 className="display shoppage__title">{minimalTitle}</h1>
-          ) : (
-            <>
-              <p className="eyebrow">Collection</p>
-              <h1 className="display shoppage__title">{FALLBACK.title}</h1>
-              <p className="lede shoppage__intro">{FALLBACK.copy}</p>
-            </>
-          )}
-        </header>
-
-        <ShopBrowser
-          products={products}
-          filter={filter}
-          sizes={sizes}
-          colors={colors}
-          priceFloor={priceFloor}
-          priceCeiling={priceCeiling}
-          basePath={basePath}
-          focusSearch={rawSearch?.focus === 'search'}
+    <>
+      {lit ? (
+        <CatalogueHead title={lit.title} count={all.length} image={lit.image} />
+      ) : (
+        <CatalogueHead
+          eyebrow={copy['shop.all.eyebrow']}
+          title={copy['shop.all.title']}
+          lede={copy['shop.all.lede']}
+          count={all.length}
         />
+      )}
+
+      <div className={`band band--tight shoppage pg-sheet ${homeFonts}`}>
+        <div className="wrap">
+          <ShopBrowser
+            products={products}
+            filter={filter}
+            sizes={sizes}
+            colors={colors}
+            priceFloor={priceFloor}
+            priceCeiling={priceCeiling}
+            basePath={basePath}
+            focusSearch={rawSearch?.focus === 'search'}
+          />
+        </div>
       </div>
-    </div>
+
+      {/* One door on a category page, both on the unfiltered grid. */}
+      <HomeGateway
+        gateways={others.map(({ slug, label }) => ({
+          slug,
+          label,
+          count: 0,
+          image: categoryImage(media, slug),
+        }))}
+      />
+    </>
   );
 }
