@@ -569,14 +569,14 @@ const PAGES: ContentPageDefinition[] = [
         id: 'proof',
         label: 'The proof',
         note: 'One figure, set large, and the line that explains it.',
-        tone: 'paper',
+        tone: 'ink',
         fields: [
-          { key: 'why.proof.figure', label: 'Figure', kind: 'heading', default: 'Under 1%' },
+          { key: 'why.proof.figure', label: 'Figure', kind: 'heading', default: '[TBC]%' },
           {
             key: 'why.proof.caption',
             label: 'Caption',
             kind: 'label',
-            default: 'Shrinkage after fifty home washes, measured across the body and the sleeve.',
+            default: 'Shrinkage after repeated home washing — figure to be confirmed.',
           },
         ],
       },
@@ -584,7 +584,7 @@ const PAGES: ContentPageDefinition[] = [
         id: 'cta',
         label: 'Call to action',
         note: 'The line over the closing photograph, and the button under it. It goes to the shop.',
-        tone: 'paper',
+        tone: 'ink',
         fields: [
           {
             key: 'why.statement',
