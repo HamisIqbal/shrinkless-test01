@@ -62,7 +62,7 @@ export default async function WhyShrinklessPage() {
 
       <StatementBand
         image={media.editorial.craft}
-        statement={copy['why.title']}
+        statement={copy['why.statement']}
         cta={{ href: '/shop', label: copy['why.cta'] }}
       />
 

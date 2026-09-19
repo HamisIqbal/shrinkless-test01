@@ -583,9 +583,17 @@ const PAGES: ContentPageDefinition[] = [
       {
         id: 'cta',
         label: 'Call to action',
-        note: 'The button at the foot of the page. It goes to the shop.',
+        note: 'The line over the closing photograph, and the button under it. It goes to the shop.',
         tone: 'paper',
-        fields: [{ key: 'why.cta', label: 'Button', kind: 'button', default: 'Shop Now' }],
+        fields: [
+          {
+            key: 'why.statement',
+            label: 'Closing line',
+            kind: 'heading',
+            default: 'The one that still fits.',
+          },
+          { key: 'why.cta', label: 'Button', kind: 'button', default: 'Shop Now' },
+        ],
       },
     ],
   },
