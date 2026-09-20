@@ -330,15 +330,15 @@ describe('listMediaSlots', () => {
 });
 
 describe('listMediaPages', () => {
-  /* Only the pages that have photography. The FAQ carries no pictures at all,
-     and the catalogue pages compose the two category doors that are already
-     edited on Home — listing them again would be one photograph with two
-     places to change it. */
+  /* Only the pages that have photography. The FAQ, the cart and the checkout
+     carry no pictures at all, and product photography belongs to a product
+     rather than to a page. */
   it('offers the pages that have images, and no others', async () => {
     const pages = await listMediaPages();
 
     expect(pages.map((page) => page.id)).toEqual([
       'home',
+      'collections',
       'our-story',
       'why-shrinkless',
       'wholesale',
@@ -351,19 +351,21 @@ describe('listMediaPages', () => {
     }
   });
 
-  /* The category tiles are edited on Home, where they are composed, rather
-     than on a page of their own — so they still have to be reachable. The
-     "places every slot on a page" test below is what actually guards that;
-     this one says where they are. */
-  it('keeps the category doors on Home', async () => {
+  /* The category tiles stand on Home, where the gateway composes them, and on
+     the collection pages, where each one is the head of its own grid. Listed
+     under both, because a frame is edited where it is seen — and it is one
+     record either way, so editing it from either place moves both. */
+  it('keeps the category doors on Home and on Collections', async () => {
     const pages = await listMediaPages();
-    const home = pages.find((page) => page.id === 'home');
 
-    const doors = home?.slots
-      .map((slot) => slot.slotId)
-      .filter((slotId) => slotId.startsWith('category:'));
+    for (const id of ['home', 'collections']) {
+      const doors = pages
+        .find((page) => page.id === id)
+        ?.slots.map((slot) => slot.slotId)
+        .filter((slotId) => slotId.startsWith('category:'));
 
-    expect(doors?.sort()).toEqual([categorySlotId('men'), categorySlotId('women')]);
+      expect(doors?.sort()).toEqual([categorySlotId('men'), categorySlotId('women')]);
+    }
   });
 
   /* The point of the tab: a frame is edited where it stands, so every slot the

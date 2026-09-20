@@ -1639,6 +1639,51 @@ body:has(.admin) {
 
 .admin .uploader__alt { margin: var(--ad-s-3) 0 0; }
 
+/* Replace is a label wrapping a hidden file input, so it has to be talked into
+   looking and sitting like the buttons beside it. */
+.admin .uploader__replace {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* One place to add photography: the drop target, the file picker and the empty
+   state are the same element. */
+.admin .uploader__drop {
+  display: grid;
+  gap: 0.35rem;
+  justify-items: center;
+  padding: var(--ad-s-5) var(--ad-s-4);
+  border: 1px dashed var(--ad-line);
+  border-radius: var(--ad-r-inner);
+  background: var(--ad-paper);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 160ms ease;
+}
+
+.admin .uploader__drop:hover,
+.admin .uploader__drop--over { border-color: var(--ad-ink-2); }
+
+/* Dashed while it is waiting, solid the moment a file is over it — the one
+   piece of feedback a drop target has to give. */
+.admin .uploader__drop--over { border-style: solid; }
+
+.admin .uploader__dropline { font-size: var(--ad-t-body); font-weight: 600; }
+
+.admin .uploader__drophint { color: var(--ad-ink-3); font-size: var(--ad-t-micro); }
+
+.admin .uploader__address {
+  display: grid;
+  gap: var(--ad-s-2);
+  align-items: end;
+  margin-top: var(--ad-s-3);
+}
+
+@media (min-width: 40rem) {
+  .admin .uploader__address { grid-template-columns: minmax(0, 1fr) auto; }
+}
+
 /* --------------------------------------------------------------------------
    Managers (categories, discounts, shipping): a list beside its form
    -------------------------------------------------------------------------- */

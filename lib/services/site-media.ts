@@ -692,14 +692,25 @@ export type MediaPageView = {
 /**
  * The pages the editor lists, in the order it lists them.
  *
- * Only the pages that have photography. The FAQ carries no pictures at all —
- * listing it would be a heading with nothing under it, which reads as a page
- * whose images failed to load rather than as a page that has none. It still
- * serves its layout overrides through `getMediaLayer`; it simply has nothing
- * to edit here.
+ * Only the pages that have photography. The FAQ, the cart and the checkout
+ * carry no pictures at all — listing one would be a heading with nothing under
+ * it, which reads as a page whose images failed to load rather than as a page
+ * that has none. They still serve their layout overrides through
+ * `getMediaLayer`; they simply have nothing to edit here. Product photography
+ * is not here either: it belongs to a product and is edited on that product.
+ *
+ * Collections is listed even though every frame on it is also on Home. It was
+ * left out on the grounds that the two category doors are composed by the home
+ * page, so Home is where they are edited — but that is a fact about this
+ * codebase, not about the site. An admin looking at /shop/men and wanting to
+ * change the photograph over it went to Media, found no Men's collection, and
+ * had no way to learn that the frame they wanted was filed under Homepage.
+ * A slot standing on two pages is listed under both; it is still one record,
+ * so editing it from either place moves both.
  */
 const MEDIA_PAGES = [
   { id: 'home', label: 'Homepage', path: '/' },
+  { id: 'collections', label: 'Collections', path: '/shop' },
   { id: 'our-story', label: 'Our Story', path: '/our-story' },
   { id: 'why-shrinkless', label: 'Why Shrinkless', path: '/why-shrinkless' },
   { id: 'wholesale', label: 'Wholesale', path: '/wholesale' },
@@ -731,6 +742,12 @@ function slotIdsFor(pageId: string): string[] {
       editorialSlotId('promise'),
     ];
   }
+
+  /* The doors the collection pages open on: /shop/men and /shop/women each
+     render their own category frame as the head of the grid, and /shop shows
+     both as the pair at the foot. Same slots as Home's gateway — one record,
+     listed wherever it is seen. */
+  if (pageId === 'collections') return SHOPPABLE.map(({ slug }) => categorySlotId(slug));
 
   if (pageId === 'our-story') return OUR_STORY_ORDER.map(editorialSlotId);
 
