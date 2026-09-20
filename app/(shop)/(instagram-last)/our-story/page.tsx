@@ -38,7 +38,7 @@ const specs = (copy: SiteContent): string[] => [
  * store owns — but it is no longer the whole page. Three chapters run under it,
  * then the care label, then the line the page closes on.
  *
- * No <InstagramStrip /> here — app/(shop)/(instagram-last)/layout.tsx renders
+ * No Instagram band here — app/(shop)/(instagram-last)/layout.tsx renders
  * it after every page's content.
  */
 export default async function OurStoryPage() {

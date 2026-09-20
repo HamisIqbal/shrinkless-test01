@@ -9,9 +9,9 @@ import { ToastProvider } from '@/components/ui/Toast';
 import { ANNOUNCE_COOKIE, isDismissed } from '@/lib/shop/announcement';
 import { AnnounceBar } from '@/components/site/AnnounceBar';
 import { Header } from '@/components/site/Header';
-import { Footer } from '@/components/site/Footer';
+import { HomeFooter } from '@/components/home/HomeFooter';
 import { FooterReveal } from '@/components/site/FooterReveal';
-import { InstagramStrip } from '@/components/site/InstagramStrip';
+import { HomeInstagram } from '@/components/home/HomeInstagram';
 
 export default async function AccountLayout({ children }: LayoutProps<'/'>) {
   const [settings, cart, session, menu, jar] = await Promise.all([
@@ -45,11 +45,11 @@ export default async function AccountLayout({ children }: LayoutProps<'/'>) {
         <div className="accountpane">{children}</div>
       </main>
 
-        <InstagramStrip />
+        <HomeInstagram />
       </div>
 
       <FooterReveal>
-        <Footer storeEmail={settings.storeEmail} />
+        <HomeFooter storeEmail={settings.storeEmail} />
       </FooterReveal>
     </div>
     </ToastProvider>

@@ -5,7 +5,7 @@ import { HomeFooterMark, BackToTop } from '@/components/home/HomeFooterMotion';
 
 const INSTAGRAM = 'https://www.instagram.com/shrinkless/';
 
-type Column = { title: string; links: { href: string; label: string; external?: boolean }[] };
+type Row = { title: string; links: { href: string; label: string; external?: boolean }[] };
 
 /** Same two-copy roll as the header's utilities, for a server component. */
 function Roll({ children }: { children: string }) {
@@ -18,26 +18,38 @@ function Roll({ children }: { children: string }) {
 }
 
 /**
- * The homepage colophon. Same destinations, same signup and the same words as
- * the shop footer, rebuilt as an ink page of its own: the signup as the
- * headline, the link columns as a quiet index, and the wordmark set edge to
- * edge along the foot, widening into place as the page lifts off it.
+ * The colophon, on every page of the site.
+ *
+ * Four stacked things and nothing else: the signup, the index, the wordmark,
+ * the legal line. It used to open on a display headline and set the index as
+ * five columns with a paragraph of brand copy in the first — most of a screen
+ * of footer under every page.
+ *
+ * The index is rows now rather than columns. A column heading over three links
+ * is a heading that costs more height than the links it introduces, and the
+ * grouping is the only thing it was carrying — so the group name moved to the
+ * left of its own row, in the mono the rest of the small print is set in, and
+ * the whole index is three lines deep instead of five columns tall.
+ *
+ * The wordmark stays. It is the one piece of size in here and the thing the
+ * page is remembered by, and it is the only place the width axis still moves.
  */
 export function HomeFooter({ storeEmail }: { storeEmail: string }) {
-  const columns: Column[] = [
+  const rows: Row[] = [
     {
       title: 'Shop',
       links: [
-        { href: '/shop', label: 'All Products' },
+        { href: '/shop', label: 'All products' },
         { href: '/shop/men', label: 'Men' },
         { href: '/shop/women', label: 'Women' },
-        { href: '/shop?sort=newest', label: 'New Arrivals' },
+        { href: '/shop?sort=newest', label: 'New arrivals' },
+        { href: '/wholesale', label: 'Wholesale' },
       ],
     },
     {
-      title: 'About',
+      title: 'Brand',
       links: [
-        { href: '/our-story', label: 'Our Story' },
+        { href: '/our-story', label: 'Our story' },
         { href: '/why-shrinkless', label: 'Why Shrinkless' },
       ],
     },
@@ -45,44 +57,28 @@ export function HomeFooter({ storeEmail }: { storeEmail: string }) {
       title: 'Help',
       links: [
         { href: '/faq', label: 'FAQ' },
+        { href: '/account', label: 'Your account' },
         { href: `mailto:${storeEmail}`, label: 'Contact', external: true },
+        { href: INSTAGRAM, label: 'Instagram', external: true },
       ],
-    },
-    {
-      title: 'Follow',
-      links: [{ href: INSTAGRAM, label: 'Instagram', external: true }],
     },
   ];
 
   return (
     <footer className={`hm-foot ${homeFonts}`}>
       <div className="hm-foot__wrap">
-        <div className="hm-foot__top">
-          <h2 className="hm-foot__head">
-            <span className="hm-foot__serif">Get the</span> good stuff.
-          </h2>
-
-          <div className="hm-foot__signup">
-            <p className="hm-foot__label">Restocks, new releases and Shrinkless news.</p>
-            <NewsletterForm />
-          </div>
+        <div className="hm-foot__signup">
+          <p className="hm-foot__label">Restocks and new releases. Nothing else.</p>
+          <NewsletterForm />
         </div>
 
-        <div className="hm-foot__index">
-          <div className="hm-foot__brand">
-            <p className="hm-foot__label">Made in USA</p>
-            <p className="hm-foot__bio">
-              Garment dyed organic cotton tees, cut and sewn in the United States
-              and built to hold their shape wash after wash.
-            </p>
-          </div>
-
-          {columns.map((column) => (
-            <nav key={column.title} className="hm-foot__col" aria-label={column.title}>
-              <h3 className="hm-foot__label">{column.title}</h3>
+        <nav className="hm-foot__index" aria-label="Footer">
+          {rows.map((row) => (
+            <div key={row.title} className="hm-foot__row">
+              <h2 className="hm-foot__rowlabel">{row.title}</h2>
               <ul className="hm-foot__links">
-                {column.links.map((link) => (
-                  <li key={`${column.title}-${link.href}`}>
+                {row.links.map((link) => (
+                  <li key={`${row.title}-${link.href}`}>
                     {link.external ? (
                       <a
                         href={link.href}
@@ -101,14 +97,14 @@ export function HomeFooter({ storeEmail }: { storeEmail: string }) {
                   </li>
                 ))}
               </ul>
-            </nav>
+            </div>
           ))}
-        </div>
+        </nav>
 
         <HomeFooterMark />
 
         <div className="hm-foot__base">
-          <p className="tnum">&copy; {new Date().getFullYear()} Shrinkless. Made in USA.</p>
+          <p className="tnum">&copy; {new Date().getFullYear()} Shrinkless — Made in USA</p>
           <BackToTop />
         </div>
       </div>
