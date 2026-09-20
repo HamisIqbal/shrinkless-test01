@@ -6,7 +6,7 @@ import { PageHead } from '@/components/admin/PageHead';
 import { ProductRowActions } from '@/components/admin/ProductRowActions';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 import { requireAdminPage } from '@/lib/auth/guards';
-import { cloudinaryUrl } from '@/lib/cloudinary/url';
+import { sizedImageUrl } from '@/lib/images';
 import { formatCents } from '@/lib/money';
 import { parseListParams } from '@/lib/admin/query';
 import {
@@ -32,7 +32,7 @@ const columns: Column<AdminProductRowDTO>[] = [
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
             className="prow__thumb"
-            src={cloudinaryUrl(row.imagePublicId, 'w_130,h_162,c_fill,q_auto,f_auto')}
+            src={sizedImageUrl(row.imagePublicId, 'w_130,h_162,c_fill,q_auto,f_auto')}
             alt=""
             width={65}
             height={81}

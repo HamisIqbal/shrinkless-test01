@@ -5,7 +5,7 @@ import { PageHead } from '@/components/admin/PageHead';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 import { WholesaleRowActions } from '@/components/admin/WholesaleRowActions';
 import { requireAdminPage } from '@/lib/auth/guards';
-import { cloudinaryUrl } from '@/lib/cloudinary/url';
+import { sizedImageUrl } from '@/lib/images';
 import { cropStyle } from '@/lib/media/crop';
 import { formatCents } from '@/lib/money';
 import { listWholesaleForAdmin } from '@/lib/services/wholesale';
@@ -32,7 +32,7 @@ const columns: Column<AdminWholesaleRowDTO>[] = [
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
             className="prow__thumb"
-            src={cloudinaryUrl(row.imagePublicId, 'w_130,h_195,c_fill,q_auto,f_auto')}
+            src={sizedImageUrl(row.imagePublicId, 'w_130,h_195,c_fill,q_auto,f_auto')}
             alt=""
             width={54}
             height={81}
