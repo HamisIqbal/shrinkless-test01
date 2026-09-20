@@ -1,8 +1,7 @@
 /* ==========================================================================
-   The shop's own surfaces — cards, filters, the cart, the FAQ, the product
-   page.
+   The shop's own surfaces — filters, the cart, the FAQ, the product page.
 
-   These five were the last parts of the storefront still set in the original
+   These were the last parts of the storefront still set in the original
    `storefront.css` voice: paper grounds, sentence-case heads in Inter Tight,
    controls drawn as boxes. Everything around them — the masthead, the
    homepage's bands, the collection heads, the footer — had moved to the `hm-`
@@ -186,224 +185,6 @@
   max-width: 100rem;
   margin-inline: auto;
   padding-inline: var(--sh-gutter);
-}
-
-/* ==========================================================================
-   Product card
-
-   Photograph, then a ledger caption under a hairline: name and price on one
-   baseline, the colourway and its swatches on the next.
-
-   What changed: the price used to sit under the name as a second paragraph,
-   the colour dots hung below the card in a list of their own, and quick view
-   was a floating disc on the photograph. The card was five stacked blocks. It
-   is two now — the frame, and two ledger lines under it — and the caption
-   reads across rather than down.
-   ========================================================================== */
-
-.sh-card {
-  position: relative;
-  display: grid;
-  gap: 0.85rem;
-  font-family: var(--sh-sans);
-}
-
-.sh-card__media {
-  position: relative;
-  overflow: hidden;
-  background: var(--sh-chalk);
-}
-
-/* The reel. Everything the frames do — swipe, trackpad, drag, arrow keys,
-   momentum, snap — is this rule plus the one under it. */
-.sh-card__reel {
-  display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-}
-
-.sh-card__reel::-webkit-scrollbar { display: none; }
-.sh-card__reel:focus-visible { outline: 2px solid var(--sh-ink); outline-offset: -2px; }
-
-/* While a mouse is dragging, snapping has to be out of the way or every
-   `scrollLeft` write gets pulled back to the nearest frame. */
-.sh-card__reel--drag {
-  scroll-snap-type: none;
-  scroll-behavior: auto;
-  cursor: grabbing;
-  user-select: none;
-}
-
-.sh-card__frame {
-  position: relative;
-  flex: 0 0 100%;
-  /* 4:5, the shape the product page's gallery is already in — so one crop
-     decision serves the grid and the page it leads to. The grid used to be
-     2:3, which meant a photograph placed for the card sat differently the
-     moment somebody opened it. */
-  aspect-ratio: 4 / 5;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-  overflow: hidden;
-  background: var(--sh-chalk);
-  text-decoration: none;
-  -webkit-user-drag: none;
-}
-
-.sh-card__frame img {
-  object-fit: cover;
-  transition: transform 1.2s var(--sh-ease);
-}
-
-@media (hover: hover) {
-  .sh-card__reel { cursor: grab; }
-  .sh-card:hover .sh-card__frame img { transform: scale(calc(var(--crop-z, 1) * 1.04)); }
-}
-
-/* --- what sits on the photograph ------------------------------------------ */
-
-.sh-card__flag,
-.sh-card__rating {
-  position: absolute;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.4rem 0.7rem;
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--sh-ink);
-  font-family: var(--sh-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: uppercase;
-  pointer-events: none;
-}
-
-.sh-card__flag { top: 0.75rem; left: 0.75rem; }
-.sh-card__rating { top: 0.75rem; right: 0.75rem; }
-
-.sh-card__flag--sold { background: var(--sh-ink); color: var(--sh-white); }
-
-.sh-card__star { width: 0.7rem; height: 0.7rem; }
-
-/* Which frame of the reel is showing. Bottom left, where the quick-view tab —
-   which comes in from the bottom right — cannot land on top of it. */
-.sh-card__ticks {
-  position: absolute;
-  z-index: 3;
-  bottom: 0.75rem;
-  left: 0.75rem;
-  display: flex;
-  gap: 0.3rem;
-}
-
-.sh-card__tick {
-  width: 0.3rem;
-  height: 0.3rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.45);
-  transition: background-color 0.35s var(--sh-ease);
-}
-
-.sh-card__tick--on { background: var(--sh-white); }
-
-/* Quick view: a strip across the foot of the frame rather than a disc parked
-   on top of the photograph. It reads as a control because it is shaped like
-   one, and it covers a band of the image nobody is looking at. Desktop only —
-   on a phone the photograph is the whole screen and tapping it should open
-   the real product page. */
-.sh-card__preview { display: none; }
-
-@media (hover: hover) and (min-width: 48rem) {
-  .sh-card__preview {
-    position: absolute;
-    z-index: 2;
-    right: 0;
-    bottom: 0;
-    display: grid;
-    place-items: center;
-    min-width: 9rem;
-    min-height: 3rem;
-    padding-inline: 1.25rem;
-    border: 0;
-    background: rgba(255, 255, 255, 0.94);
-    color: var(--sh-ink);
-    font-family: var(--sh-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0;
-    text-transform: uppercase;
-    cursor: pointer;
-    opacity: 0;
-    transform: translateY(100%);
-    transition:
-      opacity 0.5s var(--sh-ease),
-      transform 0.5s var(--sh-ease);
-  }
-
-  .sh-card:hover .sh-card__preview,
-  .sh-card:focus-within .sh-card__preview { opacity: 1; transform: none; }
-}
-
-/* --- the caption ---------------------------------------------------------- */
-
-.sh-card__foot {
-  display: grid;
-  gap: 0.5rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid var(--sh-line);
-}
-
-.sh-card__line {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.sh-card__title {
-  font-family: var(--sh-display);
-  font-size: 1.25rem;
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-/* No full-card overlay link. One across the card would sit on top of the reel
-   and swallow the swipe the frames exist for, so the photograph carries its
-   own (untabbable) link and the title carries the accessible one. */
-.sh-card__link { color: inherit; text-decoration: none; }
-
-.sh-card__link:is(:hover, :focus-visible) {
-  text-decoration: underline;
-  text-underline-offset: 0.25em;
-}
-
-.sh-card__price {
-  flex: none;
-  font-family: var(--sh-mono);
-  font-size: 0.8125rem;
-  letter-spacing: 0;
-}
-
-.sh-card__colorway {
-  color: var(--sh-stone);
-  font-family: var(--sh-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-.sh-card__colors {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
 }
 
 /* ==========================================================================
@@ -598,15 +379,26 @@
    collection would otherwise drop light-on-light options. */
 .sh-shop__select option { background: #ffffff; color: #0a0a0a; }
 
+/* One product at a time on a phone. Two-up draws every photograph at roughly
+   170px wide on the commonest screen there is, which is a thumbnail of a
+   garment rather than a picture of one — and the card is built on the premise
+   that the photograph does the selling. One column costs a scroll and buys
+   twice the width. */
 .sh-shop__grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: clamp(2rem, 4vw, 3.25rem) clamp(0.75rem, 1.6vw, 1.5rem);
   list-style: none;
 }
 
+@media (min-width: 48rem) {
+  .sh-shop__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 @media (min-width: 62rem) {
   .sh-shop__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  /* Filters folded away: the column the panel had goes to the grid. */
   .sh-shop__layout--shut .sh-shop__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
@@ -1460,12 +1252,16 @@
 
 .sh-pdp__relatedgrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: clamp(2rem, 4vw, 3.25rem) clamp(0.75rem, 1.6vw, 1.5rem);
   list-style: none;
 }
 
 @media (min-width: 48rem) {
+  .sh-pdp__relatedgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 62rem) {
   .sh-pdp__relatedgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
@@ -1791,13 +1587,12 @@
    here, at the same 48rem the layouts turn at.
 
    Everything downstream reads the resolved pair, `--crop-p` and `--crop-z`, so
-   the hover scales above multiply the crop that is actually showing rather
-   than the desktop one. These two frames used to resolve it in
-   `app/storefront.css`, alongside the frames of the pages that have not moved;
-   they resolve it here now, next to the rules that read it.
+   the hover scale above multiplies the crop that is actually showing rather
+   than the desktop one. Every other frame on the storefront still resolves it
+   in `app/storefront.css`; the product page's gallery resolves it here,
+   because that is where the rule reading it lives.
    ========================================================================== */
 
-.sh-card__frame img,
 .sh-pdp__shot img {
   --crop-p: var(--crop-pos, 50% 50%);
   --crop-z: var(--crop-zoom, 1);
@@ -1810,7 +1605,6 @@
 /* The phone. Each half falls back on its own: a photograph given a mobile
    position but no mobile zoom keeps the desktop zoom, rather than losing it. */
 @media (max-width: 47.999rem) {
-  .sh-card__frame img,
   .sh-pdp__shot img {
     --crop-p: var(--crop-pos-m, var(--crop-pos, 50% 50%));
     --crop-z: var(--crop-zoom-m, var(--crop-zoom, 1));
@@ -1823,9 +1617,6 @@
    ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
-  .sh-card__frame img,
-  .sh-card__preview,
-  .sh-card__tick,
   .sh-shop__aside,
   .sh-shop__togglemark::after,
   .sh-filters__mark::after,
@@ -1843,6 +1634,5 @@
   .sh-chip,
   .sh-btn { transition: none; }
 
-  .sh-card:hover .sh-card__frame img,
   .sh-pdp__shot:hover img { transform: none; }
 }

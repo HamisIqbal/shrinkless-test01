@@ -76,7 +76,7 @@ export function HomeShelf({ headingId, eyebrow, heading, link, products, layout,
 
       // Each card's photograph opens from its foot as the card arrives.
       gsap.utils.toArray<HTMLElement>('.hm-shelf__cell', section).forEach((cell, index) => {
-        const media = cell.querySelector('.sh-card__media');
+        const media = cell.querySelector('.pcard__media');
         const trigger = { trigger: cell, start: 'top 90%', once: true };
         const offset = layout === 'spread' ? index * 0.1 : (index % 2) * 0.12;
 
@@ -88,7 +88,7 @@ export function HomeShelf({ headingId, eyebrow, heading, link, products, layout,
           );
         }
 
-        gsap.from(cell.querySelectorAll('.sh-card__foot'), {
+        gsap.from(cell.querySelectorAll('.pcard__foot, .pcard__colors'), {
           y: 16,
           opacity: 0,
           duration: 1,

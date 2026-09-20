@@ -1350,6 +1350,245 @@
 .rail__more { flex: none; }
 
 /* --------------------------------------------------------------------------
+   Product card
+   Spec §15-18: the image is the card. Name and price are captions under it.
+   The grid it sits in is the collection layout's
+   (components/shop/shop.css), so only the card itself lives here.
+   -------------------------------------------------------------------------- */
+
+.pcard { position: relative; display: grid; gap: var(--space-2); }
+
+.pcard__media {
+  position: relative;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: var(--color-paper-deep);
+}
+
+/* The reel. Everything the frames do — swipe, trackpad, drag, arrow keys,
+   momentum, snap — is this rule plus the one under it. */
+.pcard__reel {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+/* A scrollbar under a photograph is a seam in it. */
+.pcard__reel::-webkit-scrollbar { display: none; }
+
+.pcard__reel:focus-visible { outline: 2px solid var(--color-ink); outline-offset: -2px; }
+
+/* While a mouse is dragging, snapping has to be out of the way or every
+   `scrollLeft` write gets pulled back to the nearest frame and the card judders
+   instead of following the pointer. Restored on release, which is when
+   ProductCard scrolls to the frame the drag landed nearest. */
+.pcard__reel--drag {
+  scroll-snap-type: none;
+  scroll-behavior: auto;
+  cursor: grabbing;
+  user-select: none;
+}
+
+.pcard__frame {
+  position: relative;
+  flex: 0 0 100%;
+  aspect-ratio: 2 / 3;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow: hidden;
+  background: var(--color-paper-deep);
+  text-decoration: none;
+  -webkit-user-drag: none;
+}
+
+.pcard__frame img {
+  object-fit: cover;
+  transition: transform var(--dur-4) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .pcard__reel { cursor: grab; }
+  .pcard:hover .pcard__frame img { transform: scale(calc(var(--crop-z, 1) * 1.03)); }
+}
+
+/* --- corners ------------------------------------------------------------- */
+
+/* Everything that sits on the photograph shares one radius and one recipe: a
+   translucent ground with the picture blurred behind it, so the label stays
+   legible over a white wall and over a black tee without either inventing a
+   solid block or being lost in the frame. */
+.pcard__rating,
+.pcard__flag,
+.pcard__preview {
+  border-radius: 999px;
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+}
+
+/* --- rating -------------------------------------------------------------- */
+
+.pcard__rating {
+  position: absolute;
+  z-index: 2;
+  top: var(--space-2);
+  left: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.55rem 0.25rem 0.45rem;
+  background: rgba(245, 244, 240, 0.82);
+  color: var(--color-ink);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  /* A label, not a control. Left clickable it would swallow drags that began
+     in the top-left corner of the photograph. */
+  pointer-events: none;
+}
+
+.pcard__star { width: 0.75rem; height: 0.75rem; }
+
+/* --- quick view ---------------------------------------------------------- */
+
+/* An eye, and only where there is a pointer to reveal it with. On a phone this
+   was a button permanently parked on the photograph offering a miniature of
+   the page that tapping the photograph already opens. */
+.pcard__preview { display: none; }
+
+@media (hover: hover) and (pointer: fine) {
+  .pcard__preview {
+    position: absolute;
+    z-index: 2;
+    top: var(--space-2);
+    right: var(--space-2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.125rem;
+    height: 2.125rem;
+    border: 0;
+    padding: 0;
+    background: rgba(245, 244, 240, 0.82);
+    color: var(--color-ink);
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(-0.35rem);
+    transition:
+      opacity var(--dur-2) var(--ease-out),
+      transform var(--dur-2) var(--ease-out),
+      background-color var(--dur-1) var(--ease-out),
+      color var(--dur-1) var(--ease-out);
+  }
+
+  .pcard__preview svg { width: 1.0625rem; height: 1.0625rem; }
+
+  .pcard__preview:hover { background: var(--color-ink); color: var(--color-paper); }
+
+  .pcard:hover .pcard__preview,
+  .pcard:focus-within .pcard__preview { opacity: 1; transform: none; }
+}
+
+/* --- status and position, along the bottom edge -------------------------- */
+
+/* Both live in one bottom-anchored stack so they can never collide: the flag
+   is the news, the ticks are the position, and the ticks stay closest to the
+   edge because that is where a scroll indicator belongs. */
+.pcard__foot--over {
+  position: absolute;
+  z-index: 2;
+  inset-inline: var(--space-3);
+  bottom: var(--space-3);
+  display: grid;
+  gap: var(--space-2);
+  justify-items: center;
+  pointer-events: none;
+}
+
+.pcard__flag {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Sold out is an absence, so it is the quieter of the two: the frame stays
+   visible through it rather than being stamped over. */
+.pcard__flag--sold {
+  background: rgba(10, 10, 10, 0.55);
+  color: var(--color-white);
+}
+
+/* A new arrival is news, and gets the solid ground to say so. */
+.pcard__flag--new {
+  background: rgba(245, 244, 240, 0.92);
+  color: var(--color-ink);
+}
+
+.pcard__ticks { display: flex; gap: 0.25rem; }
+
+.pcard__tick {
+  width: 1rem;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(245, 244, 240, 0.5);
+  transition: background-color var(--dur-1) var(--ease-out);
+}
+
+.pcard__tick--on { background: var(--color-paper); }
+
+/* --- captions ------------------------------------------------------------ */
+
+/* Name left, price right, at every width. Stacking them on a phone put the
+   price under the name where it read as a second line of the title rather than
+   as the number you are looking for. */
+.pcard__foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-2);
+  align-items: baseline;
+  min-width: 0;
+}
+
+/* Deliberately quiet. The photograph is doing the selling. */
+.pcard__title {
+  min-width: 0;
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.pcard__link { text-decoration: none; }
+.pcard__link:hover { text-decoration: underline; text-underline-offset: 0.3em; }
+
+.pcard__price {
+  justify-self: end;
+  text-align: right;
+  white-space: nowrap;
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--color-muted-text);
+}
+
+/* The trade sheet runs the same card on an ink ground, where the shop's muted
+   ink reads as a smudge. `.sh-shop--ink` is what that ground is called since
+   the collection layout moved to components/shop/shop.css. */
+.band--ink .pcard__price,
+.sh-shop--ink .pcard__price { color: var(--color-muted); }
+
+/* Same reason, for everything else on the card that is set in ink. */
+.sh-shop--ink .pcard__title,
+.sh-shop--ink .pcard__link { color: var(--color-paper); }
+
+.pcard__colors { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+
+/* --------------------------------------------------------------------------
    Swatch dots
    The colour dots on a product card and beside a colour in the filter panel.
    All that is left of this file's product grid: the grid, the card and the
@@ -2521,6 +2760,7 @@
 .lookbook__image,
 .imageband__image,
 .pdp__shot img,
+.pcard__frame img,
 .sheetrow__frame img,
 .tradecard__frame img,
 .tradestyle__shot img {
@@ -2541,6 +2781,7 @@
   .lookbook__image,
   .imageband__image,
   .pdp__shot img,
+  .pcard__frame img,
   .sheetrow__frame img,
   .tradecard__frame img,
   .tradestyle__shot img {
