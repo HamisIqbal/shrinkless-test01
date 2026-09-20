@@ -64,11 +64,10 @@ export function WholesaleGrid({ styles }: Props) {
   );
 
   return (
-    <ul className="pgrid pgrid--3">
+    <ul className="sh-shop__grid">
       {cards.map(({ product, price }, index) => (
         <motion.li
           key={product.id}
-          className="pgrid__cell"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}

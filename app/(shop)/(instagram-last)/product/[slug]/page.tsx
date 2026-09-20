@@ -6,43 +6,67 @@ import {
 } from '@/lib/services/products';
 import { VariantPicker } from '@/components/shop/VariantPicker';
 import { ProductGallery } from '@/components/shop/ProductGallery';
-import { ProductGrid } from '@/components/shop/ProductGrid';
+import { ProductCard } from '@/components/shop/ProductCard';
+import { StarIcon } from '@/components/site/icons';
+import { homeFonts } from '@/components/home/fonts';
+import '@/components/shop/shop.css';
 
-// Native <details> so the accordions work without JavaScript and are keyboard
-// accessible by default. Factual claims are [TBC] until confirmed — spec §11.2.
+/**
+ * What this tee is, as a table.
+ *
+ * These four were `<details>` accordions, folded away under the buy button
+ * beside two others — and they are not prose. They are four attributes with
+ * four values, which is a table, and a table can be read at a glance instead
+ * of opened one row at a time.
+ *
+ * Every unconfirmed value is [TBC] rather than invented — spec §11.2. A
+ * guessed fabric weight is a claim the business then has to stand behind.
+ */
+const SPEC: { key: string; value: string }[] = [
+  { key: 'Fabric', value: '[TBC]oz organic cotton, [TBC] knit' },
+  { key: 'Finish', value: 'Garment dyed' },
+  { key: 'Construction', value: 'Ribbed collar, shoulder-to-shoulder taping' },
+  { key: 'Residual shrinkage', value: '[TBC]%' },
+  { key: 'Certification', value: '[TBC]' },
+  { key: 'Made in', value: 'USA — mill and factory [TBC]' },
+];
+
+/**
+ * The two that really are prose, and stay folded.
+ *
+ * Native `<details>`, so they work without JavaScript and are keyboard
+ * accessible by default.
+ */
 const SECTIONS = [
   {
     title: "Why it doesn't shrink",
     body:
       'The fabric is pre-shrunk and the finished garment is dyed at temperature ' +
       'before it is ever sold, so the shrinking happens in our facility rather ' +
-      'than in your machine. Expected residual shrinkage: [TBC]%.',
+      'than in your machine.',
   },
   {
-    title: 'Fabric & construction',
-    body:
-      '[TBC]oz organic cotton, [TBC] knit, with a ribbed collar and ' +
-      'shoulder-to-shoulder taping. Certification: [TBC].',
-  },
-  {
-    title: 'Made in USA',
-    body:
-      'Cut and sewn in the United States. Mill and factory locations: [TBC].',
-  },
-  {
-    title: 'Care',
+    title: 'Care, shipping and returns',
     body:
       'Machine wash cold with like colours, tumble dry low. Garment dyed cotton ' +
-      'keeps its character best out of high heat. Full care instructions: [TBC].',
-  },
-  {
-    title: 'Shipping & returns',
-    body:
+      'keeps its character best out of high heat. Full care instructions: [TBC]. ' +
       'Shipping options and delivery estimates: [TBC]. Returns accepted within ' +
       '[TBC] days on unworn items.',
   },
 ];
 
+/**
+ * The product page.
+ *
+ * Gallery on the left, a column that stays with you on the right. Inside that
+ * column the order is the order a decision gets made in: what it is, what it
+ * costs, what it is made of in one line, then the choices, then the facts.
+ *
+ * The gallery is a stack rather than a single frame with thumbnails under it —
+ * the first photograph runs the full width of its column and the rest pair off
+ * beneath. Scrolling is how people look at clothes, and a stack means the buy
+ * column stays put beside every one of them.
+ */
 export default async function ProductPage(props: PageProps<'/product/[slug]'>) {
   const [{ slug }, search] = await Promise.all([props.params, props.searchParams]);
   const product = await getPublishedProductBySlug(slug);
@@ -65,84 +89,104 @@ export default async function ProductPage(props: PageProps<'/product/[slug]'>) {
   const categoryLabel = product.category === 'men' ? "Men's" : "Women's";
 
   return (
-    <article className="pdp">
-      <div className="wrap pdp__crumbs">
+    <article className={`sh-pdp ${homeFonts}`}>
+      <div className="sh-wrap sh-pdp__crumbs">
         <nav aria-label="Breadcrumb">
-          <ol className="crumbs">
-            <li><Link href="/shop" className="ulink">Shop</Link></li>
-            <li aria-hidden="true" className="crumbs__sep">/</li>
-            <li>
-              <Link href={`/shop/${product.category}`} className="ulink">
-                {categoryLabel}
-              </Link>
-            </li>
-            <li aria-hidden="true" className="crumbs__sep">/</li>
-            <li><span className="meta">{product.title}</span></li>
+          <ol className="sh-pdp__trail">
+            <li><Link href="/shop">Shop</Link></li>
+            <li aria-hidden="true">/</li>
+            <li><Link href={`/shop/${product.category}`}>{categoryLabel}</Link></li>
+            <li aria-hidden="true">/</li>
+            <li className="sh-pdp__here">{product.title}</li>
           </ol>
         </nav>
       </div>
 
-      <div className="wrap pdp__grid">
+      <div className="sh-wrap sh-pdp__grid">
         <ProductGallery
           images={gallery}
           title={product.title}
-          wrapClassName="pdp__gallery"
-          frameClassName="frame frame--45 pdp__shot"
-          sizes="(min-width: 56.25rem) 58vw, 100vw"
+          wrapClassName="sh-pdp__gallery"
+          frameClassName="sh-pdp__shot"
+          sizes="(min-width: 62rem) 45vw, 100vw"
           transform="w_1400,q_auto,f_auto"
-          empty={<div className="frame frame--45 pdp__shot" aria-hidden="true" />}
+          empty={<div className="sh-pdp__shot" aria-hidden="true" />}
         />
 
-        <div className="pdp__info">
-          <div className="pdp__sticky">
-            <p className="eyebrow">{categoryLabel}</p>
-            <h1 className="head pdp__title">{product.title}</h1>
+        <div className="sh-pdp__info">
+          <header className="sh-pdp__titles">
+            <p className="sh-label">{categoryLabel}</p>
+            <h1 className="sh-pdp__title">{product.title}</h1>
 
-            {/* The description rides inside the picker, directly under the
-                price, rather than below the buttons where it was read after
-                the decision had already been made. */}
-            <VariantPicker
-              slug={product.slug}
-              title={product.title}
-              sizes={product.sizes}
-              colors={product.colors}
-              variants={product.variants}
-              description={product.description}
-              initialColor={requestedColor}
-              quantityRule={product.quantityRule}
-            />
+            {product.rating > 0 ? (
+              <p className="sh-pdp__rating">
+                <StarIcon className="sh-pdp__star" />
+                <span className="tnum">{product.rating.toFixed(1).replace(/\.0$/, '')}</span>
+                <span className="visually-hidden"> out of 5</span>
+              </p>
+            ) : null}
+          </header>
 
-            <ul className="accordion pdp__accordion">
-              {SECTIONS.map((section) => (
-                <li key={section.title}>
-                  <details className="accordion__item">
-                    <summary className="accordion__summary">
-                      <span>{section.title}</span>
-                      <span className="accordion__mark" aria-hidden="true" />
-                    </summary>
-                    <p className="accordion__body">{section.body}</p>
-                  </details>
-                </li>
+          {/* The description rides inside the picker, directly under the
+              price, rather than below the buttons where it was read after the
+              decision had already been made. */}
+          <VariantPicker
+            slug={product.slug}
+            title={product.title}
+            sizes={product.sizes}
+            colors={product.colors}
+            variants={product.variants}
+            description={product.description}
+            initialColor={requestedColor}
+            quantityRule={product.quantityRule}
+          />
+
+          <section aria-labelledby="spec-heading">
+            <h2 id="spec-heading" className="sh-label">Specification</h2>
+            <dl className="sh-spec">
+              {SPEC.map((row) => (
+                <div key={row.key} style={{ display: 'contents' }}>
+                  <dt className="sh-spec__key">{row.key}</dt>
+                  <dd className="sh-spec__value">{row.value}</dd>
+                </div>
               ))}
-            </ul>
+            </dl>
+          </section>
+
+          <div className="sh-fold">
+            {SECTIONS.map((section) => (
+              <details key={section.title} className="sh-fold__item">
+                <summary className="sh-fold__summary">
+                  <span>{section.title}</span>
+                  <span className="sh-fold__mark" aria-hidden="true" />
+                </summary>
+                <p className="sh-fold__body">{section.body}</p>
+              </details>
+            ))}
           </div>
         </div>
       </div>
 
       {related.length ? (
-        <section className="band band--white rail pdp__related" aria-labelledby="related-heading">
-          <div className="wrap">
-            <div className="rail__head">
+        <section className="sh-pdp__related" aria-labelledby="related-heading">
+          <div className="sh-wrap">
+            <div className="sh-pdp__relatedhead">
               <div>
-                <p className="eyebrow">Also in {categoryLabel}</p>
-                <h2 id="related-heading" className="head">You might also like</h2>
+                <p className="sh-label">Also in {categoryLabel}</p>
+                <h2 id="related-heading" className="sh-sub">You might also like</h2>
               </div>
-              <Link href={`/shop/${product.category}`} className="ulink rail__more">
-                Shop all
+              <Link href={`/shop/${product.category}`} className="sh-link">
+                Shop all {categoryLabel}
               </Link>
             </div>
 
-            <ProductGrid products={related} columns={3} />
+            <ul className="sh-pdp__relatedgrid">
+              {related.map((item, index) => (
+                <li key={item.id}>
+                  <ProductCard product={item} index={index} />
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       ) : null}

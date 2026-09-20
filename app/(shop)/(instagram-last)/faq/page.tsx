@@ -3,6 +3,9 @@ import { getContentLayer, getSiteContent, type SiteContent } from '@/lib/service
 import { ContentLayer } from '@/components/site/ContentLayer';
 import { getMediaLayer } from '@/lib/services/site-media';
 import { MediaLayer } from '@/components/site/MediaLayer';
+import { getStoreSettings } from '@/lib/services/settings';
+import { homeFonts } from '@/components/home/fonts';
+import '@/components/shop/shop.css';
 
 export const metadata = {
   title: 'FAQ',
@@ -22,26 +25,40 @@ const items = (copy: SiteContent): FaqItem[] =>
     a: copy[`faq.${n}.a`],
   }));
 
-/* No <InstagramStrip /> here — app/(shop)/(instagram-last)/layout.tsx already
-   renders it after every page's content, right where the brief wants it. */
+/* No Instagram band here — app/(shop)/(instagram-last)/layout.tsx already
+   renders the homepage's one after every page's content. */
 export default async function FaqPage() {
-  const [copy, layer, mediaLayer] = await Promise.all([
+  const [copy, layer, mediaLayer, settings] = await Promise.all([
     getSiteContent(),
     getContentLayer('faq'),
     getMediaLayer('faq'),
+    getStoreSettings(),
   ]);
 
   return (
-    <div className="band band--tight wrap">
-      <header className="pagehead pagehead--center">
-        <h1 className="display pagehead__title">{copy['faq.title']}</h1>
-      </header>
+    <div className={`sh-faq ${homeFonts}`}>
+      <div className="sh-wrap">
+        <header className="sh-faq__head">
+          <p className="sh-label">Help</p>
+          <h1 className="sh-title">{copy['faq.title']}</h1>
+        </header>
 
-      <FaqAccordion items={items(copy)} />
+        <FaqAccordion items={items(copy)} />
 
-      <ContentLayer {...layer} />
+        {/* An eight-question page that answers none of somebody's question is
+            a dead end unless it says where to go next. */}
+        <section className="sh-faq__ask" aria-labelledby="faq-ask-heading">
+          <p className="sh-label">Still stuck</p>
+          <h2 id="faq-ask-heading" className="sh-sub">Ask us directly</h2>
+          <a href={`mailto:${settings.storeEmail}`} className="sh-btn">
+            Email {settings.storeEmail}
+          </a>
+        </section>
 
-      <MediaLayer {...mediaLayer} />
+        <ContentLayer {...layer} />
+
+        <MediaLayer {...mediaLayer} />
+      </div>
     </div>
   );
 }

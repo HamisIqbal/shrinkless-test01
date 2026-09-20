@@ -12,6 +12,7 @@ import { addToCartAction } from '@/app/actions/cart';
 import { quantityBounds, snapQuantity } from '@/lib/validation/product';
 import { useToast } from '@/components/ui/Toast';
 import type { ProductDTO } from '@/types/dto';
+import './shop.css';
 
 type Props = {
   /** Never null: the grid mounts this only while a product is open, keyed by
@@ -136,7 +137,7 @@ export function QuickView({ product, onClose }: Props) {
 
   return (
     <motion.div
-      className="quick"
+      className="sh-quick"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -144,14 +145,14 @@ export function QuickView({ product, onClose }: Props) {
     >
       <button
         type="button"
-        className="quick__scrim"
+        className="sh-quick__scrim"
         aria-hidden="true"
         tabIndex={-1}
         onClick={onClose}
       />
 
       <motion.div
-        className="quick__panel"
+        className="sh-quick__panel"
         role="dialog"
         aria-modal="true"
         aria-labelledby="quick-title"
@@ -166,13 +167,13 @@ export function QuickView({ product, onClose }: Props) {
         exit={{ opacity: 0, scale: 0.97, y: 8 }}
         transition={{ duration: 0.34, ease: EASE }}
       >
-        <button type="button" className="quick__close" onClick={onClose}>
-          <span className="quick__closemark" aria-hidden="true" />
+        <button type="button" className="sh-quick__close" onClick={onClose}>
+          <span className="sh-quick__closemark" aria-hidden="true" />
           <span className="visually-hidden">Close quick view</span>
         </button>
 
-        <div className="quick__media">
-          <div className="frame frame--45">
+        <div className="sh-quick__media">
+          <div className="sh-quick__frame">
             {image ? (
               <Image
                 src={imageUrl(image.url, 'c_fill,w_1000,h_1250,q_auto,f_auto')}
@@ -184,25 +185,25 @@ export function QuickView({ product, onClose }: Props) {
           </div>
         </div>
 
-        <div className="quick__body">
-          <p className="eyebrow">Shrinkless</p>
-          <h2 id="quick-title" className="sub quick__title">{product.title}</h2>
+        <div className="sh-quick__body">
+          <p className="sh-label">Shrinkless</p>
+          <h2 id="quick-title" className="sh-quick__title">{product.title}</h2>
 
-          <p className="quick__price tnum">
+          <p className="sh-picker__price tnum">
             {priced ? formatCents(priced.priceCents) : 'Unavailable'}
           </p>
 
           {product.description ? (
-            <p className="quick__copy">{product.description}</p>
+            <p className="sh-story__para">{product.description}</p>
           ) : null}
 
-          <fieldset className="quick__group">
-            <legend className="meta quick__legend">Colour</legend>
-            <div className="swatchrow">
+          <fieldset className="sh-picker__group">
+            <legend className="sh-label">Colour</legend>
+            <div className="sh-picker__swatches">
               {product.colors.map((option) => (
                 <label
                   key={option}
-                  className={`swatch${color === option ? ' swatch--on' : ''}`}
+                  className={`sh-swatch${color === option ? ' sh-swatch--on' : ''}`}
                 >
                   <input
                     type="radio"
@@ -213,18 +214,18 @@ export function QuickView({ product, onClose }: Props) {
                     onChange={() => { setColor(option); setSize(''); }}
                   />
                   <span
-                    className={`swatch__dot dot--${option}`}
+                    className={`sh-swatch__dot dot--${option}`}
                     aria-hidden="true"
                   />
-                  <span className="swatch__name">{option}</span>
+                  <span className="sh-swatch__name">{option}</span>
                 </label>
               ))}
             </div>
           </fieldset>
 
-          <fieldset className="quick__group">
-            <legend className="meta quick__legend">Size</legend>
-            <div className="chiprow">
+          <fieldset className="sh-picker__group">
+            <legend className="sh-label">Size</legend>
+            <div className="sh-picker__chips">
               {ordered.map((option) => {
                 const variant = variantFor(option, color);
                 const out = !variant || !variant.inStock;
@@ -232,7 +233,7 @@ export function QuickView({ product, onClose }: Props) {
                 return (
                   <label
                     key={option}
-                    className={`chip${size === option ? ' chip--on' : ''}${out ? ' chip--sold' : ''}`}
+                    className={`sh-chip${size === option ? ' sh-chip--on' : ''}${out ? ' sh-chip--sold' : ''}`}
                   >
                     <input
                       type="radio"
@@ -251,26 +252,26 @@ export function QuickView({ product, onClose }: Props) {
             </div>
           </fieldset>
 
-          <div className="quick__group">
-            <p className="meta quick__legend" id="quick-qty">
+          <div className="sh-picker__group">
+            <p className="sh-label" id="quick-qty">
               Quantity
               {rule.step > 1 ? ` — sold in ${rule.step}s` : ''}
               {rule.step === 1 && rule.min > 1 ? ` — minimum ${rule.min}` : ''}
             </p>
-            <div className="stepper" role="group" aria-labelledby="quick-qty">
+            <div className="sh-step sh-picker__qty" role="group" aria-labelledby="quick-qty">
               <button
                 type="button"
-                className="stepper__button"
+                className="sh-step__btn"
                 onClick={() => setQuantity(Math.max(capped - rule.step, rule.min))}
                 disabled={capped <= rule.min}
               >
                 <span aria-hidden="true">&minus;</span>
                 <span className="visually-hidden">Decrease quantity</span>
               </button>
-              <output className="stepper__value tnum">{capped}</output>
+              <output className="sh-step__value tnum">{capped}</output>
               <button
                 type="button"
-                className="stepper__button"
+                className="sh-step__btn"
                 onClick={() =>
                   setQuantity(snapQuantity(Math.min(capped + rule.step, highest), rule))
                 }
@@ -282,10 +283,10 @@ export function QuickView({ product, onClose }: Props) {
             </div>
           </div>
 
-          <div className="quick__actions">
+          <div className="sh-picker__actions">
             <button
               type="button"
-              className="btn btn--lg btn--block"
+              className="sh-btn sh-btn--block"
               onClick={() => add()}
               disabled={pending}
             >
@@ -296,7 +297,7 @@ export function QuickView({ product, onClose }: Props) {
                 page — one purchase path, not two. */}
             <button
               type="button"
-              className="btn btn--outline btn--lg btn--block"
+              className="sh-btn sh-btn--accent sh-btn--block"
               onClick={() => add(() => router.push('/cart'))}
               disabled={pending}
             >
@@ -304,7 +305,7 @@ export function QuickView({ product, onClose }: Props) {
             </button>
           </div>
 
-          <Link href={href} className="ulink quick__full" onClick={onClose}>
+          <Link href={href} className="sh-link sh-quick__full" onClick={onClose}>
             View full product
           </Link>
         </div>

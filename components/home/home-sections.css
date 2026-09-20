@@ -472,45 +472,22 @@
     top: 6rem;
   }
 
-  .hm-shelf__grid--3 .hm-shelf__cell:first-child .pcard__title { font-size: 1.125rem; }
+  .hm-shelf__grid--3 .hm-shelf__cell:first-child .sh-card__title { font-size: 1.5rem; }
 }
 
 .hm-shelf__grid--1 { max-width: 36rem; }
 
-.hm-shelf--spread .pcard__frame { aspect-ratio: 4 / 5; }
+/* --- the shop's cards ------------------------------------------------------
+   There used to be a block here restating the card's title in Bebas, its
+   price in mono, its frames square-cornered and its photographs on mist —
+   because the card was set in the storefront's paper voice and the shelf had
+   to talk it round every time. The card is set in this voice now
+   (components/shop/shop.css), so all the shelf still owns is the one card in
+   the spread layout that is larger than its neighbours.
+   -------------------------------------------------------------------------- */
 
-/* --- the shop's cards, set in this page's type ---------------------------- */
-
-.hm-shelf .pcard { gap: 0.9rem; }
-
-.hm-shelf .pcard__media,
-.hm-shelf .pcard__frame {
-  border-radius: 0;
-  background: var(--hm-mist);
-}
-
-.hm-shelf .pcard__title {
-  font-family: var(--hm-bebas);
-  font-size: 1.0625rem;
-  font-weight: 400;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-.hm-shelf .pcard__price {
-  color: var(--hm-stone);
-  font-family: var(--hm-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0;
-}
-
-.hm-shelf .pcard__rating,
-.hm-shelf .pcard__flag {
-  font-family: var(--hm-mono);
-  letter-spacing: 0;
-}
-
-.hm-shelf .pcard__frame img { transition: transform 1.2s var(--hm-ease); }
+.hm-shelf .sh-card__media,
+.hm-shelf .sh-card__frame { background: var(--hm-mist); }
 
 /* --------------------------------------------------------------------------
    Gallery

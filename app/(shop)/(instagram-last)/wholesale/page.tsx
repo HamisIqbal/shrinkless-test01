@@ -11,6 +11,7 @@ import { SpecStrip } from '@/components/pages/SpecStrip';
 import { StatementBand } from '@/components/pages/StatementBand';
 import { homeFonts } from '@/components/home/fonts';
 import { HomeScrollSync } from '@/components/home/HomeScene';
+import '@/components/shop/shop.css';
 import type { WholesaleProductDTO } from '@/types/dto';
 
 export const metadata = {
@@ -116,8 +117,8 @@ export default async function WholesalePage(props: PageProps<'/wholesale'>) {
           ]}
         />
 
-        <div className={`band band--tight band--ink pg-sheet ${homeFonts}`}>
-          <div className="wrap">
+        <div className={`sh-shop sh-shop--ink ${homeFonts}`}>
+          <div className="sh-wrap">
             <ContentLayer {...layer} />
 
             <ShopBrowser

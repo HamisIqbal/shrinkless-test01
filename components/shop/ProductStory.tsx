@@ -1,4 +1,5 @@
 import { parseStory } from '@/lib/shop/story';
+import './shop.css';
 
 /**
  * The description, directly under the price: a paragraph on what the tee is, a
@@ -11,14 +12,14 @@ export function ProductStory({ description }: { description?: string }) {
   if (!blocks.length) return null;
 
   return (
-    <div className="story">
+    <div className="sh-story">
       {blocks.map((block, index) =>
         block.kind === 'paragraph' ? (
-          <p key={index} className="story__para">{block.text}</p>
+          <p key={index} className="sh-story__para">{block.text}</p>
         ) : (
-          <ul key={index} className="story__list">
+          <ul key={index} className="sh-story__list">
             {block.items.map((item) => (
-              <li key={item} className="story__item">{item}</li>
+              <li key={item} className="sh-story__item">{item}</li>
             ))}
           </ul>
         ),

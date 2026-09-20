@@ -6,16 +6,17 @@ import Link from 'next/link';
 import { formatCents } from '@/lib/money';
 import { imageUrl } from '@/lib/images';
 import { toColorways } from '@/lib/shop/colorways';
-import { EyeIcon, StarIcon } from '@/components/site/icons';
+import { StarIcon } from '@/components/site/icons';
 import type { ProductDTO } from '@/types/dto';
 import { cropStyle } from '@/lib/media/crop';
+import './shop.css';
 
 type Props = {
   product: ProductDTO;
   /** Grid position, so the first row can skip lazy loading. */
   index?: number;
   /** Omitted where there is nothing to quick-view — the trade sheet has no
-   *  cart, so its cards carry no eye. */
+   *  cart, so its cards carry no strip. */
   onQuickView?: (product: ProductDTO) => void;
   /** Where the card points, when it is not a retail product page. */
   href?: string;
@@ -28,30 +29,36 @@ type Props = {
 const DRAG_SLOP = 5;
 
 /**
- * Image, name, price — in that order of weight, and by a wide margin. The
- * frame is most of the card; the name and price are captions under it.
+ * Image, then a ledger caption: name and price on one baseline, the colourway
+ * and its swatches on the next.
  *
- * Every card crops to the same 2:3 regardless of the source photograph's
- * shape, because a grid where one product is taller than its neighbours reads
- * as broken rather than as editorial.
+ * **The caption is the change.** It used to be four stacked blocks under the
+ * frame — a title, a price paragraph, a row of dots in a list of its own — and
+ * nothing said which photograph you were looking at. Now the two lines read
+ * across, under one hairline, in the same mono the rest of the site states
+ * facts in; and the colourway is named, because a grid of dots is not a label.
  *
- * **The frames are a scroller, not a slideshow.** There were two arrow buttons
- * parked on the photograph; they are gone, and the browser does the work
- * instead. A phone swipes, a trackpad scrolls sideways, and a mouse drags —
- * all against one `overflow-x: auto` reel with CSS scroll snapping, so the
- * momentum, the snap and the rubber-band at the ends are the platform's rather
- * than something reimplemented in JavaScript. Nothing on the card says so,
- * because a row of photographs that moves under your finger does not need a
- * caption explaining that it moves under your finger.
+ * Every card crops to the same 4:5, which is the shape the product page's
+ * gallery is in — so a crop chosen once in the admin holds in both places. It
+ * was 2:3 here and 4:5 there, and a photograph placed for the card moved the
+ * moment somebody opened it.
+ *
+ * **The frames are a scroller, not a slideshow.** A phone swipes, a trackpad
+ * scrolls sideways, and a mouse drags — all against one `overflow-x: auto` reel
+ * with CSS scroll snapping, so the momentum, the snap and the rubber-band at
+ * the ends are the platform's rather than something reimplemented in
+ * JavaScript. Nothing on the card says so, because a row of photographs that
+ * moves under your finger does not need a caption explaining that it moves
+ * under your finger.
  *
  * Only the mouse drag needs code: a pointer press that travels more than
  * `DRAG_SLOP` scrolls the reel and then swallows the click, so pulling a card
  * sideways never lands on the product page by accident.
  *
- * One index still drives everything downstream. It is now read back from the
+ * One index still drives everything downstream. It is read back from the
  * reel's scroll position rather than owned by a button, and the colour dots
- * scroll the reel rather than setting it — but the price, the link and the
- * picture still agree, because they are all still reading one number.
+ * scroll the reel rather than setting it — but the price, the name, the link
+ * and the picture still agree, because they are all still reading one number.
  */
 export function ProductCard({
   product,
@@ -75,7 +82,8 @@ export function ProductCard({
   const many = frames.length > 1;
 
   const safeShot = Math.min(shot, Math.max(frames.length - 1, 0));
-  const colorway = colorways[Math.min(safeShot, colorways.length - 1)] ?? colorways[0];
+  const colorIndex = Math.min(safeShot, colorways.length - 1);
+  const colorway = colorways[colorIndex] ?? colorways[0];
 
   // A product with no colourways has no stock to read, which is not the same
   // as being out of it.
@@ -115,7 +123,7 @@ export function ProductCard({
     // Toggled on the node rather than through state: scroll snapping has to be
     // off before the first `scrollLeft` write of the drag, and a re-render is
     // both a frame too late and a repaint the drag does not need.
-    reel.classList.add('pcard__reel--drag');
+    reel.classList.add('sh-card__reel--drag');
   }
 
   function onPointerMove(event: React.PointerEvent<HTMLDivElement>) {
@@ -127,7 +135,7 @@ export function ProductCard({
     // Capture is claimed here rather than on pointerdown, and only once the
     // pointer has actually travelled. While capture is set the browser retargets
     // the click to the capturing element, so capturing on press meant every
-    // plain click landed on the reel instead of the frame's link — the card
+    // plain click landed on the reel instead of the card's link — the card
     // simply would not open on a mouse. A drag still captures, and a drag's
     // click is swallowed below anyway.
     if (!travelled.current && Math.abs(distance) > DRAG_SLOP) {
@@ -146,7 +154,7 @@ export function ProductCard({
     const reel = event.currentTarget;
     dragging.current = false;
 
-    reel.classList.remove('pcard__reel--drag');
+    reel.classList.remove('sh-card__reel--drag');
     if (reel.hasPointerCapture(event.pointerId)) reel.releasePointerCapture(event.pointerId);
 
     // Snapping is switched off during the drag, so nothing fights the pointer.
@@ -176,11 +184,11 @@ export function ProductCard({
   }
 
   return (
-    <article className="pcard">
-      <div className="pcard__media">
+    <article className="sh-card">
+      <div className="sh-card__media">
         <div
           ref={reelRef}
-          className="pcard__reel"
+          className="sh-card__reel"
           role="group"
           aria-label={`${product.title}, ${frames.length} ${frames.length === 1 ? 'photograph' : 'photographs'}`}
           tabIndex={many ? 0 : -1}
@@ -195,43 +203,66 @@ export function ProductCard({
           {hasFrames ? (
             frames.map((frame, position) => (
               /* Untabbable on purpose: the title below is the card's one
-                 accessible route to the product, and N frames x M products
+                 accessible route to the product, and N frames × M products
                  would otherwise bury the grid in tab stops. The reel itself
-                 takes the focus, and arrow keys scroll it. */
+                 takes the focus, and arrow keys scroll it.
+
+                 A link rather than the whole card being one: an overlay across
+                 the card would sit on top of the reel and swallow the swipe
+                 that makes the frames worth having. */
               <Link
                 key={frame.publicId}
                 href={href}
-                className="pcard__frame"
+                className="sh-card__frame"
                 tabIndex={-1}
                 aria-hidden="true"
                 draggable={false}
               >
                 <Image
-                  /* A scale, not a fill: the crop belongs to the image and
-                     is applied in CSS, so a server-side centre crop here would
+                  /* A scale, not a fill: the crop belongs to the image and is
+                     applied in CSS, so a server-side centre crop here would
                      silently overrule what the admin chose. */
                   src={imageUrl(frame.publicId, 'w_1200,q_auto,f_auto')}
                   alt=""
                   fill
                   loading={index < 2 && position === 0 ? undefined : 'lazy'}
                   priority={index < 2 && position === 0}
-                  sizes="(min-width: 75rem) 33vw, (min-width: 48rem) 50vw, 100vw"
+                  sizes="(min-width: 62rem) 33vw, 50vw"
                   draggable={false}
                   style={cropStyle(frame)}
                 />
               </Link>
             ))
           ) : (
-            <div className="pcard__frame" />
+            <span className="sh-card__frame" aria-hidden="true" />
           )}
         </div>
 
+        {/* One flag at a time, and sold out outranks new: a shopper who cannot
+            buy it needs to know that before they need to know it is recent. */}
+        {soldOut ? (
+          <p className="sh-card__flag sh-card__flag--sold">Sold out</p>
+        ) : product.badge === 'new' ? (
+          <p className="sh-card__flag">New</p>
+        ) : null}
+
         {product.rating > 0 ? (
-          <p className="pcard__rating">
-            <StarIcon className="pcard__star" />
+          <p className="sh-card__rating">
+            <StarIcon className="sh-card__star" />
             <span className="tnum">{product.rating.toFixed(1).replace(/\.0$/, '')}</span>
             <span className="visually-hidden"> out of 5</span>
           </p>
+        ) : null}
+
+        {many ? (
+          <ol className="sh-card__ticks" aria-hidden="true">
+            {frames.map((frame, i) => (
+              <li
+                key={frame.publicId}
+                className={`sh-card__tick${i === safeShot ? ' sh-card__tick--on' : ''}`}
+              />
+            ))}
+          </ol>
         ) : null}
 
         {/* Desktop only — CSS hides it where there is no hover to reveal it
@@ -241,71 +272,54 @@ export function ProductCard({
         {onQuickView ? (
           <button
             type="button"
-            className="pcard__preview"
+            className="sh-card__preview"
             onClick={() => onQuickView(product)}
           >
-            <EyeIcon />
-            <span className="visually-hidden">Quick view: {product.title}</span>
+            Quick view
+            <span className="visually-hidden">: {product.title}</span>
           </button>
         ) : null}
+      </div>
 
-        <div className="pcard__foot--over">
-          {/* One flag at a time, and sold out outranks new: a shopper who
-              cannot buy it needs to know that before they need to know it is
-              recent. */}
-          {soldOut ? (
-            <p className="pcard__flag pcard__flag--sold">Sold out</p>
-          ) : product.badge === 'new' ? (
-            <p className="pcard__flag pcard__flag--new">New arrival</p>
-          ) : null}
+      <div className="sh-card__foot">
+        <div className="sh-card__line">
+          <h3 className="sh-card__title">
+            <Link href={href} className="sh-card__link">
+              {product.title}
+            </Link>
+          </h3>
 
-          {many ? (
-            <ol className="pcard__ticks" aria-hidden="true">
-              {frames.map((frame, i) => (
-                <li
-                  key={frame.publicId}
-                  className={`pcard__tick${i === safeShot ? ' pcard__tick--on' : ''}`}
-                />
-              ))}
-            </ol>
-          ) : null}
+          <p className="sh-card__price tnum">
+            {priceLabel ?? formatCents(colorway?.priceCents ?? product.minPriceCents)}
+          </p>
         </div>
+
+        {colorway ? (
+          <div className="sh-card__line">
+            <p className="sh-card__colorway">{colorway.color}</p>
+
+            {colorways.length > 1 ? (
+              <ul className="sh-card__colors">
+                {colorways.map((option, optionIndex) => (
+                  <li key={option.color}>
+                    <button
+                      type="button"
+                      className={`swatchdot dot--${option.color}${
+                        optionIndex === colorIndex ? ' swatchdot--on' : ''
+                      }`}
+                      aria-pressed={optionIndex === colorIndex}
+                      onFocus={() => show(optionIndex)}
+                      onClick={() => show(optionIndex)}
+                    >
+                      <span className="visually-hidden">Show {option.color}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        ) : null}
       </div>
-
-      <div className="pcard__foot">
-        <h3 className="pcard__title">
-          <Link href={href} className="pcard__link">
-            {product.title}
-            <span className="visually-hidden">{colorway ? `, ${colorway.color}` : ''}</span>
-          </Link>
-        </h3>
-
-        <p className="pcard__price tnum">
-          {priceLabel ?? formatCents(colorway?.priceCents ?? product.minPriceCents)}
-        </p>
-      </div>
-
-      {colorways.length > 1 ? (
-        <ul className="pcard__colors">
-          {colorways.map((option, optionIndex) => (
-            <li key={option.color}>
-              <button
-                type="button"
-                className={`swatchdot dot--${option.color}${
-                  optionIndex === Math.min(safeShot, colorways.length - 1)
-                    ? ' swatchdot--on'
-                    : ''
-                }`}
-                aria-pressed={optionIndex === Math.min(safeShot, colorways.length - 1)}
-                onFocus={() => show(optionIndex)}
-                onClick={() => show(optionIndex)}
-              >
-                <span className="visually-hidden">Show {option.color}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
     </article>
   );
 }

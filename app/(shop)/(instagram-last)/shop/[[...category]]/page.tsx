@@ -10,6 +10,7 @@ import { HomeGateway } from '@/components/home/HomeGateway';
 import { SHOPPABLE } from '@/lib/shop/navigation';
 import { homeFonts } from '@/components/home/fonts';
 import { HomeScrollSync } from '@/components/home/HomeScene';
+import '@/components/shop/shop.css';
 
 export const metadata = { title: 'Shop' };
 
@@ -100,8 +101,8 @@ export default async function ShopPage(props: PageProps<'/shop/[[...category]]'>
         />
       )}
 
-      <div className={`band band--tight shoppage pg-sheet ${homeFonts}`}>
-        <div className="wrap">
+      <div className={`sh-shop ${homeFonts}`}>
+        <div className="sh-wrap">
           <ShopBrowser
             products={products}
             filter={filter}

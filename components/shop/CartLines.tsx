@@ -8,7 +8,19 @@ import { imageUrl } from '@/lib/images';
 import { formatCents } from '@/lib/money';
 import { useToast } from '@/components/ui/Toast';
 import type { CartLineDTO } from '@/types/dto';
+import './shop.css';
 
+/**
+ * The cart as a ledger: one row per line, each stating the same four things in
+ * the same order — what it is, how it is specified, how many, and what that
+ * comes to.
+ *
+ * The arithmetic is the change. A line used to print a unit price on one side
+ * of the row and a line total on the other, with nothing joining them, so a
+ * cart holding two of something showed two numbers and left the reader to work
+ * out which was which. Now the multiplication is written out under the figure
+ * it produces.
+ */
 export function CartLines({ lines }: { lines: CartLineDTO[] }) {
   const toast = useToast();
   const [pending, startTransition] = useTransition();
@@ -23,34 +35,47 @@ export function CartLines({ lines }: { lines: CartLineDTO[] }) {
   }
 
   return (
-    <div className="cartlines">
-      <ul>
-        {lines.map((line) => (
-          <li key={line.variantId} className="cartline">
-            <Link href={`/product/${line.productSlug}`} className="cartline__plate">
-              <div className="frame frame--45">
-                {line.imagePublicId ? (
-                  <Image
-                    src={imageUrl(line.imagePublicId, 'c_fill,w_400,h_500,q_auto,f_auto')}
-                    alt={line.productTitle}
-                    fill
-                    sizes="160px"
-                  />
-                ) : null}
-              </div>
-            </Link>
+    <ul className="sh-cart__lines">
+      {lines.map((line) => (
+        <li key={line.variantId} className="sh-cart__line">
+          <Link href={`/product/${line.productSlug}`} className="sh-cart__plate">
+            {line.imagePublicId ? (
+              <Image
+                src={imageUrl(line.imagePublicId, 'c_fill,w_400,h_500,q_auto,f_auto')}
+                alt={line.productTitle}
+                fill
+                sizes="160px"
+              />
+            ) : null}
+          </Link>
 
-            <div className="cartline__body">
-              <h2 className="cartline__title">
+          <div className="sh-cart__body">
+            <div className="sh-cart__top">
+              <h3 className="sh-cart__name">
                 <Link href={`/product/${line.productSlug}`}>{line.productTitle}</Link>
-              </h2>
-              <p className="meta">{line.color} / {line.size.toUpperCase()}</p>
-              <p className="meta tnum">{formatCents(line.unitPriceCents)} each</p>
+              </h3>
 
-              <div className="stepper" role="group" aria-label={`Quantity for ${line.productTitle}`}>
+              <p className="sh-cart__sum tnum">
+                {formatCents(line.lineTotalCents)}
+                <span className="sh-cart__each">
+                  {line.quantity} &times; {formatCents(line.unitPriceCents)}
+                </span>
+              </p>
+            </div>
+
+            <p className="sh-cart__spec">
+              {line.color} / {line.size.toUpperCase()}
+            </p>
+
+            <div className="sh-cart__acts">
+              <div
+                className="sh-step"
+                role="group"
+                aria-label={`Quantity for ${line.productTitle}`}
+              >
                 <button
                   type="button"
-                  className="stepper__button"
+                  className="sh-step__btn"
                   disabled={pending}
                   aria-label="Decrease quantity"
                   onClick={() =>
@@ -67,11 +92,11 @@ export function CartLines({ lines }: { lines: CartLineDTO[] }) {
                   &minus;
                 </button>
 
-                <span className="stepper__value tnum" aria-live="polite">{line.quantity}</span>
+                <span className="sh-step__value tnum" aria-live="polite">{line.quantity}</span>
 
                 <button
                   type="button"
-                  className="stepper__button"
+                  className="sh-step__btn"
                   disabled={
                     pending ||
                     line.quantity + line.quantityRule.step > line.availableStock ||
@@ -83,23 +108,20 @@ export function CartLines({ lines }: { lines: CartLineDTO[] }) {
                 >
                   +
                 </button>
-
-                <button
-                  type="button"
-                  className="ulink cartline__remove"
-                  disabled={pending}
-                  onClick={() => change(line.variantId, 0)}
-                >
-                  Remove
-                </button>
               </div>
+
+              <button
+                type="button"
+                className="sh-link"
+                disabled={pending}
+                onClick={() => change(line.variantId, 0)}
+              >
+                Remove
+              </button>
             </div>
-
-            <p className="cartline__total tnum">{formatCents(line.lineTotalCents)}</p>
-          </li>
-        ))}
-      </ul>
-
-    </div>
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }

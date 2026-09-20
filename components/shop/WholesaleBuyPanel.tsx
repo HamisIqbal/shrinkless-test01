@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/Toast';
 import { formatCents } from '@/lib/money';
 import type { WholesaleTier } from '@/lib/wholesale/pricing';
 import type { WholesaleProductDetailDTO } from '@/types/dto';
+import './shop.css';
 
 type Props = { style: WholesaleProductDetailDTO };
 
@@ -92,15 +93,15 @@ export function WholesaleBuyPanel({ style }: Props) {
   }
 
   return (
-    <div className="picker">
-      <p className="picker__price tnum">
+    <div className="sh-picker sh-picker--ink">
+      <p className="sh-picker__price tnum">
         {priceLabel}
         {basis ? <span className="tradestyle__basis">{basis}</span> : null}
       </p>
 
       <ProductStory description={style.description} />
 
-      <ul className="picker__spec">
+      <ul className="sh-picker__claims">
         <li>Garment Dyed Organic Cotton</li>
         <li>Made in USA</li>
         <li>Made to order</li>
@@ -112,13 +113,13 @@ export function WholesaleBuyPanel({ style }: Props) {
       </ul>
 
       {style.colors.length ? (
-        <fieldset className="picker__group">
-          <legend className="meta picker__legend">Colors</legend>
-          <div className="swatchrow">
+        <fieldset className="sh-picker__group">
+          <legend className="sh-label">Colours</legend>
+          <div className="sh-picker__swatches">
             {style.colors.map((option) => (
               <label
                 key={option}
-                className={`swatch${color === option ? ' swatch--on' : ''}`}
+                className={`sh-swatch${color === option ? ' sh-swatch--on' : ''}`}
               >
                 <input
                   type="radio"
@@ -128,21 +129,21 @@ export function WholesaleBuyPanel({ style }: Props) {
                   checked={color === option}
                   onChange={() => setColor(option)}
                 />
-                <span className={`swatch__dot dot--${option}`} aria-hidden="true" />
-                <span className="swatch__name">{option}</span>
+                <span className={`sh-swatch__dot dot--${option}`} aria-hidden="true" />
+                <span className="sh-swatch__name">{option}</span>
               </label>
             ))}
           </div>
         </fieldset>
       ) : null}
 
-      <div className="picker__group">
-        <label className="meta picker__legend" htmlFor="wholesale-quantity">
+      <div className="sh-picker__group">
+        <label className="sh-label" htmlFor="wholesale-quantity">
           Quantity — sold by the run
         </label>
         <select
           id="wholesale-quantity"
-          className="picker__select"
+          className="sh-picker__select"
           value={picked ?? ''}
           onChange={(event) => {
             const next = event.target.value;
@@ -160,17 +161,17 @@ export function WholesaleBuyPanel({ style }: Props) {
         </select>
 
         {chosen ? (
-          <p className="picker__total tnum" aria-live="polite">
+          <p className="sh-picker__total tnum" aria-live="polite">
             <span>Indicative total</span>
             <span>{formatCents(chosen.totalCents)}</span>
           </p>
         ) : null}
       </div>
 
-      <div className="picker__actions" ref={actionsRef}>
+      <div className="sh-picker__actions" ref={actionsRef}>
         <button
           type="button"
-          className="btn btn--light btn--lg btn--block"
+          className="sh-btn sh-btn--block"
           onClick={() => add()}
           disabled={pending}
         >
@@ -179,7 +180,7 @@ export function WholesaleBuyPanel({ style }: Props) {
 
         <button
           type="button"
-          className="btn btn--accent btn--lg btn--block"
+          className="sh-btn sh-btn--accent sh-btn--block"
           onClick={() => add(() => router.push('/cart'))}
           disabled={pending}
         >
@@ -197,12 +198,12 @@ export function WholesaleBuyPanel({ style }: Props) {
             : priceLabel
         }
       >
-        <button type="button" className="btn" onClick={() => add()} disabled={pending}>
+        <button type="button" className="sh-btn" onClick={() => add()} disabled={pending}>
           {pending ? 'Adding' : 'Add to cart'}
         </button>
         <button
           type="button"
-          className="btn btn--accent"
+          className="sh-btn sh-btn--accent"
           onClick={() => add(() => router.push('/cart'))}
           disabled={pending}
         >

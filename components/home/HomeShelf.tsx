@@ -40,7 +40,7 @@ function priceFrom(product: ProductDTO): string | null {
  * A homepage shelf of product cards.
  *
  * The cards are the shop's own `ProductCard`, untouched — swipe, colours,
- * quick view and all — and quick view is owned here exactly as `ProductGrid`
+ * quick view and all — and quick view is owned here exactly as `ShopBrowser`
  * owns it. What changes is the composition around them and, scoped to this
  * shelf in CSS, how their captions are set.
  */
@@ -76,7 +76,7 @@ export function HomeShelf({ headingId, eyebrow, heading, link, products, layout,
 
       // Each card's photograph opens from its foot as the card arrives.
       gsap.utils.toArray<HTMLElement>('.hm-shelf__cell', section).forEach((cell, index) => {
-        const media = cell.querySelector('.pcard__media');
+        const media = cell.querySelector('.sh-card__media');
         const trigger = { trigger: cell, start: 'top 90%', once: true };
         const offset = layout === 'spread' ? index * 0.1 : (index % 2) * 0.12;
 
@@ -88,7 +88,7 @@ export function HomeShelf({ headingId, eyebrow, heading, link, products, layout,
           );
         }
 
-        gsap.from(cell.querySelectorAll('.pcard__foot, .pcard__colors'), {
+        gsap.from(cell.querySelectorAll('.sh-card__foot'), {
           y: 16,
           opacity: 0,
           duration: 1,

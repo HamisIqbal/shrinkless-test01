@@ -11,6 +11,7 @@ import { formatCents } from '@/lib/money';
 import { sizeOrder } from '@/lib/shop/colorways';
 import { quantityBounds, snapQuantity } from '@/lib/validation/product';
 import type { QuantityRuleDTO, VariantDTO } from '@/types/dto';
+import './shop.css';
 
 type Props = {
   /** For the back-in-stock record, which is per product and per colourway. */
@@ -107,22 +108,22 @@ export function VariantPicker({
   const priceLabel = priced ? formatCents(priced.priceCents) : 'Unavailable';
 
   return (
-    <div className="picker">
-      <p className="picker__price tnum">{priceLabel}</p>
+    <div className="sh-picker">
+      <p className="sh-picker__price tnum">{priceLabel}</p>
 
       <ProductStory description={description} />
 
-      <ul className="picker__spec">
+      <ul className="sh-picker__claims">
         <li>Garment Dyed Organic Cotton</li>
         <li>Made in USA</li>
         <li>Doesn&rsquo;t Shrink</li>
       </ul>
 
-      <fieldset className="picker__group">
-        <legend className="meta picker__legend">Color</legend>
-        <div className="swatchrow">
+      <fieldset className="sh-picker__group">
+        <legend className="sh-label">Colour</legend>
+        <div className="sh-picker__swatches">
           {colors.map((option) => (
-            <label key={option} className={`swatch${color === option ? ' swatch--on' : ''}`}>
+            <label key={option} className={`sh-swatch${color === option ? ' sh-swatch--on' : ''}`}>
               <input
                 type="radio"
                 name="color"
@@ -137,8 +138,8 @@ export function VariantPicker({
                   if (!carried || !carried.inStock) setSize('');
                 }}
               />
-              <span className={`swatch__dot dot--${option}`} aria-hidden="true" />
-              <span className="swatch__name">{option}</span>
+              <span className={`sh-swatch__dot dot--${option}`} aria-hidden="true" />
+              <span className="sh-swatch__name">{option}</span>
             </label>
           ))}
         </div>
@@ -148,9 +149,9 @@ export function VariantPicker({
         <RestockForm slug={slug} color={color} />
       ) : (
         <>
-      <fieldset className="picker__group">
-        <legend className="meta picker__legend">Size</legend>
-        <div className="chiprow">
+      <fieldset className="sh-picker__group">
+        <legend className="sh-label">Size</legend>
+        <div className="sh-picker__chips">
           {ordered.map((option) => {
             const variant = findVariant(option, color);
             const unavailable = !variant || !variant.inStock;
@@ -158,8 +159,8 @@ export function VariantPicker({
             return (
               <label
                 key={option}
-                className={`chip${size === option ? ' chip--on' : ''}${
-                  unavailable ? ' chip--sold' : ''
+                className={`sh-chip${size === option ? ' sh-chip--on' : ''}${
+                  unavailable ? ' sh-chip--sold' : ''
                 }`}
                 aria-disabled={unavailable || undefined}
                 title={unavailable ? `${option.toUpperCase()} is sold out` : undefined}
@@ -181,18 +182,18 @@ export function VariantPicker({
         </div>
       </fieldset>
 
-      <div className="picker__group">
-        <p className="meta picker__legend" id="qty-label">
+      <div className="sh-picker__group">
+        <p className="sh-label" id="qty-label">
           Quantity
           {quantityRule.step > 1 ? ` — sold in ${quantityRule.step}s` : ''}
           {quantityRule.step === 1 && quantityRule.min > 1
             ? ` — minimum ${quantityRule.min}`
             : ''}
         </p>
-        <div className="stepper picker__qty" role="group" aria-labelledby="qty-label">
+        <div className="sh-step sh-picker__qty" role="group" aria-labelledby="qty-label">
           <button
             type="button"
-            className="stepper__button"
+            className="sh-step__btn"
             disabled={capped <= quantityRule.min}
             aria-label="Decrease quantity"
             onClick={() => setQuantity(Math.max(capped - quantityRule.step, quantityRule.min))}
@@ -200,11 +201,11 @@ export function VariantPicker({
             &minus;
           </button>
 
-          <span className="stepper__value tnum" aria-live="polite">{capped}</span>
+          <span className="sh-step__value tnum" aria-live="polite">{capped}</span>
 
           <button
             type="button"
-            className="stepper__button"
+            className="sh-step__btn"
             disabled={capped >= highest}
             aria-label="Increase quantity"
             onClick={() => setQuantity(snapQuantity(Math.min(capped + quantityRule.step, highest), quantityRule))}
@@ -214,7 +215,7 @@ export function VariantPicker({
 
           {selected ? (
             <span
-              className={`picker__stock${selected.stock > 5 && !belowMinimum ? ' picker__stock--in' : ''}`}
+              className={`sh-picker__stock${selected.stock > 5 && !belowMinimum ? ' sh-picker__stock--in' : ''}`}
             >
               {belowMinimum
                 ? `Fewer than ${quantityRule.min} left`
@@ -226,10 +227,10 @@ export function VariantPicker({
         </div>
       </div>
 
-      <div className="picker__actions" ref={actionsRef}>
+      <div className="sh-picker__actions" ref={actionsRef}>
         <button
           type="button"
-          className="btn btn--lg btn--block"
+          className="sh-btn sh-btn--block"
           onClick={() => add()}
           disabled={unbuyable}
         >
@@ -242,7 +243,7 @@ export function VariantPicker({
             for one tap saved is not a trade this shop makes. */}
         <button
           type="button"
-          className="btn btn--accent btn--lg btn--block"
+          className="sh-btn sh-btn--accent sh-btn--block"
           onClick={() => add(() => router.push('/cart'))}
           disabled={unbuyable}
         >
@@ -254,7 +255,7 @@ export function VariantPicker({
       <StickyBuyBar anchor={actionsRef} title={title} price={priceLabel}>
         <button
           type="button"
-          className="btn"
+          className="sh-btn"
           onClick={() => add()}
           disabled={unbuyable}
         >
@@ -262,7 +263,7 @@ export function VariantPicker({
         </button>
         <button
           type="button"
-          className="btn btn--accent"
+          className="sh-btn sh-btn--accent"
           onClick={() => add(() => router.push('/cart'))}
           disabled={unbuyable}
         >

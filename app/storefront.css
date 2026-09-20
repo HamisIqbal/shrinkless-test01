@@ -1350,259 +1350,11 @@
 .rail__more { flex: none; }
 
 /* --------------------------------------------------------------------------
-   Product grid and cards
-   Spec §15-18: the image is the card. Name and price are captions under it.
+   Swatch dots
+   The colour dots on a product card and beside a colour in the filter panel.
+   All that is left of this file's product grid: the grid, the card and the
+   quick-view dialog are now `components/shop/shop.css`.
    -------------------------------------------------------------------------- */
-
-/* One product at a time on a phone. Two-up meant every photograph was drawn at
-   roughly 170px wide on the commonest screen there is, which is a thumbnail of
-   a garment rather than a picture of one — and the whole grid is built on the
-   premise that the photograph does the selling. One column costs a scroll and
-   buys twice the width. */
-.pgrid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-6);
-}
-
-@media (min-width: 48rem) {
-  .pgrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-5) var(--space-2);
-  }
-}
-
-@media (min-width: 75rem) {
-  .pgrid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .pgrid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
-
-.pcard { position: relative; display: grid; gap: var(--space-2); }
-
-.pcard__media {
-  position: relative;
-  border-radius: var(--radius-card);
-  overflow: hidden;
-  background: var(--color-paper-deep);
-}
-
-/* The reel. Everything the frames do — swipe, trackpad, drag, arrow keys,
-   momentum, snap — is this rule plus the one under it. */
-.pcard__reel {
-  display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-}
-
-/* A scrollbar under a photograph is a seam in it. */
-.pcard__reel::-webkit-scrollbar { display: none; }
-
-.pcard__reel:focus-visible { outline: 2px solid var(--color-ink); outline-offset: -2px; }
-
-/* While a mouse is dragging, snapping has to be out of the way or every
-   `scrollLeft` write gets pulled back to the nearest frame and the card judders
-   instead of following the pointer. Restored on release, which is when
-   ProductCard scrolls to the frame the drag landed nearest. */
-.pcard__reel--drag {
-  scroll-snap-type: none;
-  scroll-behavior: auto;
-  cursor: grabbing;
-  user-select: none;
-}
-
-.pcard__frame {
-  position: relative;
-  flex: 0 0 100%;
-  aspect-ratio: 2 / 3;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-  overflow: hidden;
-  background: var(--color-paper-deep);
-  text-decoration: none;
-  -webkit-user-drag: none;
-}
-
-.pcard__frame img {
-  object-fit: cover;
-  transition: transform var(--dur-4) var(--ease-out);
-}
-
-@media (hover: hover) {
-  .pcard__reel { cursor: grab; }
-  .pcard:hover .pcard__frame img { transform: scale(calc(var(--crop-z, 1) * 1.03)); }
-}
-
-/* --- corners ------------------------------------------------------------- */
-
-/* Everything that sits on the photograph shares one radius and one recipe: a
-   translucent ground with the picture blurred behind it, so the label stays
-   legible over a white wall and over a black tee without either inventing a
-   solid block or being lost in the frame. */
-.pcard__rating,
-.pcard__flag,
-.pcard__preview {
-  border-radius: 999px;
-  backdrop-filter: blur(10px) saturate(120%);
-  -webkit-backdrop-filter: blur(10px) saturate(120%);
-}
-
-/* --- rating -------------------------------------------------------------- */
-
-.pcard__rating {
-  position: absolute;
-  z-index: 2;
-  top: var(--space-2);
-  left: var(--space-2);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.25rem 0.55rem 0.25rem 0.45rem;
-  background: rgba(245, 244, 240, 0.82);
-  color: var(--color-ink);
-  font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  /* A label, not a control. Left clickable it would swallow drags that began
-     in the top-left corner of the photograph. */
-  pointer-events: none;
-}
-
-.pcard__star { width: 0.75rem; height: 0.75rem; }
-
-/* --- quick view ---------------------------------------------------------- */
-
-/* An eye, and only where there is a pointer to reveal it with. On a phone this
-   was a button permanently parked on the photograph offering a miniature of
-   the page that tapping the photograph already opens. */
-.pcard__preview { display: none; }
-
-@media (hover: hover) and (pointer: fine) {
-  .pcard__preview {
-    position: absolute;
-    z-index: 2;
-    top: var(--space-2);
-    right: var(--space-2);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.125rem;
-    height: 2.125rem;
-    border: 0;
-    padding: 0;
-    background: rgba(245, 244, 240, 0.82);
-    color: var(--color-ink);
-    cursor: pointer;
-    opacity: 0;
-    transform: translateY(-0.35rem);
-    transition:
-      opacity var(--dur-2) var(--ease-out),
-      transform var(--dur-2) var(--ease-out),
-      background-color var(--dur-1) var(--ease-out),
-      color var(--dur-1) var(--ease-out);
-  }
-
-  .pcard__preview svg { width: 1.0625rem; height: 1.0625rem; }
-
-  .pcard__preview:hover { background: var(--color-ink); color: var(--color-paper); }
-
-  .pcard:hover .pcard__preview,
-  .pcard:focus-within .pcard__preview { opacity: 1; transform: none; }
-}
-
-/* --- status and position, along the bottom edge -------------------------- */
-
-/* Both live in one bottom-anchored stack so they can never collide: the flag
-   is the news, the ticks are the position, and the ticks stay closest to the
-   edge because that is where a scroll indicator belongs. */
-.pcard__foot--over {
-  position: absolute;
-  z-index: 2;
-  inset-inline: var(--space-3);
-  bottom: var(--space-3);
-  display: grid;
-  gap: var(--space-2);
-  justify-items: center;
-  pointer-events: none;
-}
-
-.pcard__flag {
-  padding: 0.4rem 0.9rem;
-  font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-/* Sold out is an absence, so it is the quieter of the two: the frame stays
-   visible through it rather than being stamped over. */
-.pcard__flag--sold {
-  background: rgba(10, 10, 10, 0.55);
-  color: var(--color-white);
-}
-
-/* A new arrival is news, and gets the solid ground to say so. */
-.pcard__flag--new {
-  background: rgba(245, 244, 240, 0.92);
-  color: var(--color-ink);
-}
-
-.pcard__ticks { display: flex; gap: 0.25rem; }
-
-.pcard__tick {
-  width: 1rem;
-  height: 2px;
-  border-radius: 2px;
-  background: rgba(245, 244, 240, 0.5);
-  transition: background-color var(--dur-1) var(--ease-out);
-}
-
-.pcard__tick--on { background: var(--color-paper); }
-
-/* --- captions ------------------------------------------------------------ */
-
-/* Name left, price right, at every width. Stacking them on a phone put the
-   price under the name where it read as a second line of the title rather than
-   as the number you are looking for. */
-.pcard__foot {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-2);
-  align-items: baseline;
-  min-width: 0;
-}
-
-/* Deliberately quiet. The photograph is doing the selling. */
-.pcard__title {
-  min-width: 0;
-  font-size: var(--text-meta);
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
-}
-
-.pcard__link { text-decoration: none; }
-.pcard__link:hover { text-decoration: underline; text-underline-offset: 0.3em; }
-
-.pcard__price {
-  justify-self: end;
-  text-align: right;
-  white-space: nowrap;
-  font-size: var(--text-meta);
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  color: var(--color-muted-text);
-}
-
-/* The trade sheet runs the same card on an ink ground, where the shop's muted
-   ink reads as a smudge. */
-.band--ink .pcard__price { color: var(--color-muted); }
-
-.pcard__colors { display: flex; flex-wrap: wrap; gap: var(--space-1); }
-
 
 .swatchdot {
   position: relative;
@@ -1633,109 +1385,6 @@
 .dot--heather  { --dot: #b6b8ba; }
 .dot--olive    { --dot: #6b6a4f; }
 .dot--teal     { --dot: #2f4f52; }
-
-/* --------------------------------------------------------------------------
-   Quick view
-   Spec §19: a miniature product page. Backdrop fades, panel scales 96% → 100%.
-   -------------------------------------------------------------------------- */
-
-.quick {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-3);
-}
-
-.quick__scrim {
-  position: absolute;
-  inset: 0;
-  border: 0;
-  padding: 0;
-  background: rgba(10, 10, 10, 0.55);
-  cursor: pointer;
-}
-
-.quick__panel {
-  position: relative;
-  display: grid;
-  width: min(64rem, 100%);
-  max-height: min(92svh, 56rem);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  border-radius: var(--radius-slab);
-  background: var(--color-paper);
-  color: var(--color-ink);
-}
-
-@media (min-width: 48rem) {
-  .quick__panel { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); }
-}
-
-.quick__close {
-  position: absolute;
-  top: var(--space-3);
-  right: var(--space-3);
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border: var(--spacing-rule) solid var(--color-ink);
-  border-radius: 999px;
-  background: var(--color-paper);
-  color: var(--color-ink);
-  cursor: pointer;
-  transition: background-color var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
-}
-
-.quick__close:hover { background: var(--color-ink); color: var(--color-paper); }
-
-.quick__closemark { position: relative; width: 0.8rem; height: 0.8rem; }
-
-.quick__closemark::before,
-.quick__closemark::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: var(--spacing-rule);
-  background: currentColor;
-}
-
-.quick__closemark::before { transform: rotate(45deg); }
-.quick__closemark::after { transform: rotate(-45deg); }
-
-.quick__media { position: relative; }
-.quick__media .frame { background: var(--color-paper-deep); }
-
-/* Side by side, the purchase column is the taller of the two, so a fixed 4:5
-   frame leaves a slab of empty paper under the photograph. Let the media
-   column take the panel's height and crop to fit it instead. */
-@media (min-width: 48rem) {
-  .quick__media .frame { height: 100%; aspect-ratio: auto; }
-}
-
-.quick__body {
-  display: grid;
-  gap: var(--space-4);
-  align-content: start;
-  padding: clamp(1.25rem, 3vw, 2.5rem);
-}
-
-.quick__title { text-transform: uppercase; }
-.quick__price { font-size: var(--text-sub); font-weight: 500; }
-.quick__copy { max-width: 44ch; color: var(--color-muted-text); }
-
-.quick__group { display: grid; gap: var(--space-2); }
-.quick__legend { display: block; }
-
-.quick__actions { display: grid; gap: var(--space-2); }
-.quick__full { justify-self: start; }
 
 /* --------------------------------------------------------------------------
    Statement
@@ -1863,71 +1512,13 @@
 .quotes__name { display: block; padding-top: var(--space-3); }
 
 /* --------------------------------------------------------------------------
-   Footer
+   The newsletter signup
+
+   All that is left of this file's footer. The colophon it stood in is gone:
+   every page now closes on the homepage's own footer, which is set in the
+   `hm-` language (components/home/home.css) and restates this control as a
+   hairline field on ink.
    -------------------------------------------------------------------------- */
-
-/* Flat black behind the colophon — no photograph, no veil. The type sits on
-   solid ink, which is what the contrast ratios are calculated against. */
-.colophon {
-  position: relative;
-  isolation: isolate;
-  margin-top: auto;
-  overflow: hidden;
-  background: #000000;
-}
-
-/* The colophon runs at roughly half the height it used to. Everything inside
-   it steps down with the frame — type, controls and rhythm — so the shorter
-   footer reads as drawn small rather than as the old one cropped. */
-.colophon .head { font-size: clamp(1.25rem, 2.6vw, 1.875rem); }
-.colophon .lede { font-size: 0.875rem; line-height: 1.5; }
-
-.colophon .eyebrow,
-.colophon .meta,
-.colophon .ulink { font-size: 0.6875rem; }
-
-.colophon .btn {
-  min-height: 2.125rem;
-  padding: 0.4rem 1.25rem;
-  font-size: 0.6875rem;
-}
-
-.colophon .signup { gap: var(--space-1); }
-
-.colophon .signup__input {
-  min-height: 1.875rem;
-  padding: 0.3rem 0;
-}
-
-/* --------------------------------------------------------------------------
-   The footer is pinned to the bottom of the viewport and the page slides over
-   it, so it can only ever show its last viewport-worth of itself: whatever
-   does not fit sits above the top edge and no amount of scrolling brings it
-   back. Rather than give the reveal up on short windows, the footer is built
-   to fit one. Every vertical measure below is viewport-relative and floors at
-   something tight, so the whole colophon lands inside the window from a 13"
-   laptop up, and `min-height` keeps it from looking like a strip on a tall
-   monitor where there is room to spare.
-   -------------------------------------------------------------------------- */
-
-@media (min-width: 62rem) {
-  .colophon {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: min(17rem, 100svh);
-    max-height: 100svh;
-    padding-block: clamp(var(--space-2), 3vh, var(--space-5));
-  }
-
-  /* The signup heading is the tallest single element down here. */
-  .colophon .head { font-size: min(clamp(1.25rem, 2.6vw, 1.875rem), 4vh); }
-
-  .colophon__grid { gap: clamp(var(--space-1), 2vh, var(--space-4)); }
-  .colophon__signup { gap: clamp(var(--space-1), 1.5vh, var(--space-3)); }
-}
-
-.colophon__signup { display: grid; gap: var(--space-3); padding-bottom: var(--space-5); }
 
 /* One orange bar with the field and the button inside it, rather than a rule
    and a separate control. The pill is the whole signup, so it reads as a slot
@@ -1968,359 +1559,6 @@
 
 .signup__submit { border-radius: 999px; }
 
-
-.colophon__grid { display: grid; gap: var(--space-4); }
-
-@media (min-width: 56.25rem) {
-  .colophon__grid { grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); }
-}
-
-.colophon__mark {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-}
-
-.colophon__bio { padding-top: var(--space-1); color: var(--color-muted); max-width: 34ch; }
-
-.colophon__cols {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-}
-
-@media (min-width: 48rem) {
-  .colophon__cols { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
-
-.colophon__links {
-  display: grid;
-  gap: 0.15rem;
-  justify-items: start;
-  padding-top: var(--space-1);
-  line-height: 1.35;
-}
-
-.colophon__legal { padding-top: var(--space-4); }
-
-/* --------------------------------------------------------------------------
-   Collection layout
-   Filters in a column beside the grid. A bar across the top pushed the first
-   row of products most of the way down the page.
-   -------------------------------------------------------------------------- */
-
-.shoplayout { display: block; }
-
-.shoplayout__main { min-width: 0; }
-
-/* Phone: the filters are a sheet, not a column.
-
-   Stacked into the flow they put a search box, five size chips, a colour list
-   and a price slider above the first photograph, so a collection opened onto a
-   form. Out of flow, the only thing left above the grid is the word
-   "Filters", and the controls arrive over the page when they are asked for. */
-@media (max-width: 61.9375rem) {
-  .shoplayout__scrim {
-    position: fixed;
-    inset: 0;
-    z-index: 60;
-    border: 0;
-    padding: 0;
-    background: var(--color-scrim);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity var(--dur-3) var(--ease-out), visibility 0s linear var(--dur-3);
-  }
-
-  .shoplayout--sheet .shoplayout__scrim {
-    opacity: 1;
-    visibility: visible;
-    transition-delay: 0s;
-  }
-
-  .shoplayout__aside {
-    position: fixed;
-    z-index: 61;
-    inset-inline: 0;
-    bottom: 0;
-    display: flex;
-    flex-direction: column;
-    max-height: 88dvh;
-    background: var(--color-paper);
-    /* The sheet is paper regardless of the page it opened from — an ink page
-       (the trade line sheet) would otherwise leave this text white-on-paper. */
-    color: var(--color-ink);
-    border-top-left-radius: var(--radius-slab);
-    border-top-right-radius: var(--radius-slab);
-    box-shadow: 0 -1rem 3rem rgba(10, 10, 10, 0.3);
-    transform: translate3d(0, 100%, 0);
-    visibility: hidden;
-    transition:
-      transform var(--dur-3) var(--ease-out),
-      visibility 0s linear var(--dur-3);
-  }
-
-  .shoplayout--sheet .shoplayout__aside {
-    transform: none;
-    visibility: visible;
-    transition-delay: 0s;
-  }
-
-  .shoplayout__sheetbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
-    padding: var(--space-4) clamp(1.25rem, 4vw, 4.5rem) var(--space-3);
-    border-bottom: var(--spacing-rule) solid var(--color-muted);
-  }
-
-  .shoplayout__asidescroll {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    padding: var(--space-5) clamp(1.25rem, 4vw, 4.5rem);
-  }
-
-  .shoplayout__sheetfoot {
-    padding: var(--space-3) clamp(1.25rem, 4vw, 4.5rem)
-      calc(var(--space-4) + env(safe-area-inset-bottom));
-    border-top: var(--spacing-rule) solid var(--color-muted);
-  }
-
-  /* The sheet is the full width of the phone; the column's fixed measure is a
-     desktop constraint. */
-  .filters__inner { width: 100%; }
-
-  .filters__wide { display: none; }
-}
-
-/* Desktop: back to a column beside the grid, and back to collapsing it. */
-@media (min-width: 62rem) {
-  .shoplayout {
-    display: grid;
-    grid-template-columns: 15rem minmax(0, 1fr);
-    gap: var(--space-6);
-    align-items: start;
-    transition:
-      grid-template-columns var(--dur-3) var(--ease-out),
-      gap var(--dur-3) var(--ease-out);
-  }
-
-  /* Shutting the column hands every pixel of it to the grid. */
-  .shoplayout--shut { grid-template-columns: 0 minmax(0, 1fr); gap: 0; }
-
-  .shoplayout__aside { min-height: 0; min-width: 0; overflow: hidden; }
-
-  .shoplayout__scrim,
-  .shoplayout__sheetbar,
-  .shoplayout__sheetfoot { display: none; }
-
-  .filters__narrow { display: none; }
-}
-
-.shoplayout__bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding-bottom: var(--space-4);
-}
-
-.filters__toggle {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  border: 0;
-  background: none;
-  padding: 0;
-  color: inherit;
-  font-size: var(--text-meta);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-/* Three rules that fold to a cross when the column is open. */
-.filters__togglemark {
-  position: relative;
-  display: block;
-  width: 0.875rem;
-  height: 0.625rem;
-}
-
-.filters__togglemark::before,
-.filters__togglemark::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: var(--spacing-rule);
-  background: currentColor;
-  transition: transform var(--dur-2) var(--ease-out), top var(--dur-2) var(--ease-out);
-}
-
-.filters__togglemark::before { top: 0; }
-.filters__togglemark::after { top: calc(0.625rem - var(--spacing-rule)); }
-
-.filters__toggle[aria-expanded="true"] .filters__togglemark::before {
-  top: calc(50% - var(--spacing-rule) / 2);
-  transform: rotate(45deg);
-}
-
-.filters__toggle[aria-expanded="true"] .filters__togglemark::after {
-  top: calc(50% - var(--spacing-rule) / 2);
-  transform: rotate(-45deg);
-}
-
-/* A filter is on but the column is shut — say so, or the shopper wonders why
-   half the catalogue is missing. */
-.filters__dot {
-  width: 0.375rem;
-  height: 0.375rem;
-  border-radius: 50%;
-  background: var(--color-ink);
-}
-
-.filters { display: block; }
-
-.filters__inner {
-  display: grid;
-  gap: var(--space-5);
-  width: 15rem;
-  max-width: 100%;
-}
-
-@media (min-width: 62rem) {
-  .shoplayout__aside { position: sticky; top: 5.5rem; }
-}
-
-.filters__group { display: grid; gap: var(--space-2); }
-.filters__legend { display: block; }
-
-.filters__search { display: flex; align-items: center; gap: var(--space-2); }
-
-.filters__input {
-  flex: 1;
-  min-width: 0;
-  min-height: 2.75rem;
-  padding: 0.5rem 0;
-  border: 0;
-  border-bottom: var(--spacing-rule) solid var(--color-muted);
-  border-radius: 0;
-  background: transparent;
-  color: var(--color-ink);
-  font: inherit;
-}
-
-.filters__input:focus-visible { outline: 0; border-bottom-color: var(--color-ink); }
-.filters__go { flex: none; border: 0; background: none; padding: 0; color: inherit; cursor: pointer; }
-
-.filters__colors { display: grid; gap: var(--space-1); }
-
-.filters__color {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 2.25rem;
-  font-size: var(--text-meta);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--color-muted-text);
-  cursor: pointer;
-}
-
-.filters__color--on { color: var(--color-ink); }
-.filters__color .swatchdot { cursor: pointer; }
-.filters__color:has(:focus-visible) { outline: 2px solid var(--color-ink); outline-offset: 2px; }
-
-.filters__price { font-size: var(--text-meta); letter-spacing: 0.06em; }
-
-.filters__range {
-  width: 100%;
-  height: 2.75rem;
-  accent-color: var(--color-ink);
-  cursor: pointer;
-}
-
-.filters__hint {
-  font-size: var(--text-meta);
-  letter-spacing: 0.04em;
-  color: var(--color-muted-text);
-  text-transform: none;
-}
-
-.filters__select {
-  min-height: 2.75rem;
-  padding: 0.5rem 2rem 0.5rem 0.6rem;
-  border: var(--spacing-rule) solid var(--color-muted);
-  border-radius: 999px;
-  background: transparent;
-  color: inherit;
-  font-size: var(--text-meta);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.filters__foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: var(--spacing-rule) solid var(--color-muted);
-}
-
-.chiprow { display: flex; flex-wrap: wrap; gap: var(--space-1); }
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-  padding: 0 0.75rem;
-  border: var(--spacing-rule) solid var(--color-muted);
-  border-radius: 999px;
-  font-size: var(--text-meta);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color var(--dur-1) var(--ease-out),
-    background-color var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
-}
-
-/* Hover only where there is a pointer to hover with. On a touchscreen the
-   hover state latches after a tap, so a sold-out size that could not be
-   selected still lit up as though it had been — then Add to cart answered
-   "choose a size" and the whole thing read as a glitch. */
-@media (hover: hover) {
-  .chip:hover:not(.chip--sold) { border-color: var(--color-ink); }
-}
-.chip--on { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-white); }
-
-/* Sold out stays visible and struck through — a size run with holes in it
-   still reads as a complete run. */
-.chip--sold {
-  border-style: dashed;
-  border-color: var(--color-muted);
-  background: var(--color-paper-deep);
-  color: var(--color-muted-text);
-  text-decoration: line-through;
-  cursor: not-allowed;
-}
-
-/* Nothing about a sold-out chip should move under a finger or a cursor. */
-.chip--sold:active { border-color: var(--color-muted); }
-
-.chip:has(:focus-visible) { outline: 2px solid var(--color-ink); outline-offset: 2px; }
-
-.shoppage__empty { padding-block: var(--space-5); }
-
 /* --------------------------------------------------------------------------
    Product detail
    -------------------------------------------------------------------------- */
@@ -2353,125 +1591,6 @@
   max-width: 44ch;
   color: var(--color-muted-text);
 }
-
-.picker { display: grid; gap: var(--space-4); }
-
-.picker__price { font-size: var(--text-sub); font-weight: 500; }
-
-/* --------------------------------------------------------------------------
-   Product story
-   Directly under the price: a paragraph, a list of the things a shopper checks
-   before buying, and a short line to close. Small and dense on purpose — the
-   photograph has already made the case, and this is the reading you do after
-   you are half convinced.
-   -------------------------------------------------------------------------- */
-
-.story {
-  display: grid;
-  gap: var(--space-3);
-  padding-top: var(--space-3);
-  max-width: 52ch;
-  font-size: 0.875rem;
-  line-height: 1.65;
-  color: var(--color-muted-text);
-}
-
-.story__list { display: grid; gap: 0.4rem; }
-
-/* Hanging bullets: the rule of the list is the left edge of the text, not the
-   left edge of the marks. */
-.story__item {
-  position: relative;
-  padding-left: 1.1rem;
-}
-
-.story__item::before {
-  content: "";
-  position: absolute;
-  top: 0.62em;
-  left: 0.1rem;
-  width: 0.3rem;
-  height: var(--spacing-rule);
-  background: var(--color-muted-text);
-}
-
-.picker__spec {
-  display: grid;
-  gap: 0.35rem;
-  font-size: var(--text-meta);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--color-muted-text);
-}
-
-.picker__group { display: grid; gap: var(--space-2); }
-.picker__legend { display: block; }
-
-.swatchrow { display: flex; flex-wrap: wrap; gap: var(--space-3); }
-
-.swatch {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 2.75rem;
-  padding: 0.25rem 0.5rem 0.25rem 0.25rem;
-  border: var(--spacing-rule) solid transparent;
-  border-radius: 999px;
-  font-size: var(--text-meta);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.swatch--on { border-color: var(--color-ink); }
-
-/* Colour is never the only carrier of meaning — the name sits beside the dot.
-   The value itself comes from the shared `.dot--*` palette further up. */
-.swatch__dot {
-  width: 1.5rem;
-  height: 1.5rem;
-  border: var(--spacing-rule) solid var(--color-muted);
-  border-radius: 50%;
-  background: var(--dot, var(--color-paper-deep));
-}
-
-.swatch:has(:focus-visible) { outline: 2px solid var(--color-ink); outline-offset: 2px; }
-
-/* The stepper's own rule pads its top for the cart lines; inside a labelled
-   group here the legend has already done that. */
-.picker__qty { padding-top: 0; }
-
-.picker__stock {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding-left: var(--space-2);
-  font-size: var(--text-meta);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--color-muted-text);
-}
-
-/* Green, and said with a dot in front of it: a size you can actually buy is
-   the one piece of good news in this column. */
-.picker__stock--in {
-  color: var(--color-instock);
-  font-weight: 700;
-}
-
-.picker__stock--in::before {
-  content: "";
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: var(--color-instock-dot);
-}
-
-.picker__actions { display: grid; gap: var(--space-2); padding-top: var(--space-2); }
-
-/* Both purchase actions carry weight. They are the only two controls on the
-   page anyone came here to press. */
-.picker__actions .btn { font-weight: 700; }
 
 /* --------------------------------------------------------------------------
    Sold out
@@ -2567,67 +1686,6 @@
 
 .cartpage__head { padding-block: var(--space-2) var(--space-5); }
 .cartpage__cta { margin-top: var(--space-3); }
-
-.cartlayout { display: grid; gap: var(--space-6); }
-
-@media (min-width: 56.25rem) {
-  .cartlayout { grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: var(--space-7); }
-}
-
-.cartlines ul { border-top: var(--spacing-rule) solid var(--color-muted); }
-
-.cartline {
-  display: grid;
-  grid-template-columns: 6rem minmax(0, 1fr) auto;
-  gap: var(--space-4);
-  padding-block: var(--space-4);
-  border-bottom: var(--spacing-rule) solid var(--color-muted);
-}
-
-@media (min-width: 48rem) {
-  .cartline { grid-template-columns: 10rem minmax(0, 1fr) auto; }
-}
-
-.cartline__plate { display: block; }
-
-.cartline__title {
-  font-size: var(--text-body);
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.cartline__title a { text-decoration: none; }
-
-.cartline__body { display: grid; gap: 0.35rem; align-content: start; }
-
-.stepper { display: flex; align-items: center; gap: var(--space-2); padding-top: var(--space-2); }
-
-.stepper__button {
-  width: 2.75rem;
-  height: 2.75rem;
-  border: var(--spacing-rule) solid var(--color-muted);
-  border-radius: 999px;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  transition: border-color 200ms var(--ease-out);
-}
-
-.stepper__button:hover:not(:disabled) { border-color: var(--color-ink); }
-.stepper__button:disabled { color: var(--color-muted); cursor: not-allowed; }
-
-.stepper__value { min-width: 2rem; text-align: center; }
-
-.cartline__remove {
-  border: 0;
-  background: none;
-  padding: 0 0 0 var(--space-3);
-  color: var(--color-muted-text);
-  cursor: pointer;
-}
-
-.cartline__total { align-self: start; font-weight: 500; }
 
 .summary { align-self: start; }
 
@@ -3113,59 +2171,6 @@
 }
 
 /* --------------------------------------------------------------------------
-   FAQ
-   A single continuous list rather than the PDP's grouped `<details>` spec
-   sheet, so it gets its own class names (`.faqlist*`) instead of reusing
-   `.accordion*` — that class is still load-bearing on the product page.
-   -------------------------------------------------------------------------- */
-
-.faqlist { max-width: 42rem; margin-inline: auto; border-top: var(--spacing-rule) solid var(--color-muted); }
-
-.faqlist__item { border-bottom: var(--spacing-rule) solid var(--color-muted); }
-
-.faqlist__row {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  padding-block: var(--space-4);
-  border: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
-  font-size: 1.0625rem;
-  font-weight: 500;
-  text-align: left;
-  cursor: pointer;
-  transition: color var(--dur-1) var(--ease-out);
-}
-
-.faqlist__row:hover,
-.faqlist__row:focus-visible { color: var(--color-muted-text); }
-
-.faqlist__mark { position: relative; width: 0.75rem; height: 0.75rem; flex: none; }
-
-.faqlist__mark::before,
-.faqlist__mark::after {
-  content: "";
-  position: absolute;
-  background: currentColor;
-  transition: transform 280ms var(--ease-out);
-}
-
-.faqlist__mark::before { top: 50%; left: 0; width: 100%; height: 1px; transform: rotate(0deg); }
-.faqlist__mark::after { left: 50%; top: 0; width: 1px; height: 100%; transform: rotate(0deg); }
-
-.faqlist__mark[data-open="true"]::before,
-.faqlist__mark[data-open="true"]::after { transform: rotate(45deg); }
-
-.faqlist__panel { overflow: hidden; }
-
-.faqlist__answer { max-width: 60ch; padding-bottom: var(--space-4); color: var(--color-muted-text); }
-
-
-/* --------------------------------------------------------------------------
    Account, auth, errors
    -------------------------------------------------------------------------- */
 
@@ -3516,7 +2521,6 @@
 .lookbook__image,
 .imageband__image,
 .pdp__shot img,
-.pcard__frame img,
 .sheetrow__frame img,
 .tradecard__frame img,
 .tradestyle__shot img {
@@ -3537,7 +2541,6 @@
   .lookbook__image,
   .imageband__image,
   .pdp__shot img,
-  .pcard__frame img,
   .sheetrow__frame img,
   .tradecard__frame img,
   .tradestyle__shot img {
@@ -3626,46 +2629,6 @@
      Declared once here so the two halves stay in step at every width. */
   --trade-gap: var(--space-5);
   --trade-rule: var(--spacing-rule) solid rgba(245, 244, 240, 0.16);
-}
-
-/* The "a filter is on" dot sits on the toggle button, which is always on the
-   ink band directly (never inside the sheet's own paper surface). */
-.tradesheet .filters__dot { background: var(--color-paper); }
-
-/* The rest of the filter column sits on ink rather than paper only when it
-   is the desktop column — same technique as the trade product page's own
-   chips (.pdp--trade). The phone sheet is always its own paper surface
-   regardless of the page it opened from, so it is left alone. */
-@media (min-width: 62rem) {
-  .tradesheet .filters__input { color: var(--color-paper); }
-
-  .tradesheet .filters__input:focus-visible { border-bottom-color: var(--color-paper); }
-
-  .tradesheet .filters__color,
-  .tradesheet .filters__hint { color: rgba(245, 244, 240, 0.6); }
-
-  .tradesheet .filters__color--on { color: var(--color-paper); }
-
-  .tradesheet .filters__color:has(:focus-visible) { outline-color: var(--color-paper); }
-
-  .tradesheet .filters__range { accent-color: var(--color-paper); }
-
-  /* The native menu paints on the system ground, same caveat as the trade
-     product page's own select (.pdp--trade .picker__select). */
-  .tradesheet .filters__select option { background: var(--color-paper); color: var(--color-ink); }
-
-  .tradesheet .shoplayout__aside .chip {
-    border-color: rgba(245, 244, 240, 0.25);
-    color: var(--color-paper);
-  }
-
-  .tradesheet .shoplayout__aside .chip--on {
-    background: var(--color-paper);
-    border-color: var(--color-paper);
-    color: var(--color-ink);
-  }
-
-  .tradesheet .shoplayout__aside .chip:has(:focus-visible) { outline-color: var(--color-paper); }
 }
 
 /* --------------------------------------------------------------------------
@@ -4186,13 +3149,16 @@
 
 /* The description component is written for paper; on the ink ground it needs
    the copy colour the sheet rows use, and its bullets follow the text. */
-.tradestyle .story {
+.tradestyle .sh-story {
   margin-top: var(--space-5);
   max-width: 60ch;
   color: rgba(245, 244, 240, 0.72);
 }
 
-.tradestyle .story__item::before { background: currentColor; }
+.tradestyle .sh-story__para,
+.tradestyle .sh-story__item { color: inherit; }
+
+.tradestyle .sh-story__item::before { background: currentColor; }
 
 .tradestyle__ladder {
   margin-top: var(--space-6);
@@ -4280,31 +3246,20 @@
 }
 
 /* Smaller than the page's own buttons on purpose: this is the reminder, not
-   the offer. btn--accent keeps Buy now the one lit thing in the bar. */
-.buybar__actions .btn {
+   the offer. `sh-btn--accent` keeps Buy now the one lit thing in the bar.
+
+   The bar is ink, so Add to cart — which is a filled ink button everywhere
+   else — has to invert. It inverts by swapping the ground rather than by
+   restating each colour: `components/shop/shop.css` lists `.buybar` among the
+   roots that declare the `--sh-` palette, and these two lines are the swap. */
+.buybar__actions .sh-btn {
   min-height: 2.5rem;
-  padding: 0.5rem 1rem;
-  border-color: var(--color-white);
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  padding-inline: 1rem;
 }
 
-.buybar__actions .btn:not(.btn--accent) {
-  background: transparent;
-  color: var(--color-white);
-
-  --btn-fill: var(--color-white);
-  --btn-fill-ink: var(--color-ink);
-}
-
-/* This file is unlayered, so the rule above outranks the layered `.btn:hover`
-   colour no matter its specificity — which left the label white under the
-   white fill that rises on hover, and stuck that way after a tap on a phone.
-   The interaction states are restated here, in the same cascade. */
-.buybar__actions .btn:not(.btn--accent):hover,
-.buybar__actions .btn:not(.btn--accent):focus-visible,
-.buybar__actions .btn:not(.btn--accent):active {
-  color: var(--btn-fill-ink);
+.buybar__actions .sh-btn:not(.sh-btn--accent) {
+  --sh-ink: #ffffff;
+  --sh-white: #0a0a0a;
 }
 
 /* On a phone the name and the money take their own line above the buttons
@@ -4324,14 +3279,16 @@
   }
 
   .buybar__actions { flex: 1 1 100%; }
-  .buybar__actions .btn { flex: 1 1 0; padding-inline: 0.5rem; }
+  .buybar__actions .sh-btn { flex: 1 1 0; padding-inline: 0.5rem; }
 }
 
-/* The room the bar needs, given only to the two pages that mount one. */
+/* The room the bar needs, given only to the pages that mount one. */
+.sh-pdp,
 .pdp,
 .tradestyle-page { padding-bottom: 5.5rem; }
 
 @media (max-width: 32rem) {
+  .sh-pdp,
   .pdp,
   .tradestyle-page { padding-bottom: 7rem; }
 }
@@ -4539,12 +3496,8 @@
 
 .pdp--trade .pdp__shot { background: rgba(245, 244, 240, 0.08); }
 
-.pdp--trade .pdp__title,
-.pdp--trade .picker__price { color: var(--color-paper); }
+.pdp--trade .pdp__title { color: var(--color-paper); }
 
-.pdp--trade .picker__spec,
-.pdp--trade .picker__legend,
-.pdp--trade .swatch__name,
 .pdp--trade .crumbs__sep { color: var(--color-muted); }
 
 .pdp--trade .accordion,
@@ -4552,171 +3505,4 @@
 
 .pdp--trade .accordion__body { color: rgba(245, 244, 240, 0.72); }
 
-/* The quantity control. Retail steps through singles, so it gets a stepper;
-   trade is sold by the run, so it gets this style's own tiers and nothing in
-   between them. Same slot in the column either way. */
-.picker__select {
-  width: 100%;
-  min-height: 3rem;
-  padding: 0.5rem 0.75rem;
-  border: var(--spacing-rule) solid var(--color-muted);
-  border-radius: 999px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 0.875rem;
-}
 
-.picker__select:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
-
-/* The native menu paints on the system ground, so its rows are set as paper
-   rather than inheriting the ink column's own colour. */
-.pdp--trade .picker__select {
-  border-color: rgba(245, 244, 240, 0.35);
-  color: var(--color-paper);
-}
-
-.pdp--trade .picker__select option { background: var(--color-paper); color: var(--color-ink); }
-
-.picker__total {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding-top: var(--space-2);
-  font-size: var(--text-meta);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-/* Colour and size are chosen here as they are on the shop's own page; only
-   the ground is different, so the chip has to read on ink rather than paper. */
-.pdp--trade .chip {
-  border-color: rgba(245, 244, 240, 0.25);
-  color: var(--color-paper);
-}
-
-.pdp--trade .chip--on {
-  background: var(--color-paper);
-  border-color: var(--color-paper);
-  color: var(--color-ink);
-}
-
-.pdp--trade .chip:has(:focus-visible) { outline-color: var(--color-paper); }
-
-.pdp--trade .swatch--on { border-color: var(--color-paper); }
-
-.pdp--trade .swatch--on .swatch__name { color: var(--color-paper); }
-
-.pdp--trade .swatch__dot { border-color: rgba(245, 244, 240, 0.35); }
-
-/* --------------------------------------------------------------------------
-   The collection controls, in the storefront's voice
-
-   Appended rather than edited into the blocks above: what is restated here is
-   only what carries voice — the face, the size, the tracking, the colour and
-   the radius. Every rule about where a control sits and how it behaves is left
-   untouched further up this file, which is why the filter panel still works
-   exactly as it did.
-
-   The tokens come from components/home/hm-core.css, which the layout loads
-   through the masthead, so they resolve on every storefront page.
-
-   `.chip`, `.swatch` and `.filters__*` are not only this panel's — the same
-   class names are VariantPicker's and QuickView's size and colour pickers
-   (QuickView can render inside this same `.pg-sheet`, from a grid card), plus
-   WholesaleBuyPanel and an admin colour picker. Product and quick-view bodies
-   are out of scope for this task, so every selector below is scoped under
-   `.pg-sheet .filters` (the panel's own controls) rather than left bare.
-   `.filters__toggle` and `.filters__dot` render in `.shoplayout__bar`, above
-   the grid, not inside the form, so those two are scoped there instead.
-   -------------------------------------------------------------------------- */
-
-.pg-sheet .filters .filters__legend,
-.pg-sheet .filters .filters__price,
-.pg-sheet .filters .filters__hint,
-.pg-sheet .shoplayout__bar,
-.pg-sheet .shoplayout__sheetbar {
-  color: var(--hm-stone);
-  font-family: var(--hm-mono, ui-monospace, Menlo, monospace);
-  font-size: 0.6875rem;
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 1.4;
-  text-transform: uppercase;
-}
-
-.pg-sheet .filters .filters__input,
-.pg-sheet .filters .filters__select,
-.pg-sheet .filters .filters__color {
-  font-family: var(--hm-mono, ui-monospace, Menlo, monospace);
-  font-size: 0.6875rem;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-.pg-sheet .filters .filters__input { border-bottom-color: var(--hm-line-light); }
-.pg-sheet .filters .filters__input:focus-visible { border-bottom-color: var(--hm-ink); }
-
-/* The chips become pills, the same shape as the pill the pages call to action
-   with — a store should have one idea of what a rounded control looks like. */
-.pg-sheet .filters .chip {
-  border-radius: 999px;
-  border-color: var(--hm-line-light);
-  color: var(--hm-ink);
-  font-family: var(--hm-mono, ui-monospace, Menlo, monospace);
-  font-size: 0.6875rem;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-.pg-sheet .filters .chip--on {
-  background: var(--hm-ink);
-  border-color: var(--hm-ink);
-  color: var(--hm-white);
-}
-
-/* `.swatch` is dropped here: the panel's own colour picker is `.filters__color`
-   (a labelled row holding a `.swatchdot`), never a bare `.swatch` — that class
-   belongs only to VariantPicker/QuickView/WholesaleBuyPanel, out of scope. */
-.pg-sheet .filters .chip:has(:focus-visible),
-.pg-sheet .filters .filters__color:has(:focus-visible) {
-  outline-color: var(--hm-ink);
-}
-
-/* The toggle that collapses the filter column, and the count beside it, live
-   in the bar above the grid rather than inside the form above. */
-.pg-sheet .shoplayout__bar .filters__toggle {
-  font-family: var(--hm-mono, ui-monospace, Menlo, monospace);
-  font-size: 0.6875rem;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-.pg-sheet .shoplayout__bar .filters__dot { background: var(--hm-ink); }
-
-/* On ink — the wholesale line sheet. `.hm-dark` has already swapped what the
-   tokens mean, so these rules need no dark variants of their own; only the
-   one that paints a colour rather than inheriting it has to be told. */
-.hm-dark .pg-sheet .filters .chip--on {
-  background: var(--hm-ink);
-  color: var(--hm-chalk);
-}
-
-/* The phone sheet is its own paper surface regardless of the page it opened
-   from — `.shoplayout__aside` above sets that literally, in this same media
-   query, for exactly this reason ("the sheet is paper regardless of the page
-   it opened from"). It is the one surface under `.hm-dark` that is not
-   actually ink, so the swap above has to be undone at the sheet's own root:
-   every rule above reaches the sheet through inheritance, so undoing it once,
-   here, keeps the chip, its on-state, the colour rows and the labels correct
-   without a second, sheet-specific copy of each rule. */
-@media (max-width: 61.9375rem) {
-  .hm-dark .pg-sheet .shoplayout__aside {
-    --hm-ink: #0a0a0a;
-    --hm-chalk: #f2f2f0;
-    --hm-white: #ffffff;
-    --hm-stone: #5c5c58;
-    --hm-line-light: rgba(10, 10, 10, 0.12);
-  }
-}
