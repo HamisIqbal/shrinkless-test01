@@ -53,7 +53,18 @@ function allSlots(pages: MediaPageView[]): MediaSlotView[] {
    The editor
    -------------------------------------------------------------------------- */
 
-function Editor({ pages, onPublished }: { pages: MediaPageView[]; onPublished: () => void }) {
+function Editor({
+  pages,
+  published,
+  onEdit,
+  onPublished,
+}: {
+  pages: MediaPageView[];
+  /** True from a successful publish until the next edit. */
+  published: boolean;
+  onEdit: () => void;
+  onPublished: () => void;
+}) {
   const slots = useMemo(() => allSlots(pages), [pages]);
 
   /* What the storefront is serving right now — the last publish, or the frame
@@ -90,7 +101,6 @@ function Editor({ pages, onPublished }: { pages: MediaPageView[]; onPublished: (
   );
 
   const [open, setOpen] = useState<OpenKey>('');
-  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [pending, startTransition] = useTransition();
 
@@ -135,7 +145,7 @@ function Editor({ pages, onPublished }: { pages: MediaPageView[]; onPublished: (
    *  has touched the storefront. */
   function publish() {
     setError('');
-    setMessage('');
+    onEdit();
 
     const payload = {
       slots: dirtySlots.map((slot) => ({
@@ -183,7 +193,6 @@ function Editor({ pages, onPublished }: { pages: MediaPageView[]; onPublished: (
         return next;
       });
 
-      setMessage('Published. The storefront is serving this now.');
       onPublished();
     });
   }
@@ -199,7 +208,9 @@ function Editor({ pages, onPublished }: { pages: MediaPageView[]; onPublished: (
 
         <div className="medialist__acts">
           {error ? <p className="anotice anotice--error medialist__note">{error}</p> : null}
-          {!error && message ? <p className="anotice medialist__note">{message}</p> : null}
+          {!error && published ? (
+            <p className="anotice medialist__note">Published. The storefront is serving this now.</p>
+          ) : null}
 
           <button
             type="button"
@@ -215,7 +226,7 @@ function Editor({ pages, onPublished }: { pages: MediaPageView[]; onPublished: (
             className="abtn abtn--quiet abtn--sm"
             onClick={() => {
               setError('');
-              setMessage('');
+              onEdit();
               setDrafts(saved);
               setSettings(savedSections);
             }}
@@ -252,7 +263,7 @@ function Editor({ pages, onPublished }: { pages: MediaPageView[]; onPublished: (
                 open={open === `slot:${page.id}:${slot.slotId}`}
                 onToggle={() => toggle(`slot:${page.id}:${slot.slotId}`)}
                 onChange={(frames) => {
-                  setMessage('');
+                  onEdit();
                   setDrafts((current) => ({ ...current, [slot.slotId]: frames }));
                 }}
               />
@@ -280,7 +291,7 @@ function Editor({ pages, onPublished }: { pages: MediaPageView[]; onPublished: (
                 open={open === `section:${section.id}`}
                 onToggle={() => toggle(`section:${section.id}`)}
                 onChange={(next) => {
-                  setMessage('');
+                  onEdit();
                   setSettings((current) => ({ ...current, [section.id]: next }));
                 }}
               />
@@ -308,20 +319,29 @@ function Editor({ pages, onPublished }: { pages: MediaPageView[]; onPublished: (
  * with it.
  *
  * Nothing reaches the shop until Publish, and a publish changes what the
- * server would send — so the editor refreshes and remounts, and the drafts
- * start again from what came back.
+ * server would send — so the drafts start again from what came back. The
+ * editor is keyed on that data rather than on a counter bumped at publish
+ * time: the counter remounted it before the refreshed data had arrived, the
+ * drafts were rebuilt from the old values, and when the new ones landed the
+ * list compared the two and offered "Publish (1)" for a change already live.
+ *
+ * The confirmation lives out here for the same reason — a remount is exactly
+ * when it has to survive.
  */
 export function MediaManager({ pages }: { pages: MediaPageView[] }) {
   const router = useRouter();
-  const [version, setVersion] = useState(0);
+  const [published, setPublished] = useState(false);
+  const fingerprint = useMemo(() => JSON.stringify(pages), [pages]);
 
   return (
     <Editor
-      key={version}
+      key={fingerprint}
       pages={pages}
+      published={published}
+      onEdit={() => setPublished(false)}
       onPublished={() => {
+        setPublished(true);
         router.refresh();
-        setVersion((current) => current + 1);
       }}
     />
   );
