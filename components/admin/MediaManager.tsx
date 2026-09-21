@@ -108,6 +108,29 @@ function Editor({ pages, onPublished }: { pages: MediaPageView[]; onPublished: (
     setOpen((current) => (current === key ? '' : key));
   }
 
+  /**
+   * A refusal, named after the image it is about, with that image opened.
+   *
+   * The validator answers with a path — `slots.2.frames.0.alt` — and on its
+   * own "Alt text is required" gives no clue which of twenty photographs is
+   * holding the publish up.
+   */
+  function where(fieldErrors: Record<string, string> | undefined): string | null {
+    const [path, message] = Object.entries(fieldErrors ?? {})[0] ?? [];
+    const match = path?.match(/^slots\.(\d+)\.frames\.(\d+)\./);
+    const slot = match ? dirtySlots[Number(match[1])] : undefined;
+
+    if (!slot || !message) return null;
+
+    const page = pages.find((candidate) =>
+      candidate.slots.some((listed) => listed.slotId === slot.slotId),
+    );
+    if (page) setOpen(`slot:${page.id}:${slot.slotId}`);
+
+    const frame = slot.frames.length > 1 ? `, frame ${Number(match![2]) + 1}` : '';
+    return `${slot.label}${frame}: ${message}`;
+  }
+
   /** Everything changed anywhere in the list, in one write. Nothing before now
    *  has touched the storefront. */
   function publish() {
@@ -137,10 +160,20 @@ function Editor({ pages, onPublished }: { pages: MediaPageView[]; onPublished: (
     };
 
     startTransition(async () => {
-      const result = await publishMediaAction(payload);
+      let result: Awaited<ReturnType<typeof publishMediaAction>>;
+
+      /* A thrown action — a dropped connection, a server that fell over —
+         used to escape the transition and leave the button doing nothing
+         visible. It is a failed publish like any other, and says so. */
+      try {
+        result = await publishMediaAction(payload);
+      } catch {
+        setError('Could not reach the server to publish. Check the connection and try again.');
+        return;
+      }
 
       if (!result.ok) {
-        setError(result.error);
+        setError(where(result.fieldErrors) ?? result.error);
         return;
       }
 

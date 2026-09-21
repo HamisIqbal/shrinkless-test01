@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { withTestDatabase } from '@/tests/setup/db';
 import { MediaSlot } from '@/lib/db/models/media-slot';
 import { BRAND_IMAGES, CATEGORY_IMAGES, HERO_SLIDES } from '@/lib/brand/images';
@@ -49,6 +49,25 @@ describe('getSiteMedia with nothing saved', () => {
 });
 
 describe('saveMediaSlot', () => {
+  it('mends an address that was uploaded without the cloud name', async () => {
+    vi.stubEnv('CLOUDINARY_CLOUD_NAME', 'demo');
+    vi.stubEnv('NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME', '');
+
+    try {
+      await saveMediaSlot(
+        editorialSlotId('fabric'),
+        frame('https://res.cloudinary.com//image/upload/v1/shrinkless/site/a.jpg'),
+      );
+
+      const row = await MediaSlot.findOne({ slotId: editorialSlotId('fabric') }).lean();
+      expect(row?.frames[0]?.url).toBe(
+        'https://res.cloudinary.com/demo/image/upload/v1/shrinkless/site/a.jpg',
+      );
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
   it('overlays one editorial slot and leaves the rest alone', async () => {
     await saveMediaSlot(editorialSlotId('fabric'), frame('https://example.com/new.jpg'));
 

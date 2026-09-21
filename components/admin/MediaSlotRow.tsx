@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { createSiteUploadSignatureAction } from '@/app/actions/admin/media';
 import { ImageCropField } from '@/components/admin/ImageCropField';
 import { uploadEndpoint } from '@/lib/cloudinary/config';
-import { imageUrl, sizedImageUrl } from '@/lib/images';
+import { cloudinaryUrl } from '@/lib/cloudinary/url';
+import { sizedImageUrl } from '@/lib/images';
 import { ZOOM_MIN, hasMobileCrop, ratioValue, type ViewRatios } from '@/lib/media/crop';
 
 /**
@@ -68,10 +69,22 @@ async function upload(file: File): Promise<string> {
   body.set('signature', signed.signature);
 
   const response = await fetch(uploadEndpoint(signed.cloudName), { method: 'POST', body });
-  if (!response.ok) throw new Error('Cloudinary rejected the upload.');
 
-  const uploaded = (await response.json()) as { public_id: string };
-  return imageUrl(uploaded.public_id);
+  if (!response.ok) {
+    const detail = await response
+      .json()
+      .then((payload: { error?: { message?: string } }) => payload?.error?.message)
+      .catch(() => undefined);
+
+    throw new Error(detail ? `Cloudinary refused it: ${detail}` : 'Cloudinary rejected the upload.');
+  }
+
+  /* Cloudinary's own address for the file, not one rebuilt from the public id:
+     rebuilding it here needs the cloud name baked into the browser bundle, and
+     a deployment built without it produced `res.cloudinary.com//image/…`.
+     The signature carries the name as a fallback for a response without one. */
+  const uploaded = (await response.json()) as { public_id: string; secure_url?: string };
+  return uploaded.secure_url || cloudinaryUrl(uploaded.public_id, undefined, signed.cloudName);
 }
 
 /* --------------------------------------------------------------------------

@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { loadCloudinaryEnv, signParams, signatureBase } from '@/lib/cloudinary/signature';
-import { cloudinaryUrl } from '@/lib/cloudinary/url';
+import { cloudinaryCloudName, cloudinaryUrl, repairCloudinaryUrl } from '@/lib/cloudinary/url';
 
 describe('signatureBase', () => {
   it('sorts parameters by key and joins them as a query string', () => {
@@ -61,5 +61,33 @@ describe('cloudinaryUrl', () => {
   it('omits the transform segment when none is given', () => {
     expect(cloudinaryUrl('shrinkless/field-tee', undefined, 'demo'))
       .toBe('https://res.cloudinary.com/demo/image/upload/shrinkless/field-tee');
+  });
+});
+
+describe('cloudinaryCloudName', () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it('falls back to the server-side name when the public one was not built in', () => {
+    vi.stubEnv('NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME', '');
+    vi.stubEnv('CLOUDINARY_CLOUD_NAME', 'demo');
+
+    expect(cloudinaryCloudName()).toBe('demo');
+    expect(cloudinaryUrl('shrinkless/site/a'))
+      .toBe('https://res.cloudinary.com/demo/image/upload/shrinkless/site/a');
+  });
+});
+
+describe('repairCloudinaryUrl', () => {
+  it('puts the cloud name back into an address built without one', () => {
+    expect(repairCloudinaryUrl('https://res.cloudinary.com//image/upload/v1/shrinkless/site/a.jpg', 'demo'))
+      .toBe('https://res.cloudinary.com/demo/image/upload/v1/shrinkless/site/a.jpg');
+  });
+
+  it('leaves a good address, or one it has no name to mend, alone', () => {
+    const good = 'https://res.cloudinary.com/demo/image/upload/a.jpg';
+    const broken = 'https://res.cloudinary.com//image/upload/a.jpg';
+
+    expect(repairCloudinaryUrl(good, 'other')).toBe(good);
+    expect(repairCloudinaryUrl(broken, '')).toBe(broken);
   });
 });

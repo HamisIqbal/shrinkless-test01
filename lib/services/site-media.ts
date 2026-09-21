@@ -20,6 +20,7 @@ import {
   type SectionSetting,
 } from '@/lib/media/colours';
 import { imageUrl } from '@/lib/images';
+import { repairCloudinaryUrl } from '@/lib/cloudinary/url';
 import { AdminOperationError } from '@/lib/admin/action';
 
 /* --------------------------------------------------------------------------
@@ -424,6 +425,12 @@ type MediaFrameWrite = Omit<MediaFrameInput, 'zoom' | 'mobileFocus'> & {
   mobileFocus?: string;
 };
 
+/** A frame as it is stored. An address the old uploader built without the
+ *  cloud name is mended here, so it is never written back broken. */
+function toStored<T extends { url: string }>(frame: T): T {
+  return { ...frame, url: repairCloudinaryUrl(frame.url) };
+}
+
 /** Replaces the photograph in one single-image slot. */
 export async function saveMediaSlot(
   slotId: string,
@@ -439,7 +446,7 @@ export async function saveMediaSlot(
 
   await MediaSlot.findOneAndUpdate(
     { slotId },
-    { $set: { frames: [frame] } },
+    { $set: { frames: [toStored(frame)] } },
     { upsert: true },
   );
 }
@@ -456,7 +463,7 @@ export async function saveHeroFrames(frames: MediaFrameWrite[]): Promise<void> {
 
   await MediaSlot.findOneAndUpdate(
     { slotId: HERO_SLOT },
-    { $set: { frames } },
+    { $set: { frames: frames.map(toStored) } },
     { upsert: true },
   );
 }
