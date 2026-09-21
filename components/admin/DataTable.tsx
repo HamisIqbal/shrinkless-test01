@@ -27,7 +27,10 @@ type Props<T> = {
  * orders is for.
  *
  * The wrapper scrolls horizontally on its own so a wide table never pushes the
- * page sideways.
+ * page sideways. On a phone it does not have to: each row stands as a card,
+ * its first cell as the title and the rest as labelled lines under it, so
+ * nothing is off the edge of the screen waiting to be scrolled to. The labels
+ * are the column headers, carried on each cell.
  */
 export function DataTable<T>({
   columns,
@@ -43,7 +46,7 @@ export function DataTable<T>({
 
   return (
     <div className="tablewrap">
-      <table className="atable">
+      <table className="atable atable--cards">
         <thead>
           <tr>
             {columns.map((column) => (
@@ -63,6 +66,7 @@ export function DataTable<T>({
               {columns.map((column) => (
                 <td
                   key={column.key}
+                  data-label={column.header}
                   className={column.numeric ? 'atable__num' : column.actions ? 'atable__actions' : undefined}
                 >
                   {column.cell(row)}

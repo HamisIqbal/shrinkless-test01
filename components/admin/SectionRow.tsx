@@ -60,7 +60,6 @@ export function SectionRow({
   const height = setting.height ?? AUTO;
   const background = setting.background;
   const edited = !sameSetting(setting, savedSetting);
-  const set = Boolean(savedSetting.height || savedSetting.background);
 
   /* The colour of its own this section is set to, if it is set to one at all —
      a named ground is not a custom colour, and neither is nothing. */
@@ -117,12 +116,6 @@ export function SectionRow({
         </button>
 
         <div className="mediarow__marks">
-          {edited ? <span className="mediarow__dirty">Not published</span> : null}
-
-          <span className={`mediaslot__state${set ? ' mediaslot__state--on' : ''}`}>
-            {set ? 'Changed' : 'Original'}
-          </span>
-
           <button type="button" className="abtn abtn--quiet abtn--sm" onClick={onToggle}>
             {open ? 'Done' : 'Edit'}
           </button>

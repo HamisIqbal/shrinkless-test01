@@ -211,8 +211,6 @@ export type SlotRowProps = {
   ratios: ViewRatios;
   frames: Frame[];
   savedFrames: Frame[];
-  /** False while the slot is still showing what the site shipped with. */
-  overridden: boolean;
   open: boolean;
   onToggle: () => void;
   onChange: (frames: Frame[]) => void;
@@ -236,7 +234,6 @@ export function MediaSlotRow({
   ratios,
   frames,
   savedFrames,
-  overridden,
   open,
   onToggle,
   onChange,
@@ -292,12 +289,6 @@ export function MediaSlotRow({
         </button>
 
         <div className="mediarow__marks">
-          {edited ? <span className="mediarow__dirty">Not published</span> : null}
-
-          <span className={`mediaslot__state${overridden ? ' mediaslot__state--on' : ''}`}>
-            {overridden ? 'Changed' : 'Original'}
-          </span>
-
           <button type="button" className="abtn abtn--quiet abtn--sm" onClick={onToggle}>
             {open ? 'Done' : 'Edit'}
           </button>
@@ -346,7 +337,7 @@ export function MediaSlotRow({
             </button>
 
             <p className="mediarow__note">
-              Nothing here reaches the shop until Publish.
+              Nothing here reaches the shop until you save.
             </p>
           </div>
         </div>

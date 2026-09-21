@@ -88,8 +88,13 @@
   --ad-fast: 140ms;
   --ad-slow: 220ms;
 
+  /* The desk the sheet sits on. Only at a desk: on a phone the margin and the
+     rounded sheet were a frame around a screen with no room to spare, so
+     there the panel runs edge to edge. */
+  --ad-desk: 0px;
+
   min-height: 100dvh;
-  padding: clamp(0.5rem, 1.4vw, 1.25rem);
+  padding: var(--ad-desk);
   background: var(--ad-paper);
   color: var(--ad-ink);
   font-size: var(--ad-t-body);
@@ -107,25 +112,35 @@ body:has(.admin) {
 
 /* --------------------------------------------------------------------------
    Shell
+
+   A phone gets the whole screen: no desk around the sheet, no rounded corners,
+   no shadow — a slim bar across the top and the page under it. From 64rem the
+   sheet floats on the desk with the spine down its left edge.
    -------------------------------------------------------------------------- */
+
+@media (min-width: 64rem) {
+  .admin { --ad-desk: clamp(0.5rem, 1.4vw, 1.25rem); }
+}
 
 .admin__shell {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  min-height: calc(100dvh - 2 * clamp(0.5rem, 1.4vw, 1.25rem));
-  border-radius: var(--ad-r-shell);
+  min-height: calc(100dvh - 2 * var(--ad-desk));
   background: var(--ad-white);
-  box-shadow: var(--ad-lift);
-  overflow: clip;
 }
 
 @media (min-width: 64rem) {
-  .admin__shell { grid-template-columns: 15.5rem minmax(0, 1fr); }
+  .admin__shell {
+    grid-template-columns: 15.5rem minmax(0, 1fr);
+    border-radius: var(--ad-r-shell);
+    box-shadow: var(--ad-lift);
+    overflow: clip;
+  }
 }
 
 .admin__main {
   min-width: 0;
-  padding: var(--ad-s-4) var(--ad-s-4) var(--ad-s-7);
+  padding: var(--ad-s-4) var(--ad-s-3) var(--ad-s-7);
 }
 
 @media (min-width: 48rem) {
@@ -136,37 +151,40 @@ body:has(.admin) {
   .admin__main { padding: var(--ad-s-6) var(--ad-s-7) var(--ad-s-7); }
 }
 
+/* Room under the last thing on the page for the save bar to sit over. */
+.admin:has(.savebar) .admin__main { padding-bottom: 9rem; }
+
 /* --------------------------------------------------------------------------
    The spine
 
-   Desktop: a dark column the full height of the sheet. Below 64rem it becomes
-   a dark header with the navigation scrolling horizontally underneath — a
-   recomposition, not a squeeze. No JavaScript, so it cannot break.
+   Desktop: a dark column the full height of the sheet. Below 64rem: a slim
+   dark bar pinned to the top — brand, the section you are in, Menu — and the
+   full list opening over the screen beneath it.
    -------------------------------------------------------------------------- */
 
 .admin .rail {
+  position: sticky;
+  top: 0;
+  z-index: 40;
   display: flex;
   flex-direction: column;
-  gap: var(--ad-s-4);
-  padding: var(--ad-s-4);
   background: var(--ad-ink);
   color: var(--ad-onink);
 }
 
-@media (min-width: 64rem) {
-  .admin .rail {
-    position: sticky;
-    top: 0;
-    height: calc(100dvh - 2 * clamp(0.5rem, 1.4vw, 1.25rem));
-    padding: var(--ad-s-5) var(--ad-s-3) var(--ad-s-4);
-  }
+.admin .rail__top {
+  display: flex;
+  align-items: center;
+  gap: var(--ad-s-3);
+  min-height: 3.5rem;
+  padding: env(safe-area-inset-top) var(--ad-s-3) 0;
 }
 
 .admin .rail__brand {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
-  padding-inline: var(--ad-s-2);
+  flex: none;
   color: var(--ad-white);
   text-decoration: none;
   font-size: var(--ad-t-lead);
@@ -182,54 +200,84 @@ body:has(.admin) {
   background: var(--ad-acid);
 }
 
-.admin .rail__scroll {
+/* Where you are, beside the brand — the pills that used to say it are behind
+   the Menu button now. */
+.admin .rail__here {
   flex: 1;
-  min-height: 0;
+  min-width: 0;
+  padding-left: var(--ad-s-3);
+  border-left: 1px solid var(--ad-onink-line);
+  color: var(--ad-onink-2);
+  font-size: var(--ad-t-small);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin .rail__menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: none;
+  min-height: 2.75rem;
+  margin-left: auto;
+  padding: 0 0.9rem;
+  border: 0;
+  border-radius: var(--ad-r-pill);
+  background: color-mix(in oklab, var(--ad-paper) 10%, transparent);
+  color: var(--ad-white);
+  font: inherit;
+  font-size: var(--ad-t-small);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.admin .rail__menu svg { width: 1.125rem; height: 1.125rem; }
+
+.admin .rail__menu:focus-visible {
+  outline: 2px solid var(--ad-acid);
+  outline-offset: 2px;
+}
+
+/* Closed, the list is not there at all on a phone. Open, it covers the screen
+   under the bar, and scrolls on its own if it is taller than the screen. */
+.admin .rail__drawer { display: none; }
+
+.admin .rail--open .rail__drawer {
+  position: fixed;
+  inset: calc(3.5rem + env(safe-area-inset-top)) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ad-s-4);
+  padding: var(--ad-s-3) var(--ad-s-3) calc(var(--ad-s-4) + env(safe-area-inset-bottom));
+  background: var(--ad-ink);
   overflow-y: auto;
   overscroll-behavior: contain;
 }
 
 .admin .rail__nav ul {
-  display: flex;
-  gap: var(--ad-s-1);
+  display: grid;
+  gap: 0.25rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-/* Below the desktop breakpoint the nav is one scrolling row of pills. */
-.admin .rail__nav ul {
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 2px;
-}
-
-.admin .rail__nav ul::-webkit-scrollbar { display: none; }
-
-@media (min-width: 64rem) {
-  .admin .rail__nav ul {
-    flex-direction: column;
-    overflow-x: visible;
-  }
-}
-
+/* Thumb-sized on a phone — a list of thirteen is tapped, not aimed at. */
 .admin .rail__link {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.5rem var(--ad-s-2);
+  gap: 0.75rem;
+  min-height: 3rem;
+  padding: 0 var(--ad-s-3);
   border-radius: var(--ad-r-field);
   color: var(--ad-onink-2);
   text-decoration: none;
-  font-size: var(--ad-t-small);
+  font-size: var(--ad-t-body);
   font-weight: 500;
   white-space: nowrap;
   transition: color var(--ad-fast) var(--ad-ease),
     background-color var(--ad-fast) var(--ad-ease);
-}
-
-@media (min-width: 64rem) {
-  .admin .rail__link { padding: 0.5rem 0.625rem; }
 }
 
 .admin .rail__link:hover {
@@ -246,44 +294,23 @@ body:has(.admin) {
 
 .admin .rail__icon {
   flex: none;
-  width: 1.0625rem;
-  height: 1.0625rem;
+  width: 1.125rem;
+  height: 1.125rem;
   stroke-width: 1.5;
 }
 
-/* The identity and the two ways out.
-
-   On a phone this sits between the brand and the nav row — `order` lifts it,
-   so the exits are the first thing under the wordmark rather than something
-   found by scrolling a nav that never ends. It was previously display:none
-   below 64rem, which left a phone with no visible way out of the panel at all.
-   On the desktop the flex order puts it back at the foot of the spine. */
+/* The identity and the two ways out, at the foot of the list. */
 .admin .rail__foot {
-  display: flex;
-  align-items: center;
+  display: grid;
   gap: var(--ad-s-2);
-  flex-wrap: wrap;
-  /* Brand keeps the default 0, so 1 and 2 place these two after it. */
-  order: 1;
-}
-
-.admin .rail__scroll { order: 2; }
-
-@media (min-width: 64rem) {
-  .admin .rail__foot {
-    display: block;
-    order: 2;
-    padding-top: var(--ad-s-3);
-    border-top: 1px solid var(--ad-onink-line);
-  }
-
-  .admin .rail__scroll { order: 1; }
+  padding-top: var(--ad-s-3);
+  border-top: 1px solid var(--ad-onink-line);
 }
 
 .admin .rail__who { min-width: 0; }
 
 .admin .rail__actor {
-  display: none;
+  display: block;
   padding-inline: 0.625rem;
   font-size: var(--ad-t-micro);
   letter-spacing: var(--ad-track-label);
@@ -291,54 +318,26 @@ body:has(.admin) {
   color: var(--ad-onink-2);
 }
 
-@media (min-width: 64rem) {
-  .admin .rail__actor { display: block; }
-}
-
-/* On a phone the address is a quiet single line that gives up its room to the
-   buttons; on the desktop it wraps rather than truncating, because there the
-   column is the only place it appears. */
 .admin .rail__email {
   display: block;
-  max-width: 11rem;
-  padding-inline: 0.625rem;
+  padding: 0.125rem 0.625rem 0;
   font-size: var(--ad-t-small);
-  color: var(--ad-onink-2);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-@media (min-width: 64rem) {
-  .admin .rail__email {
-    max-width: none;
-    padding: 0.125rem 0.625rem var(--ad-s-2);
-    color: var(--ad-onink);
-    white-space: normal;
-    overflow: visible;
-    overflow-wrap: anywhere;
-  }
+  color: var(--ad-onink);
+  overflow-wrap: anywhere;
 }
 
 .admin .rail__actions {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-left: auto;
-}
-
-@media (min-width: 64rem) {
-  .admin .rail__actions {
-    flex-direction: column;
-    align-items: stretch;
-    margin-left: 0;
-  }
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ad-s-2);
 }
 
 .admin .rail__action {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
+  min-height: 2.75rem;
   padding: 0.4rem 0.625rem;
   border: 0;
   border-radius: var(--ad-r-pill);
@@ -354,11 +353,6 @@ body:has(.admin) {
     background-color var(--ad-fast) var(--ad-ease);
 }
 
-/* The spine's own ground is enough separation once there is room for it. */
-@media (min-width: 64rem) {
-  .admin .rail__action { background: transparent; }
-}
-
 .admin .rail__action:hover:not(:disabled) {
   color: var(--ad-white);
   background: color-mix(in oklab, var(--ad-paper) 14%, transparent);
@@ -366,6 +360,69 @@ body:has(.admin) {
 
 .admin .rail__action:disabled { opacity: 0.6; cursor: progress; }
 .admin .rail__action svg { flex: none; width: 0.875rem; height: 0.875rem; }
+
+/* The desk: the column it always was. */
+@media (min-width: 64rem) {
+  .admin .rail {
+    height: calc(100dvh - 2 * var(--ad-desk));
+    gap: var(--ad-s-4);
+    padding: var(--ad-s-5) var(--ad-s-3) var(--ad-s-4);
+  }
+
+  .admin .rail__top {
+    min-height: 0;
+    padding: 0 var(--ad-s-2);
+  }
+
+  .admin .rail__here,
+  .admin .rail__menu { display: none; }
+
+  .admin .rail__drawer,
+  .admin .rail--open .rail__drawer {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    gap: var(--ad-s-4);
+    padding: 0;
+    background: none;
+    overflow: visible;
+  }
+
+  .admin .rail__scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .admin .rail__link {
+    gap: 0.625rem;
+    min-height: 0;
+    padding: 0.5rem 0.625rem;
+    font-size: var(--ad-t-small);
+  }
+
+  .admin .rail__icon { width: 1.0625rem; height: 1.0625rem; }
+
+  .admin .rail__foot { display: block; }
+
+  .admin .rail__email { padding-bottom: var(--ad-s-2); }
+
+  .admin .rail__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+  }
+
+  .admin .rail__action {
+    justify-content: flex-start;
+    min-height: 0;
+    background: transparent;
+  }
+}
 
 /* --------------------------------------------------------------------------
    Page furniture
@@ -1815,25 +1872,6 @@ body:has(.admin) {
   color: var(--ad-ink-3);
 }
 
-/* Whether this slot is still showing what the site shipped with. Quiet by
-   default — "Original" is the resting state and should not shout. */
-.admin .mediaslot__state {
-  flex: none;
-  padding: 0.2rem 0.5rem;
-  border-radius: var(--ad-r-pill);
-  background: var(--ad-paper);
-  color: var(--ad-ink-3);
-  font-size: var(--ad-t-micro);
-  letter-spacing: var(--ad-track-label);
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.admin .mediaslot__state--on {
-  background: var(--ad-acid);
-  color: var(--ad-ink);
-}
-
 .admin .mediaslot__body {
   display: grid;
   gap: var(--ad-s-3);
@@ -2122,33 +2160,6 @@ body:has(.admin) {
 
 .admin .medialist { display: grid; gap: var(--ad-s-4); }
 
-/* The bar stays with the list, because the count of unpublished changes is
-   what tells an admin whether the work is done, and it is no use at the top of
-   a page they have scrolled off. */
-.admin .medialist__bar {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ad-s-3);
-  flex-wrap: wrap;
-  padding-block: var(--ad-s-2);
-  background: var(--ad-white);
-  border-bottom: 1px solid var(--ad-line);
-}
-
-.admin .medialist__count {
-  margin: 0;
-  font-size: var(--ad-t-small);
-  color: var(--ad-ink-2);
-}
-
-.admin .medialist__acts { display: flex; gap: var(--ad-s-2); align-items: center; }
-
-.admin .medialist__note { flex: 1 1 100%; margin: 0; }
-
 .admin .mediagroup { display: grid; gap: var(--ad-s-3); }
 
 .admin .mediagroup__head { display: grid; gap: 0.2rem; }
@@ -2264,23 +2275,6 @@ body:has(.admin) {
   align-items: center;
   gap: var(--ad-s-2);
   flex: none;
-}
-
-/* Louder than the Changed pill on purpose: Changed is a fact about the site,
-   and this is work that will be lost if the tab is closed. */
-.admin .mediarow__dirty {
-  padding: 0.2rem 0.5rem;
-  border-radius: var(--ad-r-pill);
-  background: var(--ad-acid);
-  color: var(--ad-ink);
-  font-size: var(--ad-t-micro);
-  letter-spacing: var(--ad-track-label);
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-@media (max-width: 48rem) {
-  .admin .mediarow__dirty { display: none; }
 }
 
 .admin .mediarow__panel {
@@ -2461,9 +2455,7 @@ body:has(.admin) {
   color: var(--ad-onink);
 }
 
-.admin .cedit__acts { display: flex; gap: var(--ad-s-2); align-items: center; }
 
-.admin .cedit__note { flex: 1 1 100%; margin: 0; }
 
 .admin .csection { display: grid; gap: var(--ad-s-3); }
 
@@ -2497,19 +2489,6 @@ body:has(.admin) {
 
 .admin .cfield__label { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
 
-.admin .cfield__state {
-  padding: 0.1rem 0.45rem;
-  border-radius: var(--ad-r-pill);
-  background: color-mix(in oklab, var(--ad-ink) 8%, transparent);
-  font-size: 0.6rem;
-  letter-spacing: var(--ad-track-label);
-  color: var(--ad-ink-2);
-}
-
-/* The acid marks exactly one thing here: a line that has been typed into and
-   not yet saved. */
-.admin .cfield__state--on { background: var(--ad-acid); color: var(--ad-ink); }
-
 .admin .cfield__meta {
   display: flex;
   align-items: center;
@@ -2532,3 +2511,201 @@ body:has(.admin) {
 .admin .cfield__restore:hover { color: var(--ad-ink); }
 
 .admin .cfield__restore:disabled { cursor: default; opacity: 0.6; }
+
+/* --------------------------------------------------------------------------
+   The save bar
+
+   Appears along the bottom of the screen the moment something differs from
+   what the storefront is serving, and asks one question: keep it, or put it
+   back. Dark, because it is a pause in the work rather than a part of the
+   page; the acid is on Save, because Save is the thing that needs a human.
+   -------------------------------------------------------------------------- */
+
+.admin .savebar {
+  position: fixed;
+  z-index: 30;
+  left: 50%;
+  bottom: calc(var(--ad-s-3) + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--ad-s-2) var(--ad-s-3);
+  width: min(42rem, calc(100vw - 2 * var(--ad-s-2)));
+  padding: 0.625rem 0.625rem 0.625rem var(--ad-s-4);
+  border-radius: var(--ad-r-card);
+  background: var(--ad-ink);
+  color: var(--ad-white);
+  box-shadow: 0 18px 40px -18px rgba(23, 25, 25, 0.55);
+  transform: translateX(-50%);
+  animation: savebar-in var(--ad-slow) var(--ad-ease);
+}
+
+/* Centred over the page rather than over the whole window once the spine is
+   taking the left of it. */
+@media (min-width: 64rem) {
+  .admin .savebar { left: calc(50% + 7.75rem); }
+}
+
+@keyframes savebar-in {
+  from { opacity: 0; transform: translate(-50%, 0.75rem); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin .savebar { animation: none; }
+}
+
+.admin .savebar__text {
+  flex: 1 1 14rem;
+  margin: 0;
+  font-size: var(--ad-t-small);
+  line-height: 1.4;
+}
+
+.admin .savebar--error .savebar__text { color: var(--ad-acid); }
+
+.admin .savebar__acts {
+  display: flex;
+  gap: var(--ad-s-2);
+  flex: none;
+  margin-left: auto;
+}
+
+.admin .savebar .abtn { min-height: 2.5rem; padding-inline: 1.1rem; font-size: var(--ad-t-small); }
+
+.admin .savebar__cancel {
+  background: transparent;
+  border-color: var(--ad-onink-line);
+  color: var(--ad-white);
+}
+
+.admin .savebar__cancel:hover {
+  background: color-mix(in oklab, var(--ad-paper) 10%, transparent);
+  border-color: var(--ad-onink-2);
+}
+
+.admin .savebar__save {
+  background: var(--ad-acid);
+  border-color: var(--ad-acid);
+  color: var(--ad-ink);
+  font-weight: 600;
+}
+
+.admin .savebar__save:hover {
+  background: color-mix(in oklab, var(--ad-acid) 86%, var(--ad-white));
+  border-color: color-mix(in oklab, var(--ad-acid) 86%, var(--ad-white));
+}
+
+/* On a phone the two buttons share the width under the question, so each is a
+   full thumb's width rather than a pill in a corner. */
+@media (max-width: 29.999rem) {
+  .admin .savebar { padding: var(--ad-s-3); }
+
+  .admin .savebar__acts { width: 100%; margin-left: 0; }
+
+  .admin .savebar__acts .abtn { flex: 1; min-height: 2.75rem; }
+}
+
+/* --------------------------------------------------------------------------
+   Phones
+
+   Structure only: the same panels, fields and buttons, arranged so nothing
+   sits off the right edge of a 360px screen.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 63.999rem) {
+  /* The spine is a bar pinned across the top here, so anything else that
+     sticks to the top sticks under it rather than behind it. */
+  .admin .cedit__bar { top: 3.5rem; }
+}
+
+@media (max-width: 47.999rem) {
+  .admin .apage h1,
+  .admin .apage__title { font-size: var(--ad-t-h2); }
+
+  .admin .apage__head {
+    padding-bottom: var(--ad-s-3);
+    margin-bottom: var(--ad-s-4);
+  }
+
+  /* The page's own action — New product, and the like — as wide as the page,
+     so it is found by the thumb first. */
+  .admin .apage__actions { width: 100%; }
+  .admin .apage__actions > .abtn { flex: 1; min-height: 2.75rem; }
+
+  .admin .panel { padding: var(--ad-s-3); }
+
+  /* Fields a finger can land in, and at 16px so iOS does not zoom the page
+     every time one is focused. */
+  .admin input:not([type='checkbox'], [type='radio'], [type='range'], [type='color']),
+  .admin select,
+  .admin textarea {
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
+
+  /* A table row as a card: the first cell is its title, every other cell a
+     labelled line beneath it. The labels are the column headers, carried on
+     each cell by DataTable. */
+  .admin .atable--cards { min-width: 0; }
+
+  .admin .atable--cards thead { display: none; }
+
+  .admin .atable--cards,
+  .admin .atable--cards tbody,
+  .admin .atable--cards tr { display: block; }
+
+  .admin .atable--cards tbody tr {
+    padding-block: var(--ad-s-3);
+    border-bottom: 1px solid var(--ad-line);
+  }
+
+  .admin .atable--cards tbody tr:last-child { border-bottom: 0; }
+
+  .admin .atable--cards tbody td,
+  .admin .atable--cards tbody td:first-child,
+  .admin .atable--cards tbody td:last-child {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ad-s-3);
+    padding: 0.3rem 0;
+    border: 0;
+    text-align: right;
+  }
+
+  .admin .atable--cards tbody td::before {
+    content: attr(data-label);
+    flex: none;
+    font-size: var(--ad-t-micro);
+    font-weight: 600;
+    letter-spacing: var(--ad-track-label);
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--ad-ink-3);
+  }
+
+  .admin .atable--cards tbody td:first-child {
+    display: block;
+    padding-bottom: var(--ad-s-2);
+    text-align: left;
+  }
+
+  .admin .atable--cards tbody td:first-child::before,
+  .admin .atable--cards tbody td.atable__actions::before,
+  .admin .atable--cards tbody td[data-label='']::before { content: none; }
+
+  .admin .atable--cards tbody td.atable__actions {
+    justify-content: flex-end;
+    padding-top: var(--ad-s-2);
+  }
+
+  /* A row in the Media list: title and Edit on one line, the thumbnail
+     keeping its shape rather than squeezing the words into a column. */
+  .admin .mediarow__head { gap: var(--ad-s-2); }
+  .admin .mediarow__toggle { gap: var(--ad-s-2); }
+  .admin .mediarow__thumb { height: 3rem; max-width: 4.5rem; }
+  .admin .mediarow__thumbs > * + * { margin-left: -1.75rem; }
+  .admin .mediarow__marks .abtn { min-height: 2.5rem; }
+}

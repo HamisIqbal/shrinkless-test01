@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { publishMediaAction } from '@/app/actions/admin/media';
 import { MediaSlotRow, sameFrames, type Frame } from '@/components/admin/MediaSlotRow';
 import { AUTO, SectionRow, sameSetting } from '@/components/admin/SectionRow';
+import { UnsavedBar } from '@/components/admin/UnsavedBar';
 import type { SectionSetting } from '@/lib/media/colours';
 import { ZOOM_MIN } from '@/lib/media/crop';
 import type { MediaPageView, MediaSlotView } from '@/lib/services/site-media';
@@ -55,14 +56,12 @@ function allSlots(pages: MediaPageView[]): MediaSlotView[] {
 
 function Editor({
   pages,
-  published,
-  onEdit,
+  savedAt,
   onPublished,
 }: {
   pages: MediaPageView[];
-  /** True from a successful publish until the next edit. */
-  published: boolean;
-  onEdit: () => void;
+  /** When the last save landed, so the bar can confirm it across a remount. */
+  savedAt: number;
   onPublished: () => void;
 }) {
   const slots = useMemo(() => allSlots(pages), [pages]);
@@ -96,9 +95,6 @@ function Editor({
 
   const [drafts, setDrafts] = useState<Record<string, Frame[]>>(saved);
   const [settings, setSettings] = useState<Record<string, SectionSetting>>(savedSections);
-  const [overridden, setOverridden] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(slots.map((slot) => [slot.slotId, slot.overridden])),
-  );
 
   const [open, setOpen] = useState<OpenKey>('');
   const [error, setError] = useState('');
@@ -145,7 +141,6 @@ function Editor({
    *  has touched the storefront. */
   function publish() {
     setError('');
-    onEdit();
 
     const payload = {
       slots: dirtySlots.map((slot) => ({
@@ -178,7 +173,7 @@ function Editor({
       try {
         result = await publishMediaAction(payload);
       } catch {
-        setError('Could not reach the server to publish. Check the connection and try again.');
+        setError('Could not reach the server to save. Check the connection and try again.');
         return;
       }
 
@@ -187,56 +182,12 @@ function Editor({
         return;
       }
 
-      setOverridden((current) => {
-        const next = { ...current };
-        for (const slot of payload.slots) next[slot.slotId] = true;
-        return next;
-      });
-
       onPublished();
     });
   }
 
   return (
     <div className="medialist">
-      <div className="medialist__bar">
-        <p className="medialist__count">
-          {dirty
-            ? `${dirty} unpublished change${dirty === 1 ? '' : 's'}`
-            : 'Everything here is live.'}
-        </p>
-
-        <div className="medialist__acts">
-          {error ? <p className="anotice anotice--error medialist__note">{error}</p> : null}
-          {!error && published ? (
-            <p className="anotice medialist__note">Published. The storefront is serving this now.</p>
-          ) : null}
-
-          <button
-            type="button"
-            className="abtn abtn--sm"
-            onClick={publish}
-            disabled={pending || !dirty}
-          >
-            {pending ? 'Publishing…' : `Publish${dirty ? ` (${dirty})` : ''}`}
-          </button>
-
-          <button
-            type="button"
-            className="abtn abtn--quiet abtn--sm"
-            onClick={() => {
-              setError('');
-              onEdit();
-              setDrafts(saved);
-              setSettings(savedSections);
-            }}
-            disabled={pending || !dirty}
-          >
-            Discard
-          </button>
-        </div>
-      </div>
-
       {pages.map((page) => (
         <section key={page.id} className="panel mediagroup">
           <header className="mediagroup__head">
@@ -259,11 +210,10 @@ function Editor({
                 ratios={slot.ratios}
                 frames={drafts[slot.slotId] ?? []}
                 savedFrames={saved[slot.slotId] ?? []}
-                overridden={overridden[slot.slotId] ?? false}
                 open={open === `slot:${page.id}:${slot.slotId}`}
                 onToggle={() => toggle(`slot:${page.id}:${slot.slotId}`)}
                 onChange={(frames) => {
-                  onEdit();
+                  setError('');
                   setDrafts((current) => ({ ...current, [slot.slotId]: frames }));
                 }}
               />
@@ -291,7 +241,7 @@ function Editor({
                 open={open === `section:${section.id}`}
                 onToggle={() => toggle(`section:${section.id}`)}
                 onChange={(next) => {
-                  onEdit();
+                  setError('');
                   setSettings((current) => ({ ...current, [section.id]: next }));
                 }}
               />
@@ -299,6 +249,19 @@ function Editor({
           </ul>
         </section>
       ) : null}
+
+      <UnsavedBar
+        count={dirty}
+        pending={pending}
+        error={error}
+        savedAt={savedAt}
+        onSave={publish}
+        onCancel={() => {
+          setError('');
+          setDrafts(saved);
+          setSettings(savedSections);
+        }}
+      />
     </div>
   );
 }
@@ -318,7 +281,8 @@ function Editor({
  * editing it from either place moves both, which is what the storefront does
  * with it.
  *
- * Nothing reaches the shop until Publish, and a publish changes what the
+ * Nothing reaches the shop until Save — the bar along the bottom of the
+ * screen asks as soon as anything differs — and a save changes what the
  * server would send — so the drafts start again from what came back. The
  * editor is keyed on that data rather than on a counter bumped at publish
  * time: the counter remounted it before the refreshed data had arrived, the
@@ -330,17 +294,16 @@ function Editor({
  */
 export function MediaManager({ pages }: { pages: MediaPageView[] }) {
   const router = useRouter();
-  const [published, setPublished] = useState(false);
+  const [savedAt, setSavedAt] = useState(0);
   const fingerprint = useMemo(() => JSON.stringify(pages), [pages]);
 
   return (
     <Editor
       key={fingerprint}
       pages={pages}
-      published={published}
-      onEdit={() => setPublished(false)}
+      savedAt={savedAt}
       onPublished={() => {
-        setPublished(true);
+        setSavedAt(Date.now());
         router.refresh();
       }}
     />
