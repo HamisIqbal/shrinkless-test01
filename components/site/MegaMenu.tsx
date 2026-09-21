@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { SlotMedia } from '@/components/site/SlotMedia';
 import Link from 'next/link';
 import type { ShopMenu } from '@/lib/shop/navigation';
 
@@ -61,7 +61,7 @@ export function MegaMenu({ menu, open, id, onNavigate }: Props) {
               onClick={onNavigate}
             >
               <div className="frame frame--45 mega__frame">
-                <Image
+                <SlotMedia
                   src={feature.image.url}
                   alt={feature.image.alt}
                   fill

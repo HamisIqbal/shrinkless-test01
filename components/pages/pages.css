@@ -37,8 +37,7 @@
    to 8% — or a strip of ground shows mid-scroll. */
 .pg-open__stage { position: absolute; inset: -8% 0; z-index: 0; }
 
-.pg-open__image,
-.pg-open__video {
+.pg-open__image {
   width: 100%;
   height: 100%;
   object-fit: cover;

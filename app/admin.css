@@ -2017,6 +2017,7 @@ body:has(.admin) {
    that is a transform, but not a drag. Filling the box by inset removes the
    question. */
 .admin .cropstage img,
+.admin .cropstage video,
 .admin .cropframe img {
   position: absolute;
   inset: 0;
@@ -2231,7 +2232,8 @@ body:has(.admin) {
   background: var(--ad-paper);
 }
 
-.admin .mediarow__thumb img {
+.admin .mediarow__thumb img,
+.admin .mediarow__thumb video {
   display: block;
   width: 100%;
   height: 100%;

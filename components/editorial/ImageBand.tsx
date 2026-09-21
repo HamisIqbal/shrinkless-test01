@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { SlotMedia } from '@/components/site/SlotMedia';
 import type { BrandImage } from '@/lib/brand/images';
 import { cropStyle } from '@/lib/media/crop';
 
@@ -23,7 +23,7 @@ type Props = {
 export function ImageBand({ image, eyebrow, headline, body, glyph, compact }: Props) {
   return (
     <section className={`imageband${compact ? ' imageband--compact' : ''}`}>
-      <Image
+      <SlotMedia
         src={image.url}
         alt={image.alt}
         fill

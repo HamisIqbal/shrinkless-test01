@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { SlotMedia } from '@/components/site/SlotMedia';
 import { cropStyle } from '@/lib/media/crop';
 import type { BrandImage } from '@/lib/brand/images';
 import { homeFonts } from '@/components/home/fonts';
@@ -37,7 +37,7 @@ export function CatalogueHead({ title, eyebrow, lede, count, image }: Props) {
       {image ? (
         <>
           <div className="pg-head__media" data-hm-parallax="5">
-            <Image
+            <SlotMedia
               src={image.url}
               alt=""
               fill

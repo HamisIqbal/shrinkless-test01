@@ -163,6 +163,20 @@ export const BRAND_IMAGES = {
 
 export type BrandImageSlot = keyof typeof BRAND_IMAGES;
 
+/**
+ * The workshop film Our Story has always opened on.
+ *
+ * A film in a manifest of photographs because a Media slot takes either — the
+ * storefront tells them apart by the address (`lib/media/video.ts`), so this
+ * is a `BrandImage` in every way that matters to the slot that holds it. The
+ * alt is what a screen reader is told the film shows.
+ */
+export const STORY_FILM: BrandImage = {
+  url: 'https://res.cloudinary.com/dcsewsmhd/video/upload/v1788450220/There_s_a_lot_of_work_that_goes_into_making_our_t-shirts_special._Cutting_sewing_dyeing_washi_u85ovb.mp4',
+  alt: 'Cutting, sewing, dyeing and washing a Shrinkless tee',
+  aspect: '3:2',
+};
+
 /* --------------------------------------------------------------------------
    Product photography
    Keyed by product slug, in gallery order — the first frame is the one the

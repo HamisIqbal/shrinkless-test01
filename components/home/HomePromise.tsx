@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import Image from 'next/image';
+import { SlotMedia } from '@/components/site/SlotMedia';
 import { cropStyle } from '@/lib/media/crop';
 import type { BrandImage } from '@/lib/brand/images';
 import { homeFonts } from '@/components/home/fonts';
@@ -76,7 +76,7 @@ export function HomePromise({ image, eyebrow, headline, body }: Props) {
   return (
     <section ref={root} className={`imageband hm-promise ${homeFonts}`} aria-labelledby="promise-heading">
       <div className="hm-promise__media">
-        <Image
+        <SlotMedia
           src={image.url}
           alt={image.alt}
           fill

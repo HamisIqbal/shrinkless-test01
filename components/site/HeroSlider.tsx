@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
+import { SlotMedia } from '@/components/site/SlotMedia';
 import Link from 'next/link';
 import { useReducedMotion } from 'motion/react';
 import type { BrandImage } from '@/lib/brand/images';
@@ -148,7 +148,7 @@ export function HeroSlider({
                   The first is `priority` so it competes for bandwidth as LCP;
                   the rest are eager but low priority, so they fill in behind
                   it rather than racing it. */}
-              <Image
+              <SlotMedia
                 src={slide.image.url}
                 alt={index === count ? '' : slide.image.alt}
                 fill

@@ -8,6 +8,7 @@ import {
   CATEGORY_IMAGES,
   HERO_SLIDES,
   PRODUCT_IMAGES,
+  STORY_FILM,
   type BrandImage,
 } from '@/lib/brand/images';
 import { HERO_MAX, HERO_MIN, type MediaFrameInput } from '@/lib/validation/media';
@@ -61,6 +62,9 @@ const WIDE: ViewRatios = { desktop: { w: 3, h: 2 }, mobile: { w: 4, h: 5 } };
 const TILE: ViewRatios = { desktop: { w: 4, h: 5 }, mobile: { w: 4, h: 5 } };
 const RAIL: ViewRatios = { desktop: { w: 3, h: 2 }, mobile: { w: 3, h: 2 } };
 const BAND: ViewRatios = { desktop: { w: 3, h: 1 }, mobile: { w: 4, h: 5 } };
+/** `.pg-open` — the opener a page other than Home starts on: the width of the
+ *  window and most of its height, so landscape at a desk and tall in a hand. */
+const OPENER: ViewRatios = { desktop: { w: 16, h: 9 }, mobile: { w: 9, h: 16 } };
 
 /** The carousel is the viewport itself — landscape at a desk, portrait in a
  *  hand. No other slot changes shape this hard, which is why it is the one
@@ -162,6 +166,30 @@ const EDITORIAL: Record<string, EditorialDefinition> = {
     label: 'Our Story (Closing band)',
     where: 'Our Story — the full-bleed band the page closes on',
     default: PRODUCT_IMAGES['womens-everyday-tee'][0],
+    ratios: BAND,
+  },
+  /* Our Story opens on the workshop film it always has; any slot takes a film
+     or a photograph, so this one is simply a slot whose default is a film.
+     The Why Shrinkless opener and band start on campaign frames the carousel
+     shipped with, because every other photograph already stands in a slot of
+     its own — and a page opening on the same picture as its first point is
+     what these slots exist to stop. */
+  storyHero: {
+    label: 'Our Story (Hero)',
+    where: 'Our Story — the full-bleed film or photograph the page opens on, behind the title',
+    default: STORY_FILM,
+    ratios: OPENER,
+  },
+  whyHero: {
+    label: 'Why Shrinkless (Hero)',
+    where: 'Why Shrinkless — the full-bleed photograph the page opens on, behind the title',
+    default: HERO_SLIDES[2],
+    ratios: OPENER,
+  },
+  whyStatement: {
+    label: 'Why Shrinkless (Closing band)',
+    where: 'Why Shrinkless — the full-bleed band the page closes on',
+    default: HERO_SLIDES[1],
     ratios: BAND,
   },
   tradeStatement: {
@@ -503,14 +531,24 @@ const LOOKBOOK_ORDER: EditorialSlot[] = [
   'heather',
 ];
 
-/** `app/(shop)/why-shrinkless/page.tsx` — the four points, in order. */
-const WHY_ORDER: EditorialSlot[] = ['fabric', 'folded', 'hanging', 'craft'];
+/** `app/(shop)/why-shrinkless/page.tsx` — the opener, the four points in
+ *  order, then the band it closes on. The opener and the band have slots of
+ *  their own: they used to borrow the first and fourth points' photographs,
+ *  so neither could change without moving a point with it. */
+const WHY_ORDER: EditorialSlot[] = ['whyHero', 'fabric', 'folded', 'hanging', 'craft', 'whyStatement'];
 
 /** `app/(shop)/page.tsx` — the two statement tiles. */
 const STORY_ORDER: EditorialSlot[] = ['torso', 'heather'];
 
-/** Our Story, in the order the page runs them: three chapters, then the band. */
-const OUR_STORY_ORDER: EditorialSlot[] = ['storyOne', 'storyTwo', 'storyThree', 'storyStatement'];
+/** Our Story, in the order the page runs them: the opener, three chapters,
+ *  then the band. */
+const OUR_STORY_ORDER: EditorialSlot[] = [
+  'storyHero',
+  'storyOne',
+  'storyTwo',
+  'storyThree',
+  'storyStatement',
+];
 
 /* --------------------------------------------------------------------------
    The home page's sections

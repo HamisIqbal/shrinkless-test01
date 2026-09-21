@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
-import Image from 'next/image';
+import { SlotMedia } from '@/components/site/SlotMedia';
 import Link from 'next/link';
 import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { PRIMARY_NAV, type ShopMenu } from '@/lib/shop/navigation';
@@ -229,7 +229,7 @@ export function HomeDrawer({
               {menu.features.map((feature) => (
                 <Link key={feature.href} href={feature.href} className="hm-drawer__feature" onClick={onClose}>
                   <span className="hm-drawer__frame">
-                    <Image
+                    <SlotMedia
                       src={feature.image.url}
                       alt={feature.image.alt}
                       fill

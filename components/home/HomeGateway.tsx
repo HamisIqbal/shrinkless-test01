@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { SlotMedia } from '@/components/site/SlotMedia';
 import Link from 'next/link';
 import { cropStyle } from '@/lib/media/crop';
 import type { Gateway } from '@/components/shop/CategoryGateway';
@@ -31,7 +31,7 @@ export function HomeGateway({ gateways }: Props) {
           <li key={gateway.slug} className="hm-gw__cell">
             <Link href={`/shop/${gateway.slug}`} className="hm-gw__tile">
               <span className="hm-gw__photo" aria-hidden="true">
-                <Image
+                <SlotMedia
                   src={gateway.image.url}
                   alt=""
                   fill

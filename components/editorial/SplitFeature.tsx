@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { SlotMedia } from '@/components/site/SlotMedia';
 import Link from 'next/link';
 import type { BrandImage } from '@/lib/brand/images';
 import { Reveal } from '@/components/ui/Reveal';
@@ -23,7 +23,7 @@ export function SplitFeature({ image, eyebrow, headline, body, cta, flip = false
     <section className={`split${flip ? ' split--flip' : ''}`}>
       <div className="split__media">
         <div className="frame frame--45">
-          <Image
+          <SlotMedia
             src={image.url}
             alt={image.alt}
             fill

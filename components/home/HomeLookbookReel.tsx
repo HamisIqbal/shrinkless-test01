@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
-import Image from 'next/image';
+import { SlotMedia } from '@/components/site/SlotMedia';
 import Link from 'next/link';
 import { cropStyle } from '@/lib/media/crop';
 import type { BrandImage } from '@/lib/brand/images';
@@ -108,7 +108,7 @@ export function HomeLookbookReel({ frames }: { frames: Frame[] }) {
                   <span className="visually-hidden">{frame.label}</span>
                   <span className="hm-look__frame">
                     <span className="hm-look__photo">
-                      <Image
+                      <SlotMedia
                         src={frame.image.url}
                         alt={frame.image.alt}
                         fill

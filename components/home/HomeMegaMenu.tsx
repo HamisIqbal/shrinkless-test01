@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
+import { SlotMedia } from '@/components/site/SlotMedia';
 import Link from 'next/link';
 import { AnimatePresence, motion, type Variants } from 'motion/react';
 import type { ShopMenu } from '@/lib/shop/navigation';
@@ -282,7 +282,7 @@ export function HomeMegaMenu({ menu, panel, id, onNavigate }: Props) {
                 {feature ? (
                   <Link href={feature.href} className="hm-mega__figure" onClick={onNavigate}>
                     <span className="hm-mega__frame">
-                      <Image
+                      <SlotMedia
                         src={feature.image.url}
                         alt={feature.image.alt}
                         fill

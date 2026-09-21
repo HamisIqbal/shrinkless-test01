@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import Image from 'next/image';
+import { SlotMedia } from '@/components/site/SlotMedia';
 import { cropStyle } from '@/lib/media/crop';
 import type { BrandImage } from '@/lib/brand/images';
 import { homeFonts } from '@/components/home/fonts';
@@ -126,7 +126,7 @@ export function HomeStory({ chapters }: { chapters: Chapter[] }) {
           <div className="hm-story__frame">
             {chapters.map((chapter, index) => (
               <div key={chapter.title} className="hm-story__shot" style={{ zIndex: index + 1 }}>
-                <Image
+                <SlotMedia
                   src={chapter.image.url}
                   alt=""
                   fill
@@ -148,7 +148,7 @@ export function HomeStory({ chapters }: { chapters: Chapter[] }) {
           {chapters.map((chapter) => (
             <article key={chapter.title} className="hm-story__chapter">
               <div className="hm-story__own">
-                <Image
+                <SlotMedia
                   src={chapter.image.url}
                   alt={chapter.image.alt}
                   fill

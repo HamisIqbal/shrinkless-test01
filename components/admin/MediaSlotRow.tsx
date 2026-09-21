@@ -6,6 +6,7 @@ import { ImageCropField } from '@/components/admin/ImageCropField';
 import { uploadEndpoint } from '@/lib/cloudinary/config';
 import { cloudinaryUrl } from '@/lib/cloudinary/url';
 import { sizedImageUrl } from '@/lib/images';
+import { SLOT_MEDIA_ACCEPT, isVideoUrl } from '@/lib/media/video';
 import { ZOOM_MIN, hasMobileCrop, ratioValue, type ViewRatios } from '@/lib/media/crop';
 
 /**
@@ -68,7 +69,13 @@ async function upload(file: File): Promise<string> {
   body.set('folder', signed.folder);
   body.set('signature', signed.signature);
 
-  const response = await fetch(uploadEndpoint(signed.cloudName), { method: 'POST', body });
+  /* `auto`, so a film is taken as readily as a photograph — Cloudinary files
+     it under `/video/upload/`, and that address is how every page knows to
+     play it. */
+  const response = await fetch(uploadEndpoint(signed.cloudName, 'auto'), {
+    method: 'POST',
+    body,
+  });
 
   if (!response.ok) {
     const detail = await response
@@ -150,21 +157,24 @@ function FrameFields({
 
       <div className="mediaslot__fields">
         <label className="adfield">
-          Image address
+          Image or video address
           <input
             value={frame.url}
             onChange={(event) => onChange({ url: event.target.value })}
             placeholder="https://… or a Cloudinary id"
             spellCheck={false}
           />
-          <small>Paste a link, or upload a file from this machine.</small>
+          <small>
+            Paste a link, or upload a file from this machine. A video (.mp4, .webm, .mov) plays
+            muted and on a loop.
+          </small>
         </label>
 
         <label className="abtn abtn--ghost abtn--sm mediaslot__upload">
           {busy ? 'Uploading…' : 'Upload a file'}
           <input
             type="file"
-            accept="image/*"
+            accept={SLOT_MEDIA_ACCEPT}
             hidden
             disabled={busy}
             onChange={(event) => {
@@ -258,7 +268,11 @@ export function MediaSlotRow({
                 key={`${frame.url}-${index}`}
                 style={{ aspectRatio: ratioValue(ratios.desktop) }}
               >
-                {frame.url ? (
+                {frame.url && isVideoUrl(frame.url) ? (
+                  /* The film's first frame, still — a row is a label, and a
+                     dozen of them playing at once is not. */
+                  <video src={frame.url} muted playsInline preload="metadata" aria-hidden="true" />
+                ) : frame.url ? (
                   /* Not next/image: the address changes as an admin types or
                      uploads, and this is a label rather than a rendered page. */
                   /* eslint-disable-next-line @next/next/no-img-element */

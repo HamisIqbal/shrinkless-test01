@@ -43,7 +43,7 @@ export default async function WhyShrinklessPage() {
   return (
     <>
       <PageOpener
-        media={{ kind: 'image', image: media.editorial.fabric }}
+        media={media.editorial.whyHero}
         title={copy['why.title']}
         body={copy['why.lede']}
       />
@@ -62,7 +62,7 @@ export default async function WhyShrinklessPage() {
       </HomeScene>
 
       <StatementBand
-        image={media.editorial.craft}
+        image={media.editorial.whyStatement}
         statement={copy['why.statement']}
         cta={{ href: '/shop', label: copy['why.cta'] }}
       />

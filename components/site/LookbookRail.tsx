@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { SlotMedia } from '@/components/site/SlotMedia';
 import Link from 'next/link';
 import { getSiteMedia, type SiteMedia } from '@/lib/services/site-media';
 import { cropStyle } from '@/lib/media/crop';
@@ -86,7 +86,7 @@ export async function LookbookRail() {
           >
             {tiles.map((frame, index) => (
               <Link key={`${half}-${index}`} href={frame.href} className="lookbook__tile">
-                <Image
+                <SlotMedia
                   src={frame.image.url}
                   alt={frame.image.alt}
                   fill

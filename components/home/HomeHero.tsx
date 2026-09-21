@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
+import { SlotMedia } from '@/components/site/SlotMedia';
 import Link from 'next/link';
 import { cropStyle } from '@/lib/media/crop';
 import type { HeroSlide } from '@/components/site/HeroSlider';
@@ -99,7 +99,7 @@ export function HomeHero({ slides, interval = 6000 }: Props) {
               <div className="hm-hero__zoom">
                 {/* Every frame loads up front: the next one has to be there
                     the moment it wipes in. The first is the LCP. */}
-                <Image
+                <SlotMedia
                   src={slide.image.url}
                   alt={slide.image.alt}
                   fill

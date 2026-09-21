@@ -1,16 +1,14 @@
-import Image from 'next/image';
+import { SlotMedia } from '@/components/site/SlotMedia';
 import { cropStyle } from '@/lib/media/crop';
 import type { BrandImage } from '@/lib/brand/images';
 import { homeFonts } from '@/components/home/fonts';
 import { HomeScene } from '@/components/home/HomeScene';
 import './pages.css';
 
-export type OpenerMedia =
-  | { kind: 'image'; image: BrandImage }
-  | { kind: 'video'; src: string; label: string };
-
 type Props = {
-  media: OpenerMedia;
+  /** A Media slot — a photograph, or a film if that is what the admin gave
+   *  it. `SlotMedia` decides which from the address. */
+  media: BrandImage;
   title: string;
   body?: string;
   /** A class the Media tab targets for this section's height and ground. */
@@ -28,28 +26,15 @@ export function PageOpener({ media, title, body, sectionClass = '' }: Props) {
   return (
     <HomeScene className={`${sectionClass} pg-open ${homeFonts}`} aria-label={title}>
       <div className="pg-open__stage" data-hm-parallax="6">
-        {media.kind === 'video' ? (
-          <video
-            className="pg-open__video"
-            src={media.src}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            aria-label={media.label}
-          />
-        ) : (
-          <Image
-            src={media.image.url}
-            alt={media.image.alt}
-            fill
-            priority
-            sizes="100vw"
-            className="pg-open__image"
-            style={cropStyle(media.image)}
-          />
-        )}
+        <SlotMedia
+          src={media.url}
+          alt={media.alt}
+          fill
+          priority
+          sizes="100vw"
+          className="pg-open__image"
+          style={cropStyle(media)}
+        />
       </div>
 
       <div className="pg-open__scrim" aria-hidden="true" />

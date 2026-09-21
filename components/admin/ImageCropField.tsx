@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 import { sizedImageUrl } from '@/lib/images';
+import { isVideoUrl } from '@/lib/media/video';
 import {
   CENTRE,
   ZOOM_MAX,
@@ -64,6 +65,8 @@ function CropStage({
 }) {
   const stage = useRef<HTMLDivElement>(null);
   const image = useRef<HTMLImageElement>(null);
+  const film = useRef<HTMLVideoElement>(null);
+  const video = isVideoUrl(url);
   const drag = useRef<{ x: number; y: number } | null>(null);
   const [dragging, setDragging] = useState(false);
 
@@ -77,15 +80,20 @@ function CropStage({
    */
   const overflow = useCallback((): [number, number] => {
     const frame = stage.current?.getBoundingClientRect();
-    const img = image.current;
+    /* A film is measured by its frame size once its metadata is in, the way
+       a photograph is measured by its pixels — the drag is the same either
+       way. */
+    const [width, height] = film.current
+      ? [film.current.videoWidth, film.current.videoHeight]
+      : [image.current?.naturalWidth, image.current?.naturalHeight];
 
-    if (!frame || !img?.naturalWidth || !img.naturalHeight) return [0, 0];
+    if (!frame || !width || !height) return [0, 0];
 
-    const cover = Math.max(frame.width / img.naturalWidth, frame.height / img.naturalHeight);
+    const cover = Math.max(frame.width / width, frame.height / height);
 
     return [
-      img.naturalWidth * cover * view.zoom - frame.width,
-      img.naturalHeight * cover * view.zoom - frame.height,
+      width * cover * view.zoom - frame.width,
+      height * cover * view.zoom - frame.height,
     ];
   }, [view.zoom]);
 
@@ -178,16 +186,32 @@ function CropStage({
         role="group"
         aria-label={`${label} crop. Drag the photograph, or use the arrow keys, to choose what this frame keeps.`}
       >
-        {/* Not next/image: the source changes as the admin types or uploads,
-            and this is a rehearsal of a crop rather than a rendered page. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          ref={image}
-          src={sizedImageUrl(url, STAGE)}
-          alt=""
-          style={viewStyle(view)}
-          draggable={false}
-        />
+        {video ? (
+          /* Muted and looping, as the page plays it — the crop is judged
+             against the moving picture, not a still of it. */
+          <video
+            ref={film}
+            src={url}
+            style={viewStyle(view)}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+          />
+        ) : (
+          /* Not next/image: the source changes as the admin types or uploads,
+             and this is a rehearsal of a crop rather than a rendered page. */
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            ref={image}
+            src={sizedImageUrl(url, STAGE)}
+            alt=""
+            style={viewStyle(view)}
+            draggable={false}
+          />
+        )}
 
         {/* Thirds. The holder is the frame, so the guides are for placing a
             subject inside it, not for showing where it ends. */}

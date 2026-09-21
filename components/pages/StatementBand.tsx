@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { SlotMedia } from '@/components/site/SlotMedia';
 import { cropStyle } from '@/lib/media/crop';
 import type { BrandImage } from '@/lib/brand/images';
 import { homeFonts } from '@/components/home/fonts';
@@ -25,7 +25,7 @@ export function StatementBand({ image, statement, cta, sectionClass = '' }: Prop
   return (
     <HomeScene className={`${sectionClass} pg-statement ${homeFonts}`} aria-label={statement}>
       <div className="pg-statement__media" data-hm-parallax="8">
-        <Image
+        <SlotMedia
           src={image.url}
           alt={image.alt}
           fill

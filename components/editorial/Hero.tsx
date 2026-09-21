@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { SlotMedia } from '@/components/site/SlotMedia';
 import Link from 'next/link';
 import type { BrandImage } from '@/lib/brand/images';
 
@@ -24,7 +24,7 @@ type Props = {
 export function Hero({ image, eyebrow, headline, lede, primary, secondary }: Props) {
   return (
     <section className="hero" aria-labelledby="hero-heading">
-      <Image
+      <SlotMedia
         src={image.url}
         alt={image.alt}
         fill

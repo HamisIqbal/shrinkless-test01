@@ -24,6 +24,7 @@ import {
 } from '@/lib/services/site-media';
 import { SECTION_COLOURS, isSectionColour } from '@/lib/media/colours';
 import { AdminOperationError } from '@/lib/admin/action';
+import { isVideoUrl } from '@/lib/media/video';
 
 withTestDatabase();
 
@@ -349,6 +350,36 @@ describe('listMediaSlots', () => {
 });
 
 describe('listMediaPages', () => {
+  /* The openers and the closing band used to borrow a point's photograph, so
+     changing one moved the other. Each now has a slot, listed where the page
+     runs it. */
+  it('gives each opener and closing band a slot of its own', async () => {
+    const pages = await listMediaPages();
+    const ids = (id: string) => pages.find((page) => page.id === id)?.slots.map((slot) => slot.slotId);
+
+    expect(ids('why-shrinkless')).toEqual(
+      ['whyHero', 'fabric', 'folded', 'hanging', 'craft', 'whyStatement'].map((slot) =>
+        editorialSlotId(slot as never),
+      ),
+    );
+    expect(ids('our-story')?.[0]).toBe(editorialSlotId('storyHero'));
+
+    const media = await getSiteMedia();
+    expect(media.editorial.whyHero.url).not.toBe(media.editorial.fabric.url);
+    expect(media.editorial.whyStatement.url).not.toBe(media.editorial.craft.url);
+  });
+
+  /* Our Story's opener is a slot like any other that happens to start on the
+     film it has always played — and a film saved into any slot is kept as an
+     address, the same as a photograph. */
+  it('opens Our Story on the workshop film, and keeps a film saved into a slot', async () => {
+    expect(isVideoUrl((await getSiteMedia()).editorial.storyHero.url)).toBe(true);
+
+    await saveMediaSlot(editorialSlotId('whyHero'), frame('https://example.com/opener.mp4'));
+
+    expect((await getSiteMedia()).editorial.whyHero.url).toBe('https://example.com/opener.mp4');
+  });
+
   /* Only the pages that have photography. The FAQ, the cart and the checkout
      carry no pictures at all, and product photography belongs to a product
      rather than to a page. */
