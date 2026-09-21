@@ -1,41 +1,26 @@
 import Link from 'next/link';
 import { NewsletterForm } from '@/components/site/NewsletterForm';
 import { homeFonts } from '@/components/home/fonts';
-import { HomeFooterMark, BackToTop } from '@/components/home/HomeFooterMotion';
+import { BackToTop } from '@/components/home/HomeFooterMotion';
 
 const INSTAGRAM = 'https://www.instagram.com/shrinkless/';
 
-type Row = { title: string; links: { href: string; label: string; external?: boolean }[] };
-
-/** Same two-copy roll as the header's utilities, for a server component. */
-function Roll({ children }: { children: string }) {
-  return (
-    <span className="hm-roll">
-      <span className="hm-roll__a">{children}</span>
-      <span className="hm-roll__b" aria-hidden="true">{children}</span>
-    </span>
-  );
-}
+type Group = { title: string; links: { href: string; label: string; external?: boolean }[] };
 
 /**
- * The colophon, on every page of the site.
+ * The footer, on every page of the site — the shop layout renders this one
+ * component under every storefront route, so there is exactly one design.
  *
- * Four stacked things and nothing else: the signup, the index, the wordmark,
- * the legal line. It used to open on a display headline and set the index as
- * five columns with a paragraph of brand copy in the first — most of a screen
- * of footer under every page.
+ * Two bands and a legal line. The top band pairs the brand and the signup on
+ * the left with the index on the right: four short, headed columns that scan
+ * down rather than across. The legal line closes it with the copyright and
+ * the way back up.
  *
- * The index is rows now rather than columns. A column heading over three links
- * is a heading that costs more height than the links it introduces, and the
- * grouping is the only thing it was carrying — so the group name moved to the
- * left of its own row, in the mono the rest of the small print is set in, and
- * the whole index is four lines deep instead of five columns tall.
- *
- * The wordmark stays. It is the one piece of size in here and the thing the
- * page is remembered by, and it is the only place the width axis still moves.
+ * It stays short on purpose. On a desk it is pinned under the page
+ * (components/site/FooterReveal), so all of it has to fit a laptop window.
  */
 export function HomeFooter({ storeEmail }: { storeEmail: string }) {
-  const rows: Row[] = [
+  const groups: Group[] = [
     {
       title: 'Shop',
       links: [
@@ -51,6 +36,7 @@ export function HomeFooter({ storeEmail }: { storeEmail: string }) {
       links: [
         { href: '/our-story', label: 'Our story' },
         { href: '/why-shrinkless', label: 'Why Shrinkless' },
+        { href: INSTAGRAM, label: 'Instagram', external: true },
       ],
     },
     {
@@ -59,7 +45,6 @@ export function HomeFooter({ storeEmail }: { storeEmail: string }) {
         { href: '/faq', label: 'FAQ' },
         { href: '/account', label: 'Your account' },
         { href: `mailto:${storeEmail}`, label: 'Contact', external: true },
-        { href: INSTAGRAM, label: 'Instagram', external: true },
       ],
     },
     {
@@ -76,44 +61,54 @@ export function HomeFooter({ storeEmail }: { storeEmail: string }) {
   return (
     <footer className={`hm-foot ${homeFonts}`}>
       <div className="hm-foot__wrap">
-        <div className="hm-foot__signup">
-          <p className="hm-foot__label">Restocks and new releases. Nothing else.</p>
-          <NewsletterForm />
+        <div className="hm-foot__top">
+          <div className="hm-foot__brand">
+            <Link href="/" className="hm-foot__logo">
+              Shrinkless
+            </Link>
+            <p className="hm-foot__tagline">
+              Organic tees that hold their size, wash after wash.
+            </p>
+
+            <div className="hm-foot__news">
+              <h2 className="hm-foot__newstitle">Join the list</h2>
+              <p className="hm-foot__newscopy">Restocks and new releases. Nothing else.</p>
+              <NewsletterForm />
+            </div>
+          </div>
+
+          <nav className="hm-foot__index" aria-label="Footer">
+            {groups.map((group) => (
+              <div key={group.title} className="hm-foot__group">
+                <h2 className="hm-foot__heading">{group.title}</h2>
+                <ul className="hm-foot__links">
+                  {group.links.map((link) => (
+                    <li key={`${group.title}-${link.href}`}>
+                      {link.external ? (
+                        <a
+                          href={link.href}
+                          className="hm-foot__link"
+                          {...(link.href.startsWith('http')
+                            ? { rel: 'me noreferrer', target: '_blank' }
+                            : {})}
+                        >
+                          {link.label}
+                        </a>
+                      ) : (
+                        <Link href={link.href} className="hm-foot__link">
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </nav>
         </div>
 
-        <nav className="hm-foot__index" aria-label="Footer">
-          {rows.map((row) => (
-            <div key={row.title} className="hm-foot__row">
-              <h2 className="hm-foot__rowlabel">{row.title}</h2>
-              <ul className="hm-foot__links">
-                {row.links.map((link) => (
-                  <li key={`${row.title}-${link.href}`}>
-                    {link.external ? (
-                      <a
-                        href={link.href}
-                        className="hm-foot__link"
-                        {...(link.href.startsWith('http')
-                          ? { rel: 'me noreferrer', target: '_blank' }
-                          : {})}
-                      >
-                        <Roll>{link.label}</Roll>
-                      </a>
-                    ) : (
-                      <Link href={link.href} className="hm-foot__link">
-                        <Roll>{link.label}</Roll>
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </nav>
-
-        <HomeFooterMark />
-
         <div className="hm-foot__base">
-          <p className="tnum">&copy; {new Date().getFullYear()} Shrinkless — Made in USA</p>
+          <p className="tnum">&copy; {new Date().getFullYear()} Shrinkless. Made in USA.</p>
           <BackToTop />
         </div>
       </div>

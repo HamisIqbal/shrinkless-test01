@@ -1753,10 +1753,8 @@
 /* --------------------------------------------------------------------------
    The newsletter signup
 
-   All that is left of this file's footer. The colophon it stood in is gone:
-   every page now closes on the homepage's own footer, which is set in the
-   `hm-` language (components/home/home.css) and restates this control as a
-   hairline field on ink.
+   Now only the base for the restock form on a sold-out product. The footer's
+   signup has its own `hm-news` control in components/home/home.css.
    -------------------------------------------------------------------------- */
 
 /* One orange bar with the field and the button inside it, rather than a rule
