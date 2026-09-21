@@ -29,7 +29,7 @@ function Roll({ children }: { children: string }) {
  * is a heading that costs more height than the links it introduces, and the
  * grouping is the only thing it was carrying — so the group name moved to the
  * left of its own row, in the mono the rest of the small print is set in, and
- * the whole index is three lines deep instead of five columns tall.
+ * the whole index is four lines deep instead of five columns tall.
  *
  * The wordmark stays. It is the one piece of size in here and the thing the
  * page is remembered by, and it is the only place the width axis still moves.
@@ -60,6 +60,15 @@ export function HomeFooter({ storeEmail }: { storeEmail: string }) {
         { href: '/account', label: 'Your account' },
         { href: `mailto:${storeEmail}`, label: 'Contact', external: true },
         { href: INSTAGRAM, label: 'Instagram', external: true },
+      ],
+    },
+    {
+      title: 'Policies',
+      links: [
+        { href: '/terms', label: 'Terms & Conditions' },
+        { href: '/refund-policy', label: 'Refund Policy' },
+        { href: '/shipping-returns', label: 'Shipping & Returns' },
+        { href: '/privacy-policy', label: 'Privacy Policy' },
       ],
     },
   ];

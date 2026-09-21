@@ -105,6 +105,220 @@ export function maxLengthFor(kind: ContentKind): number {
    browser. Re-exported here so content still has one door. */
 export * from '@/lib/content/style';
 
+/* --------------------------------------------------------------------------
+   The policies
+
+   Four pages of the same shape: a title and a short introduction in the head,
+   then numbered clauses, each a heading and its text. Declared through one
+   builder so the four cannot drift apart, and held here like every other
+   word on the site, so the admin can correct a clause without a deploy.
+
+   Anything the business has not yet confirmed — the return window, where it
+   ships — is marked [TBC] exactly as the FAQ marks it. A guessed number on a
+   policy page is a promise the shop then has to keep.
+   -------------------------------------------------------------------------- */
+
+type Clause = { heading: string; body: string };
+
+/** The ids the policy pages are registered under, and their addresses. */
+export const POLICY_PAGES = {
+  terms: '/terms',
+  refunds: '/refund-policy',
+  shipping: '/shipping-returns',
+  privacy: '/privacy-policy',
+} as const;
+
+export type PolicyId = keyof typeof POLICY_PAGES;
+
+/** How many clauses each policy carries. The page renders exactly these. */
+export const POLICY_CLAUSES: Record<PolicyId, number> = {
+  terms: 4,
+  refunds: 3,
+  shipping: 4,
+  privacy: 5,
+};
+
+function policyPage(
+  id: PolicyId,
+  label: string,
+  title: string,
+  lede: string,
+  clauses: Clause[],
+): ContentPageDefinition {
+  return {
+    id: `policy-${id}`,
+    label,
+    path: POLICY_PAGES[id],
+    sections: [
+      {
+        id: 'head',
+        label: 'Page head',
+        note: 'The title and the short introduction in the band at the top of the page.',
+        tone: 'paper',
+        fields: [
+          { key: `policy.${id}.title`, label: 'Title', kind: 'heading', default: title },
+          { key: `policy.${id}.lede`, label: 'Introduction', kind: 'lede', default: lede },
+        ],
+      },
+      {
+        id: 'clauses',
+        label: 'The clauses',
+        note: 'Numbered in the order they are listed. A blank line in the text starts a new paragraph.',
+        tone: 'paper',
+        fields: clauses.flatMap((clause, index) => {
+          const n = index + 1;
+
+          return [
+            {
+              key: `policy.${id}.${n}.heading`,
+              label: `Clause ${n}, heading`,
+              kind: 'heading' as const,
+              default: clause.heading,
+              group: String(n),
+            },
+            {
+              key: `policy.${id}.${n}.body`,
+              label: `Clause ${n}, text`,
+              kind: 'body' as const,
+              default: clause.body,
+              group: String(n),
+            },
+          ];
+        }),
+      },
+    ],
+  };
+}
+
+const POLICIES: ContentPageDefinition[] = [
+  policyPage(
+    'terms',
+    'Terms & Conditions',
+    'Terms & Conditions',
+    'The terms that apply to every order placed on this website. Placing an order means you agree to them, so please read them before you buy.',
+    [
+      {
+        heading: 'Orders, payments & pricing',
+        body:
+          'Every order placed on this website is subject to availability and to our confirmation. Prices are shown in US dollars and may change without notice; the price you pay is the one shown at checkout when you place your order.\n\n' +
+          'We may refuse or cancel an order because of a pricing error, suspected fraud or a stock problem. If we cancel an order you have already paid for, we refund the full amount to the original payment method.\n\n' +
+          'Payment is taken at checkout using the payment methods shown there. Card payments are processed by our payment provider, Stripe.',
+      },
+      {
+        heading: 'Shipping, returns & exchanges',
+        body:
+          'Shipping costs and delivery estimates are shown at checkout and vary with the destination. We aim to dispatch every order promptly, but delivery times are estimates rather than guarantees.\n\n' +
+          'Returns and exchanges are accepted within the return period on items that are unworn, unwashed and in their original condition. Please read our Shipping & Returns page and our Refund Policy before you buy.',
+      },
+      {
+        heading: 'Product care & use',
+        body:
+          'Shrinkless tees are garment dyed organic cotton, made to hold their size and shape wash after wash when they are cared for as the care label directs. Please check the size and fit notes on each product page before ordering.\n\n' +
+          'Garment dyeing means every piece is slightly different in shade; that variation is part of the process and is not a fault. We are not responsible for damage caused by washing or treating a garment against its care label, or for ordinary wear.',
+      },
+      {
+        heading: 'Wholesale orders',
+        body:
+          'Wholesale orders are made to order, from 150 units, on terms we agree with you in writing. Where a written wholesale agreement and these terms differ, the written agreement applies.',
+      },
+    ],
+  ),
+
+  policyPage(
+    'refunds',
+    'Refund Policy',
+    'Refund Policy',
+    'If something is not right, we want to put it right. This page explains how returns, exchanges and refunds work.',
+    [
+      {
+        heading: 'Returns & exchanges',
+        body:
+          'Sometimes a tee is not what you expected, and we want returning or exchanging it to be simple. We accept returns on unworn, unwashed items in their original condition within [TBC] days of delivery.\n\n' +
+          'Once your return reaches us and has been checked, we refund the original payment method or send the exchange. Return shipping: [TBC].',
+      },
+      {
+        heading: 'Made-to-order & wholesale orders',
+        body:
+          'There are no refunds on made-to-order or wholesale orders, because they are made to your specification.\n\n' +
+          'Lead times on made-to-order work can run longer when we have a lot of it in production. We confirm the timeline when your order is agreed.',
+      },
+      {
+        heading: 'Getting help',
+        body:
+          'If you have a question about returns or exchanges, or you need help with one, email us and we will take you through it step by step.',
+      },
+    ],
+  ),
+
+  policyPage(
+    'shipping',
+    'Shipping & Returns',
+    'Shipping & Returns',
+    'How your order reaches you, and how to send something back.',
+    [
+      {
+        heading: 'Shipping information',
+        body:
+          'Every Shrinkless order is packed with care and sent on its way as soon as we can. We keep our shipping options clear and our costs visible, so you know what you are paying before you pay it.',
+      },
+      {
+        heading: 'Costs & delivery times',
+        body:
+          'Shipping costs and delivery estimates are shown at checkout before you pay, and depend on where the order is going. Delivery times are estimates, not guarantees.\n\n' +
+          'Where we ship to: [TBC].',
+      },
+      {
+        heading: 'Returns',
+        body:
+          'Returns are accepted on unworn, unwashed items in their original condition within [TBC] days of delivery. Our Refund Policy explains how refunds and exchanges are handled, and what cannot be returned.',
+      },
+      {
+        heading: 'Questions',
+        body:
+          'Customer satisfaction comes first. If you have a question about shipping, or about an order on its way to you, email us and we will help.',
+      },
+    ],
+  ),
+
+  policyPage(
+    'privacy',
+    'Privacy Policy',
+    'Privacy Policy',
+    'What we collect when you shop with us, why we collect it, and how we keep it safe.',
+    [
+      {
+        heading: 'Customer care',
+        body:
+          'This page is a plain guide to how Shrinkless looks after the information you share with us before, during and after a purchase. It does not replace the terms that apply to a particular order. For help with an order, shipping, a return, sizing or a product, email us and we will answer you directly.',
+      },
+      {
+        heading: 'What we collect',
+        body:
+          'When you create an account: your name, your email address and a password, which we store only in a scrambled form that cannot be read back.\n\n' +
+          'When you place an order: your name, email address, shipping address and the details of the order, so we can send it and help you with it afterwards.\n\n' +
+          'When you join our list: your email address, used only to tell you about restocks and new releases.',
+      },
+      {
+        heading: 'Payments & safety',
+        body:
+          'Card payments are handled by our payment provider, Stripe. Your card details go directly to them and are never stored by us.\n\n' +
+          'We protect your details with encrypted connections and access controls, and only use them to run your orders, your account and the updates you asked for. We do not sell your information.',
+      },
+      {
+        heading: 'Cookies',
+        body:
+          'We use a small number of cookies that the site needs to work: one keeps your cart, one keeps you signed in, and one remembers that you closed the announcement bar. We do not use advertising or tracking cookies.',
+      },
+      {
+        heading: 'Wholesale enquiries',
+        body:
+          'When you send a wholesale enquiry, we collect your company name, your name, email address, phone number, country and your message, and use them only to answer you and to agree terms. Wholesale orders are made to order, from 150 units.\n\n' +
+          'To ask what we hold about you, or to have it corrected or deleted, email us.',
+      },
+    ],
+  ),
+];
+
 /**
  * The pages, in the order the panel lists them.
  *
@@ -767,6 +981,9 @@ const PAGES: ContentPageDefinition[] = [
       },
     ],
   },
+
+  // Last in the panel: they are read far less often than they are edited.
+  ...POLICIES,
 ];
 
 /* Flattened once, at module load, so every lookup below is a map hit rather

@@ -31,6 +31,7 @@
 
 .buybar,
 .sh-account,
+.sh-policy,
 .sh-cart,
 .sh-faq,
 .sh-pdp,
@@ -1801,4 +1802,67 @@
   min-width: 0;
   overflow-wrap: anywhere;
   text-transform: none;
+}
+
+/* ==========================================================================
+   Policies — terms, refunds, shipping and returns, privacy
+
+   The account's arrangement again: the clauses as a numbered ledger, and the
+   chalk panel beside them holding the other three policies and where to ask.
+   A policy is read, so the text keeps to a measure a line can be followed
+   across rather than the width of the page.
+   ========================================================================== */
+
+.sh-policy {
+  padding-block: clamp(2.5rem, 5vw, 4.5rem) clamp(4rem, 8vw, 7rem);
+  background: var(--sh-white);
+  color: var(--sh-ink);
+  font-family: var(--sh-sans);
+}
+
+.sh-policy__layout { display: grid; gap: clamp(2.5rem, 5vw, 4rem); }
+
+@media (min-width: 56.25rem) {
+  .sh-policy__layout {
+    grid-template-columns: minmax(0, 1fr) 21rem;
+    align-items: start;
+  }
+}
+
+.sh-policy__clauses { display: grid; margin: 0; padding: 0; list-style: none; }
+
+.sh-policy__clause {
+  display: grid;
+  gap: 0.75rem;
+  padding-block: clamp(1.5rem, 3vw, 2.25rem);
+  border-bottom: 1px solid var(--sh-line);
+}
+
+.sh-policy__clause:first-child { border-top: 1px solid var(--sh-line); }
+
+.sh-policy__text { display: grid; gap: 0.9rem; max-width: 68ch; }
+
+.sh-policy__aside { align-content: start; }
+
+@media (min-width: 56.25rem) {
+  .sh-policy__aside { position: sticky; top: calc(var(--hm-head-h, 5.25rem) + 1.5rem); }
+}
+
+.sh-policy__nav {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Where you are among the four: underlined at rest, the way every other
+   link here only is on hover. */
+.sh-policy__nav .sh-link[aria-current='page'] { background-size: 100% 1px; }
+
+.sh-policy__ask {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--sh-line);
 }

@@ -14,6 +14,7 @@ import {
   saveContentField,
   saveContentFields,
   styleDeclarations,
+  POLICY_CLAUSES,
 } from '@/lib/services/site-content';
 import { AdminOperationError } from '@/lib/admin/action';
 
@@ -120,7 +121,29 @@ describe('listContentPages', () => {
       'our-story',
       'why-shrinkless',
       'faq',
+      'policy-terms',
+      'policy-refunds',
+      'policy-shipping',
+      'policy-privacy',
     ]);
+  });
+
+  /* Each policy page renders exactly the clauses its count says, so the count
+     and the registry cannot disagree without this failing. */
+  it('registers every clause each policy page renders', async () => {
+    const copy = await getSiteContent();
+
+    for (const [id, count] of Object.entries(POLICY_CLAUSES)) {
+      expect(copy[`policy.${id}.title`]).toBeTruthy();
+      expect(copy[`policy.${id}.lede`]).toBeTruthy();
+
+      for (let n = 1; n <= count; n += 1) {
+        expect(copy[`policy.${id}.${n}.heading`], `${id} clause ${n}`).toBeTruthy();
+        expect(copy[`policy.${id}.${n}.body`], `${id} clause ${n}`).toBeTruthy();
+      }
+
+      expect(copy[`policy.${id}.${count + 1}.heading`]).toBeUndefined();
+    }
   });
 
   it('leaves the shop landings out of the editor but keeps their wording', async () => {
