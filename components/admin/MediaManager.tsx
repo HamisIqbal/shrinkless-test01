@@ -212,6 +212,7 @@ function Editor({
                 savedFrames={saved[slot.slotId] ?? []}
                 open={open === `slot:${page.id}:${slot.slotId}`}
                 onToggle={() => toggle(`slot:${page.id}:${slot.slotId}`)}
+                range={slot.range}
                 onChange={(frames) => {
                   setError('');
                   setDrafts((current) => ({ ...current, [slot.slotId]: frames }));

@@ -345,6 +345,9 @@ export type MediaSlotView = {
   ratios: ViewRatios;
   /** False when the slot is still showing what the site shipped with. */
   overridden: boolean;
+  /** How many frames the slot takes, where it takes a set rather than one —
+   *  the homepage campaign. The Media tab adds and removes within it. */
+  range?: { min: number; max: number };
 };
 
 export type MediaLibrary = {
@@ -377,11 +380,12 @@ export async function listMediaSlots(): Promise<MediaLibrary> {
   return {
     hero: {
       slotId: HERO_SLOT,
-      label: 'Home',
-      where: `Home — the frames behind the headline. ${HERO_MIN}–${HERO_MAX} of them.`,
+      label: 'Home (Hero)',
+      where: `Home — the campaign at the top of the page. One frame stands; two or more take turns, up to ${HERO_MAX}.`,
       frames: media.hero,
       ratios: HERO_RATIOS,
       overridden: overrides.has(HERO_SLOT),
+      range: { min: HERO_MIN, max: HERO_MAX },
     },
 
     // Simple, location-based titles — "Men", "Women" — rather than the
@@ -483,7 +487,7 @@ export async function saveMediaSlot(
 export async function saveHeroFrames(frames: MediaFrameWrite[]): Promise<void> {
   if (frames.length < HERO_MIN || frames.length > HERO_MAX) {
     throw new AdminOperationError(
-      `The carousel takes between ${HERO_MIN} and ${HERO_MAX} frames.`,
+      `The homepage campaign takes between ${HERO_MIN} and ${HERO_MAX} frames.`,
     );
   }
 

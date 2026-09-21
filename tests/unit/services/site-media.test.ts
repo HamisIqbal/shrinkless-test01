@@ -238,10 +238,16 @@ describe('saveHeroFrames', () => {
     }
   });
 
-  it('refuses fewer than two frames — that is not a carousel', async () => {
-    await expect(
-      saveHeroFrames([frame('https://example.com/1.jpg')]),
-    ).rejects.toBeInstanceOf(AdminOperationError);
+  it('takes a single frame, which simply stands', async () => {
+    await saveHeroFrames([frame('https://example.com/1.jpg')]);
+
+    expect((await getSiteMedia()).hero.map((image) => image.url)).toEqual([
+      'https://example.com/1.jpg',
+    ]);
+  });
+
+  it('refuses an empty campaign', async () => {
+    await expect(saveHeroFrames([])).rejects.toBeInstanceOf(AdminOperationError);
   });
 
   it('refuses more than six', async () => {

@@ -186,64 +186,6 @@
 
 .hm-hero__zoom { position: absolute; inset: 0; }
 
-/* --- the one call to action --------------------------------------------- */
-
-/* Centred in the frame rather than bottom-aligned with the section: the
-   section is bottom-aligned by `.hero`, and the button is not caption copy. */
-.hm-hero__call {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  display: grid;
-  place-items: center;
-  padding-inline: var(--hm-gutter);
-  /* Only the button is clickable — the rest of the frame stays inert. */
-  pointer-events: none;
-}
-
-/* Centred in what you can see rather than in the section: on a desktop window
-   the section starts a masthead's height above the top of the screen. */
-@media (min-width: 62rem) {
-  .hm-hero__call { padding-top: var(--hm-head-h); }
-}
-
-.hm-hero__cta {
-  pointer-events: auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  /* The one thing on the campaign to press, and sized to say so — large
-     enough on a phone to be the obvious target over a full-bleed photograph,
-     larger again on a desktop window where the frame around it is wider. */
-  min-height: 3.75rem;
-  padding: 1.15rem clamp(3rem, 6vw, 4.75rem);
-  /* A lozenge rather than a rectangle. The rest of the page is hard-edged, so
-     rounding the one button on the campaign is what marks it as the thing to
-     press; the radius is larger than the button is tall, which makes the ends
-     true half-circles at every size it clamps to. */
-  border-radius: 999px;
-  border: 1px solid var(--hm-white);
-  background: var(--hm-white);
-  color: var(--hm-ink);
-  font-family: var(--hm-bebas);
-  font-size: clamp(1.5rem, 2.4vw, 1.9rem);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: uppercase;
-  text-decoration: none;
-  transition:
-    background-color 0.5s var(--hm-ease),
-    color 0.5s var(--hm-ease),
-    transform 0.5s var(--hm-ease);
-}
-
-.hm-hero__cta:is(:hover, :focus-visible) {
-  background: transparent;
-  color: var(--hm-white);
-  transform: translateY(-2px);
-}
-
 @keyframes hm-wipe {
   from { clip-path: inset(0 0 0 100%); }
   to { clip-path: inset(0 0 0 0); }
@@ -1046,5 +988,4 @@
   .hm-shelf__name,
   .hm-look__image,
   .hm-ig__follow { transition: none; }
-  .hm-hero__cta { transition: none; }
 }

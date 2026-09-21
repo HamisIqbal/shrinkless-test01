@@ -2709,3 +2709,21 @@ body:has(.admin) {
   .admin .mediarow__thumbs > * + * { margin-left: -1.75rem; }
   .admin .mediarow__marks .abtn { min-height: 2.5rem; }
 }
+
+/* The campaign's own controls: each frame can move earlier or later, or go,
+   and the set can take another — from one frame up to six. */
+.admin .mediaslot__order {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.admin .mediaslot__add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ad-s-2) var(--ad-s-3);
+  padding-top: var(--ad-s-3);
+  border-top: 1px dashed var(--ad-line);
+}

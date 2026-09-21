@@ -22,7 +22,7 @@ const cormorant = Cormorant_Garamond({
 
 export const metadata: Metadata = {
   title: {
-    default: "Shrinkless — Organic Tees That Don't Shrink",
+    default: 'Shrinkless Official Online Store',
     template: "%s — Shrinkless",
   },
   description:

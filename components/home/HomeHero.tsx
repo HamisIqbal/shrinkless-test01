@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { SlotMedia } from '@/components/site/SlotMedia';
-import Link from 'next/link';
 import { cropStyle } from '@/lib/media/crop';
 import type { HeroSlide } from '@/components/site/HeroSlider';
 import { homeFonts } from '@/components/home/fonts';
@@ -16,14 +15,17 @@ type Props = {
 };
 
 /**
- * The homepage campaign: the photography, and one way in.
+ * The homepage campaign: the photography and nothing over it.
  *
  * Frames are stacked rather than railed — the next one wipes across the last
  * from the right while it settles out of a slow zoom — and the page lifts off
- * them as it scrolls. The only thing drawn over them is Shop now, centred: no
- * eyebrow, no headline and no carousel furniture, so the hold is a timer
- * rather than a progress bar and the only heading is one for the document
- * outline that is never drawn.
+ * them as it scrolls. Nothing is drawn over them: no button, no eyebrow, no
+ * headline and no carousel furniture, so the hold is a timer rather than a
+ * progress bar and the only heading is one for the document outline that is
+ * never drawn. The navigation above is the way into the shop.
+ *
+ * One frame is a campaign too. The admin sets how many there are, from one to
+ * six; with one it simply stands, and it is not announced as a carousel.
  *
  * The timer is read from `prefers-reduced-motion` inside an effect, which is
  * the one place that preference can be read without a hydration mismatch (see
@@ -70,7 +72,7 @@ export function HomeHero({ slides, interval = 6000 }: Props) {
       ref={root}
       className={`hero hm-hero ${homeFonts}`}
       aria-labelledby="hero-heading"
-      aria-roledescription="carousel"
+      aria-roledescription={count > 1 ? 'carousel' : undefined}
       aria-label="Shrinkless campaign"
     >
       {/* The page's heading, for the outline and for a screen reader. Nothing
@@ -114,13 +116,6 @@ export function HomeHero({ slides, interval = 6000 }: Props) {
             </div>
           );
         })}
-      </div>
-
-      {/* The one call to action, centred in the frame at every width. */}
-      <div className="hm-hero__call">
-        <Link href="/shop" className="hm-hero__cta">
-          <span>Shop Now</span>
-        </Link>
       </div>
 
       <div id="hero-sentinel" className="hero__sentinel" aria-hidden="true" />

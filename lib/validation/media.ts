@@ -3,9 +3,10 @@ import { z } from 'zod';
 import { isSectionColour, normaliseSectionColour } from '@/lib/media/colours';
 import { ZOOM_MAX, ZOOM_MIN } from '@/lib/media/crop';
 
-/** How many frames the campaign carousel will accept. Two is the fewest that
- *  is still a carousel; six is more than any visitor will ever sit through. */
-export const HERO_MIN = 2;
+/** How many frames the homepage campaign will accept. One is a single
+ *  photograph or film that simply stands; two or more take turns. Six is more
+ *  than any visitor will ever sit through. */
+export const HERO_MIN = 1;
 export const HERO_MAX = 6;
 
 /**

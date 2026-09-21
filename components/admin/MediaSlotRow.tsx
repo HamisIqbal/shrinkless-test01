@@ -214,7 +214,17 @@ export type SlotRowProps = {
   open: boolean;
   onToggle: () => void;
   onChange: (frames: Frame[]) => void;
+  /**
+   * How many frames this slot may hold, for the one slot that holds a set —
+   * the homepage campaign. Given, the row can add, remove and reorder frames
+   * within it; absent, the slot is one photograph and stays one.
+   */
+  range?: { min: number; max: number };
 };
+
+/** A frame waiting for its photograph. Publishing refuses it until one is
+ *  given, and says which frame is holding things up. */
+const BLANK: Frame = { url: '', alt: '', focus: '', zoom: ZOOM_MIN, mobileFocus: '' };
 
 /**
  * A photograph in the list: what it is, where it is seen, and whether it has
@@ -225,8 +235,9 @@ export type SlotRowProps = {
  * is what identifies the row; the crop stages inside are what the decisions
  * are made against.
  *
- * The carousel is the one slot holding several photographs, so it opens to one
- * set of controls per frame rather than to a special case.
+ * The homepage campaign is the one slot holding a set, so it opens to one set
+ * of controls per frame — and, because it is a set, to adding, removing and
+ * reordering them: one frame that stands, or up to six that take turns.
  */
 export function MediaSlotRow({
   label,
@@ -237,9 +248,11 @@ export function MediaSlotRow({
   open,
   onToggle,
   onChange,
+  range,
 }: SlotRowProps) {
   const edited = !sameFrames(frames, savedFrames);
   const many = frames.length > 1;
+  const listed = Boolean(range) || many;
 
   /* A slot always ships with at least one frame, so this is a guard against a
      future that has none rather than a state the registry can reach today. */
@@ -247,6 +260,12 @@ export function MediaSlotRow({
 
   function patch(index: number, change: Partial<Frame>) {
     onChange(frames.map((frame, i) => (i === index ? { ...frame, ...change } : frame)));
+  }
+
+  function move(index: number, by: -1 | 1) {
+    const next = [...frames];
+    [next[index], next[index + by]] = [next[index + by], next[index]];
+    onChange(next);
   }
 
   return (
@@ -297,7 +316,7 @@ export function MediaSlotRow({
 
       {open ? (
         <div className="mediarow__panel">
-          {many ? (
+          {listed ? (
             <ol className="mediaslot__frames">
               {frames.map((frame, index) => (
                 <li className="mediaslot__frame" key={index}>
@@ -307,6 +326,38 @@ export function MediaSlotRow({
                     </span>
                     {hasMobileCrop(frame) ? (
                       <span className="mediaslot__index">Phone cropped separately</span>
+                    ) : null}
+
+                    {range ? (
+                      <span className="mediaslot__order">
+                        <button
+                          type="button"
+                          className="abtn abtn--quiet abtn--sm"
+                          onClick={() => move(index, -1)}
+                          disabled={index === 0}
+                          aria-label={`Move frame ${index + 1} earlier`}
+                        >
+                          Earlier
+                        </button>
+                        <button
+                          type="button"
+                          className="abtn abtn--quiet abtn--sm"
+                          onClick={() => move(index, 1)}
+                          disabled={index === frames.length - 1}
+                          aria-label={`Move frame ${index + 1} later`}
+                        >
+                          Later
+                        </button>
+                        <button
+                          type="button"
+                          className="abtn abtn--ghost abtn--sm"
+                          onClick={() => onChange(frames.filter((_, i) => i !== index))}
+                          disabled={frames.length <= range.min}
+                          aria-label={`Remove frame ${index + 1}`}
+                        >
+                          Remove
+                        </button>
+                      </span>
                     ) : null}
                   </div>
 
@@ -325,6 +376,24 @@ export function MediaSlotRow({
               onChange={(change) => patch(0, change)}
             />
           )}
+
+          {range ? (
+            <div className="mediaslot__add">
+              <button
+                type="button"
+                className="abtn abtn--ghost abtn--sm"
+                onClick={() => onChange([...frames, { ...BLANK }])}
+                disabled={frames.length >= range.max}
+              >
+                Add a frame
+              </button>
+              <p className="mediarow__note">
+                {frames.length === 1
+                  ? 'One frame stands on its own. Add another and they take turns.'
+                  : `${frames.length} frames take turns. Up to ${range.max}; remove all but one for a single image or video.`}
+              </p>
+            </div>
+          ) : null}
 
           <div className="mediaslot__foot">
             <button

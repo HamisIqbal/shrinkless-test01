@@ -59,9 +59,13 @@ export function Roll({ children }: { children: string }) {
  * rather than as interface; the wordmark keeps Archivo's width axis so the
  * brand is still the one thing on the bar in the brand's own face.
  *
- * Shop, Men and Women each drop the same sheet with their own set of columns,
- * on a lazy hover or a pinning click. None of them carries a plus: the sheet
- * dropping is the disclosure. Search opens a sheet the size of the window —
+ * Shop, Men and Women are links to their collections, and each drops the same
+ * sheet with its own set of columns on a lazy hover. None of them carries a
+ * plus: the sheet dropping is the disclosure. They used to be buttons that
+ * pinned the sheet on a click, which left a shopper who clicked "Men" looking
+ * at a menu instead of the men's collection. Pointing at anything else on the
+ * bar — Wholesale, About Us, the utilities — puts the sheet away, so it never
+ * hangs open under a word it does not belong to. Search opens a sheet the size of the window —
  * the field across the top, the catalogue as cards underneath it — and the
  * cart opens as a sheet of its own.
  *
@@ -90,7 +94,6 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail, products
   const [cartOpen, setCartOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [hovered, setHovered] = useState<number | null>(null);
-  const [pinned, setPinned] = useState(false);
 
   const searchInput = useRef<HTMLInputElement>(null);
   const hoverTimer = useRef(0);
@@ -141,7 +144,6 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail, products
 
     function onKey(event: KeyboardEvent) {
       if (event.key !== 'Escape') return;
-      setPinned(false);
       setMegaPanel(null);
       setSearchOpen(false);
     }
@@ -166,12 +168,10 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail, products
   }, [searchOpen]);
 
   const closeMega = useCallback(() => {
-    setPinned(false);
     setMegaPanel(null);
   }, []);
 
   const closePanels = useCallback(() => {
-    setPinned(false);
     setMegaPanel(null);
     setSearchOpen(false);
   }, []);
@@ -208,24 +208,23 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail, products
 
   const hoverClose = useCallback(() => {
     setHovered(null);
-    if (!canHover() || pinned) return;
+    if (!canHover()) return;
     clearHover();
     hoverTimer.current = window.setTimeout(() => setMegaPanel(null), HOVER_OUT);
-  }, [canHover, clearHover, pinned]);
+  }, [canHover, clearHover]);
 
-  // Clicking the word the sheet is already showing shuts it; clicking another
-  // swaps the columns under a sheet that stays down.
-  function toggleMega(key: PanelKey) {
+  /* Arriving on a word with no sheet of its own shuts the one that is down —
+     and cancels one that was about to drop, if the pointer only passed over
+     Men on its way here. The pointer never left the bar, so without this the
+     header's own mouseleave never fired and Men's columns stayed open under
+     Wholesale. */
+  const leaveMega = useCallback(() => {
     clearHover();
-    const next = megaPanel === key ? null : key;
-    setSearchOpen(false);
-    setPinned(next !== null);
-    setMegaPanel(next);
-  }
+    setMegaPanel(null);
+  }, [clearHover]);
 
   function toggleSearch() {
     clearHover();
-    setPinned(false);
     setMegaPanel(null);
     setSearchOpen((value) => !value);
   }
@@ -255,7 +254,7 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail, products
     <>
       <header className={classes} onMouseLeave={hoverClose}>
         <div className="hm-head__bar">
-          <div className="hm-head__left">
+          <div className="hm-head__left" onMouseEnter={leaveMega}>
             <button
               type="button"
               className="hm-burger"
@@ -298,19 +297,24 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail, products
                       onBlur={() => setHovered(null)}
                     >
                       {key ? (
-                        <button
-                          type="button"
+                        <Link
+                          href={item.href}
                           className="hm-nav__link"
                           aria-expanded={megaPanel === key}
                           aria-controls="shop-mega"
-                          onClick={() => toggleMega(key)}
+                          onClick={leaveMega}
                           onMouseEnter={() => hoverOpen(key)}
                           onFocus={() => hoverOpen(key)}
                         >
                           {item.label}
-                        </button>
+                        </Link>
                       ) : (
-                        <Link href={item.href} className="hm-nav__link">
+                        <Link
+                          href={item.href}
+                          className="hm-nav__link"
+                          onMouseEnter={leaveMega}
+                          onFocus={leaveMega}
+                        >
                           {item.label}
                         </Link>
                       )}
@@ -335,7 +339,7 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail, products
             </LayoutGroup>
           </nav>
 
-          <div className="hm-head__utils">
+          <div className="hm-head__utils" onMouseEnter={leaveMega}>
             {isAdmin ? (
               <Link href="/admin" className="hm-util hm-util--admin">
                 <Roll>Admin</Roll>

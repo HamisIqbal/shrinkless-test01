@@ -71,8 +71,12 @@ describe('heroFramesInputSchema', () => {
     expect(heroFramesInputSchema.safeParse(frames(HERO_MAX)).success).toBe(true);
   });
 
-  it('refuses a carousel of one', () => {
-    expect(heroFramesInputSchema.safeParse(frames(1)).success).toBe(false);
+  it('accepts a single frame, which simply stands', () => {
+    expect(heroFramesInputSchema.safeParse(frames(1)).success).toBe(true);
+  });
+
+  it('refuses none at all', () => {
+    expect(heroFramesInputSchema.safeParse(frames(0)).success).toBe(false);
   });
 
   it('refuses more than the maximum', () => {
