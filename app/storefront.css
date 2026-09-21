@@ -2072,20 +2072,28 @@
 /* --------------------------------------------------------------------------
    Cart sheet
    A surface of its own, on purpose. The rest of the storefront is ink on
-   paper; this is flat black with white type and orange for the asides, so the
-   sheet reads as something laid over the shop rather than as another panel of
-   it — and so its one primary action cannot be confused with the page's own
-   buttons. The palette is declared once, here, and used nowhere else.
+   paper; this is flat black with white type and the brand orange for the one
+   action that matters, so the sheet reads as something laid over the shop
+   rather than as another panel of it. The palette is declared once, here, and
+   used nowhere else.
+
+   Shape: a bottom sheet on a phone, sized to what is in it rather than to the
+   window; a drawer from the right edge from 48rem up. It used to take the
+   whole viewport on a desktop, which left one tee floating in a black room.
    -------------------------------------------------------------------------- */
 
 .cartsheet {
   --cart-ground: #000000;
-  --cart-raised: #000000;
-  --cart-line:   #3a3a3a;
+  --cart-raised: #0e0e0e;
+  --cart-well:   #161616;
+  --cart-line:   #262626;
+  --cart-edge:   #3a3a3a;
   --cart-type:   #ffffff;
-  --cart-dim:    #ff8a3d;
-  --cart-spot:   #ffffff;
-  --cart-mute:   #6d6d6d;
+  --cart-soft:   #a3a3a3;
+  --cart-mute:   #5c5c5c;
+  --cart-spot:   var(--color-accent, #ff7a00);
+  --cart-spot-2: var(--color-accent-deep, #ff9433);
+  --cart-pad:    1.25rem;
 
   position: fixed;
   inset: 0;
@@ -2102,29 +2110,29 @@
   inset: 0;
   border: 0;
   padding: 0;
-  background: rgba(10, 10, 10, 0.55);
+  background: rgba(10, 10, 10, 0.6);
+  backdrop-filter: blur(2px);
   opacity: 0;
   transition: opacity var(--dur-3) var(--ease-out);
 }
 
 .cartsheet--open .cartsheet__scrim { opacity: 1; }
 
-/* Rises from the foot of the window at every width and takes the lower half of
-   it — full-bleed on a phone, a tablet and a monitor alike. The list inside
-   scrolls, so a long cart costs the sheet no height. */
+/* Phone: rises from the foot and stops at its content. The list is the only
+   part that scrolls, so the header and the checkout never leave the screen. */
 .cartsheet__panel {
   position: absolute;
   inset-inline: 0;
   bottom: 0;
   display: flex;
   flex-direction: column;
-  height: 50dvh;
-  max-height: 50dvh;
+  max-height: min(88dvh, 44rem);
   background: var(--cart-ground);
   color: var(--cart-type);
-  border-top-left-radius: var(--radius-slab);
-  border-top-right-radius: var(--radius-slab);
-  box-shadow: 0 -1.5rem 4rem rgba(10, 10, 10, 0.55);
+  border-top: var(--spacing-rule) solid var(--cart-line);
+  border-radius: 1.25rem 1.25rem 0 0;
+  box-shadow: 0 -1.5rem 4rem rgba(0, 0, 0, 0.6);
+  overflow: hidden;
   transform: translate3d(0, 100%, 0);
   transition: transform var(--dur-3) var(--ease-out);
 }
@@ -2135,263 +2143,434 @@
   .cartsheet__panel { transition: none; }
 }
 
-/* The handle. Says "this came up and can go back down" before anything else in
-   the sheet has been read. */
 .cartsheet__grip {
-  width: 2.5rem;
+  flex: none;
+  width: 2.25rem;
   height: 0.25rem;
-  margin: var(--space-2) auto 0;
+  margin: 0.625rem auto 0;
   border-radius: 999px;
-  background: var(--cart-line);
+  background: var(--cart-edge);
 }
 
+/* ---- Header ------------------------------------------------------------ */
+
 .cartsheet__bar {
+  flex: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  padding: var(--space-4) var(--space-5) var(--space-3);
+  padding: 0.875rem var(--cart-pad);
   border-bottom: var(--spacing-rule) solid var(--cart-line);
 }
 
 .cartsheet__title {
   display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-meta);
-  font-weight: 500;
-  letter-spacing: 0.18em;
+  align-items: baseline;
+  gap: 0.75rem;
+  min-width: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 .cartsheet__count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.5rem;
-  height: 1.5rem;
-  padding-inline: 0.4rem;
-  border-radius: 999px;
-  background: var(--cart-spot);
-  color: var(--cart-ground);
   font-size: 0.6875rem;
-  letter-spacing: 0.06em;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--cart-soft);
+  white-space: nowrap;
 }
 
 .cartsheet__close {
   flex: none;
-  border: 0;
-  background: none;
-  padding: 0;
-  color: var(--cart-dim);
-  font: inherit;
-  font-size: var(--text-meta);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-right: -0.375rem;
+  border: var(--spacing-rule) solid var(--cart-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cart-type);
   cursor: pointer;
-  transition: color var(--dur-1) var(--ease-out);
+  transition:
+    border-color var(--dur-1) var(--ease-out),
+    background-color var(--dur-1) var(--ease-out),
+    transform var(--dur-2) var(--ease-out);
 }
 
-.cartsheet__close:hover { color: var(--cart-type); }
+.cartsheet__close svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+}
+
+.cartsheet__close:hover {
+  border-color: var(--cart-edge);
+  background: var(--cart-well);
+  transform: rotate(90deg);
+}
+
+/* ---- Lines ------------------------------------------------------------- */
 
 .cartsheet__lines {
-  flex: 1;
+  flex: 0 1 auto;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-inline: var(--space-5);
+  padding-inline: var(--cart-pad);
+  transition: opacity var(--dur-1) var(--ease-out);
 }
+
+/* While the server settles a change, the list says so without a spinner. */
+.cartsheet__panel[aria-busy="true"] .cartsheet__lines { opacity: 0.6; }
 
 .cartsheet__line {
   display: grid;
-  grid-template-columns: 4.5rem minmax(0, 1fr) auto;
-  gap: var(--space-3);
-  padding-block: var(--space-4);
+  grid-template-columns: 5.25rem minmax(0, 1fr);
+  gap: 1rem;
+  padding-block: 1.125rem;
   border-bottom: var(--spacing-rule) solid var(--cart-line);
 }
 
 .cartsheet__lines > .cartsheet__line:last-child { border-bottom: 0; }
 
-.cartsheet__plate { display: block; background: #141414; }
+.cartsheet__plate {
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background: var(--cart-well);
+}
 
-.cartsheet__thumb { width: 100%; height: auto; object-fit: cover; }
+.cartsheet__thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-4) var(--ease-out);
+}
 
-.cartsheet__body { display: grid; gap: 0.3rem; align-content: start; min-width: 0; }
+.cartsheet__line:hover .cartsheet__thumb { transform: scale(1.04); }
+
+.cartsheet__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+/* Name and spec on the left, the figure on the right: same row, same top
+   edge, so the price reads as part of the line rather than as a column of its
+   own across the room. */
+.cartsheet__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.cartsheet__info { display: grid; gap: 0.375rem; min-width: 0; }
 
 .cartsheet__name {
-  font-size: var(--text-meta);
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   overflow-wrap: anywhere;
 }
 
-.cartsheet__name a { color: inherit; text-decoration: none; }
-.cartsheet__name a:hover { text-decoration: underline; }
+.cartsheet__name a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.25em;
+  transition: text-decoration-color var(--dur-1) var(--ease-out);
+}
+
+.cartsheet__name a:hover { text-decoration-color: currentColor; }
 
 .cartsheet__spec {
-  font-size: var(--text-meta);
-  letter-spacing: 0.1em;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--cart-dim);
+  color: var(--cart-soft);
 }
 
-.cartsheet__stepper {
+.cartsheet__dot {
+  width: 0.1875rem;
+  height: 0.1875rem;
+  border-radius: 999px;
+  background: var(--cart-mute);
+}
+
+.cartsheet__price {
+  flex: none;
+  display: grid;
+  justify-items: end;
+  gap: 0.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.cartsheet__each {
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--cart-soft);
+}
+
+.cartsheet__acts {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding-top: var(--space-2);
+  justify-content: space-between;
+  gap: 0.75rem;
 }
+
+/* One enclosed control rather than three loose circles. */
+.cartsheet__stepper {
+  display: inline-flex;
+  align-items: center;
+  height: 2.5rem;
+  border: var(--spacing-rule) solid var(--cart-edge);
+  border-radius: 999px;
+  transition: border-color var(--dur-1) var(--ease-out);
+}
+
+.cartsheet__stepper:hover,
+.cartsheet__stepper:focus-within { border-color: var(--cart-soft); }
 
 .cartsheet__stepper button {
-  min-width: 2rem;
-  height: 2rem;
-  border: var(--spacing-rule) solid var(--cart-line);
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 100%;
+  border: 0;
   border-radius: 999px;
   background: transparent;
-  color: inherit;
-  font: inherit;
+  color: var(--cart-type);
   cursor: pointer;
-  transition: border-color var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
+  transition: background-color var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
 }
 
-.cartsheet__stepper button:hover:not(:disabled) { border-color: var(--cart-spot); }
-.cartsheet__stepper button:disabled { color: var(--cart-mute); border-color: var(--cart-mute); cursor: not-allowed; }
+.cartsheet__stepper svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
 
-/* Not a stepper control, so it drops the box the three beside it wear. */
-.cartsheet__stepper .cartsheet__remove {
-  min-width: 0;
-  height: auto;
+.cartsheet__stepper button:hover:not(:disabled) { background: var(--cart-well); }
+.cartsheet__stepper button:disabled { color: var(--cart-mute); cursor: not-allowed; }
+
+.cartsheet__qty {
+  min-width: 1.75rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.cartsheet__remove {
   border: 0;
-  padding: 0 0 0 var(--space-2);
-  color: var(--cart-dim);
-  font-size: var(--text-meta);
-  letter-spacing: 0.1em;
+  background: none;
+  padding: 0.5rem 0;
+  color: var(--cart-soft);
+  font: inherit;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   text-decoration: underline;
-  text-underline-offset: 0.25em;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.3em;
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-out), text-decoration-color var(--dur-1) var(--ease-out);
 }
 
-.cartsheet__stepper .cartsheet__remove:hover:not(:disabled) { color: var(--cart-type); }
+.cartsheet__remove:hover:not(:disabled) { color: var(--cart-spot); text-decoration-color: currentColor; }
+.cartsheet__remove:disabled { color: var(--cart-mute); cursor: not-allowed; }
 
-.cartsheet__linetotal { align-self: start; font-weight: 500; }
+/* ---- Summary ----------------------------------------------------------- */
 
 .cartsheet__foot {
   flex: none;
-  padding: var(--space-4) var(--space-5)
-    calc(var(--space-5) + env(safe-area-inset-bottom));
+  display: grid;
+  gap: 1rem;
+  padding: 1.125rem var(--cart-pad) calc(1.125rem + env(safe-area-inset-bottom));
   border-top: var(--spacing-rule) solid var(--cart-line);
   background: var(--cart-raised);
 }
 
+.cartsheet__sums { display: grid; gap: 0.375rem; }
 
-.cartsheet__total {
+.cartsheet__sums > div {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-3);
-  font-size: var(--text-sub);
-  font-weight: 500;
 }
+
+.cartsheet__total dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cartsheet__total dd { font-size: 1.25rem; font-weight: 600; }
 
 .cartsheet__note {
-  padding-top: var(--space-1);
-  font-size: var(--text-meta);
-  letter-spacing: 0.08em;
-  color: var(--cart-dim);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--cart-soft);
 }
 
-/* The sheet's own button, not the storefront's — inverted against the dark
-   ground the way .btn is inverted against paper. */
+.cartsheet__actions { display: grid; gap: 0.5rem; }
+
+/* The one loud thing in the sheet: black on the brand orange. */
 .cartsheet__cta {
-  display: block;
-  margin-top: var(--space-4);
-  padding: 1rem var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-height: 3.25rem;
+  padding: 0.875rem var(--space-4);
+  border-radius: 999px;
   background: var(--cart-spot);
-  color: var(--cart-ground);
-  font-size: var(--text-meta);
+  color: #000000;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background-color var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out);
+}
+
+.cartsheet__cta svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform var(--dur-2) var(--ease-out);
+}
+
+.cartsheet__cta:hover { background: var(--cart-spot-2); }
+.cartsheet__cta:hover svg { transform: translateX(0.25rem); }
+.cartsheet__cta:active { transform: scale(0.99); }
+
+.cartsheet__keep {
+  min-height: 2.75rem;
+  border: var(--spacing-rule) solid var(--cart-line);
+  border-radius: 999px;
+  background: transparent;
+  padding: 0 var(--space-4);
+  color: var(--cart-soft);
+  font: inherit;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  text-align: center;
-  text-decoration: none;
-  transition: background-color var(--dur-1) var(--ease-out);
-}
-
-.cartsheet__cta:hover { background: var(--cart-dim); }
-
-.cartsheet__keep {
-  display: block;
-  width: 100%;
-  margin-top: var(--space-3);
-  border: 0;
-  background: none;
-  padding: 0;
-  color: var(--cart-dim);
-  font: inherit;
-  font-size: var(--text-meta);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   cursor: pointer;
-  transition: color var(--dur-1) var(--ease-out);
+  transition: color var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out);
 }
 
-.cartsheet__keep:hover { color: var(--cart-type); }
+.cartsheet__keep:hover { color: var(--cart-type); border-color: var(--cart-edge); }
+
+/* ---- Empty ------------------------------------------------------------- */
 
 .cartsheet__empty {
-  padding: var(--space-6) var(--space-5)
-    calc(var(--space-6) + env(safe-area-inset-bottom));
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  padding: var(--space-5) var(--cart-pad) calc(var(--space-5) + env(safe-area-inset-bottom));
   text-align: center;
-
-  /* The sheet is a fixed half-viewport now; on a short screen even this can
-     run past it. */
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
 
-.cartsheet__emptyhead { font-size: var(--text-sub); font-weight: 500; }
-
-.cartsheet__emptylede {
-  padding-top: var(--space-2);
-  margin-inline: auto;
-  max-width: 30ch;
-  color: var(--cart-dim);
+.cartsheet__emptyhead {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-.cartsheet__empty .cartsheet__cta { margin-top: var(--space-5); }
+.cartsheet__emptylede {
+  max-width: 30ch;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--cart-soft);
+}
 
-/* On a desktop the half-height sheet put the one thing a shopper came to press
-   below the fold. At 62rem and up it takes the whole viewport instead: the
-   lines (or the empty state) scroll inside it, and the foot — subtotal,
-   checkout — stays where it lands. */
-@media (min-width: 62rem) {
+.cartsheet__empty .cartsheet__cta { margin-top: var(--space-3); min-width: 14rem; }
+
+/* ---- Very narrow phones ------------------------------------------------ */
+
+@media (max-width: 22.5rem) {
+  .cartsheet { --cart-pad: 1rem; }
+  .cartsheet__line { grid-template-columns: 4.5rem minmax(0, 1fr); gap: 0.875rem; }
+}
+
+/* ---- Tablet and up: a drawer from the right -----------------------------
+   Full height at a fixed, readable width; the lines fill what the header and
+   the summary leave, and checkout stays pinned at the foot however long the
+   cart runs. */
+@media (min-width: 48rem) {
+  .cartsheet { --cart-pad: 1.75rem; }
+
   .cartsheet__panel {
-    height: 100dvh;
-    max-height: 100dvh;
+    inset-block: 0;
+    inset-inline: auto 0;
+    width: min(30rem, 100vw);
+    max-height: none;
+    border-top: 0;
+    border-left: var(--spacing-rule) solid var(--cart-line);
     border-radius: 0;
+    box-shadow: -1.5rem 0 4rem rgba(0, 0, 0, 0.5);
+    transform: translate3d(100%, 0, 0);
   }
 
   .cartsheet__grip { display: none; }
 
-  .cartsheet__lines,
-  .cartsheet__empty {
-    margin-inline: auto;
-    width: 100%;
-    max-width: 56rem;
+  .cartsheet__bar { padding-block: 1.375rem; }
+
+  .cartsheet__title { font-size: 1rem; }
+
+  .cartsheet__lines { flex: 1 1 auto; }
+
+  .cartsheet__line {
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: 1.25rem;
+    padding-block: 1.375rem;
   }
 
-  /* The empty state has room to breathe now, and "Shop tees" sits well inside
-     the first screen. */
-  .cartsheet__empty {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
+  .cartsheet__foot { padding-block: 1.5rem; gap: 1.25rem; }
 
-  .cartsheet__foot > * { margin-inline: auto; max-width: 56rem; }
+  .cartsheet__total dd { font-size: 1.375rem; }
+
+  .cartsheet__empty { flex: 1; align-content: center; }
+}
+
+@media (min-width: 90rem) {
+  .cartsheet__panel { width: 33rem; }
 }
 
 /* The global focus ring is ink, which is invisible here. */

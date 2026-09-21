@@ -64,7 +64,8 @@ function canStepUp(line: CartLineDTO): boolean {
 }
 
 /**
- * The cart, as a sheet that rises from the foot of the window.
+ * The cart, as a sheet that rises from the foot of the window on a phone and
+ * a drawer from the right edge on anything wider (the shape is all CSS).
  *
  * Sending a shopper to /cart threw away the page they were shopping — the
  * scroll position, the filters, the colourway they had stepped a card round
@@ -189,27 +190,37 @@ export function CartSheet({ cart, open, onClose }: Props) {
 
       <div
         className="cartsheet__panel"
-        // Lenis owns the wheel globally; without this the list inside a
-        // half-height sheet cannot be scrolled with a trackpad.
+        // Lenis owns the wheel globally; without this the list inside the
+        // sheet cannot be scrolled with a trackpad.
         data-lenis-prevent
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
+        aria-busy={pending}
         ref={panelRef}
         inert={!open}
       >
         <span className="cartsheet__grip" aria-hidden="true" />
 
-        <div className="cartsheet__bar">
+        <header className="cartsheet__bar">
           <h2 id={titleId} className="cartsheet__title">
             Your cart
-            {count > 0 ? <span className="cartsheet__count tnum">{count}</span> : null}
+            <span className="cartsheet__count tnum">
+              {count} {count === 1 ? 'item' : 'items'}
+            </span>
           </h2>
 
-          <button type="button" className="cartsheet__close" onClick={onClose}>
-            Close
+          <button
+            type="button"
+            className="cartsheet__close"
+            aria-label="Close cart"
+            onClick={onClose}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
           </button>
-        </div>
+        </header>
 
         {lines.length === 0 ? (
           <div className="cartsheet__empty">
@@ -231,89 +242,114 @@ export function CartSheet({ cart, open, onClose }: Props) {
                     href={`/product/${line.productSlug}`}
                     className="cartsheet__plate"
                     onClick={onClose}
+                    tabIndex={-1}
+                    aria-hidden="true"
                   >
                     {line.imagePublicId ? (
                       <Image
-                        src={imageUrl(line.imagePublicId, 'c_fill,w_400,h_600,q_auto,f_auto')}
+                        src={imageUrl(line.imagePublicId, 'c_fill,w_300,h_375,q_auto,f_auto')}
                         alt=""
-                        width={160}
-                        height={240}
+                        width={150}
+                        height={188}
                         className="cartsheet__thumb"
                       />
                     ) : null}
                   </Link>
 
                   <div className="cartsheet__body">
-                    <p className="cartsheet__name">
-                      <Link href={`/product/${line.productSlug}`} onClick={onClose}>
-                        {line.productTitle}
-                      </Link>
-                    </p>
+                    <div className="cartsheet__head">
+                      <div className="cartsheet__info">
+                        <p className="cartsheet__name">
+                          <Link href={`/product/${line.productSlug}`} onClick={onClose}>
+                            {line.productTitle}
+                          </Link>
+                        </p>
 
-                    <p className="cartsheet__spec">
-                      {line.color} / {line.size.toUpperCase()}
-                    </p>
+                        <p className="cartsheet__spec">
+                          <span>{line.color}</span>
+                          <span aria-hidden="true" className="cartsheet__dot" />
+                          <span>Size {line.size.toUpperCase()}</span>
+                        </p>
+                      </div>
 
-                    <div
-                      className="cartsheet__stepper"
-                      role="group"
-                      aria-label={`Quantity for ${line.productTitle}`}
-                    >
-                      <button
-                        type="button"
-                        disabled={pending}
-                        aria-label="Decrease quantity"
-                        onClick={() => change(line.variantId, stepDown(line))}
+                      <p className="cartsheet__price tnum">
+                        {formatCents(line.lineTotalCents)}
+                        {line.quantity > 1 ? (
+                          <span className="cartsheet__each">
+                            {formatCents(line.unitPriceCents)} each
+                          </span>
+                        ) : null}
+                      </p>
+                    </div>
+
+                    <div className="cartsheet__acts">
+                      <div
+                        className="cartsheet__stepper"
+                        role="group"
+                        aria-label={`Quantity for ${line.productTitle}`}
                       >
-                        &minus;
-                      </button>
+                        <button
+                          type="button"
+                          disabled={pending}
+                          aria-label="Decrease quantity"
+                          onClick={() => change(line.variantId, stepDown(line))}
+                        >
+                          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12" /></svg>
+                        </button>
 
-                      <span className="tnum" aria-live="polite">{line.quantity}</span>
+                        <span className="cartsheet__qty tnum" aria-live="polite">
+                          {line.quantity}
+                        </span>
 
-                      <button
-                        type="button"
-                        disabled={pending || !canStepUp(line)}
-                        aria-label="Increase quantity"
-                        onClick={() =>
-                          change(line.variantId, line.quantity + line.quantityRule.step)
-                        }
-                      >
-                        +
-                      </button>
+                        <button
+                          type="button"
+                          disabled={pending || !canStepUp(line)}
+                          aria-label="Increase quantity"
+                          onClick={() =>
+                            change(line.variantId, line.quantity + line.quantityRule.step)
+                          }
+                        >
+                          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12M12 6v12" /></svg>
+                        </button>
+                      </div>
 
                       <button
                         type="button"
                         className="cartsheet__remove"
                         disabled={pending}
+                        aria-label={`Remove ${line.productTitle} from cart`}
                         onClick={() => change(line.variantId, 0)}
                       >
                         Remove
                       </button>
                     </div>
                   </div>
-
-                  <p className="cartsheet__linetotal tnum">
-                    {formatCents(line.lineTotalCents)}
-                  </p>
                 </li>
               ))}
             </ul>
 
             <div className="cartsheet__foot">
-              <div className="cartsheet__total">
-                <span>Subtotal</span>
-                <span className="tnum">{formatCents(cart?.subtotalCents ?? 0)}</span>
+              <dl className="cartsheet__sums">
+                <div className="cartsheet__total">
+                  <dt>Subtotal</dt>
+                  <dd className="tnum">{formatCents(cart?.subtotalCents ?? 0)}</dd>
+                </div>
+                <div className="cartsheet__note">
+                  <dt>Shipping &amp; tax</dt>
+                  <dd>Calculated at checkout</dd>
+                </div>
+              </dl>
+
+              <div className="cartsheet__actions">
+                <Link href="/checkout" className="cartsheet__cta" onClick={onClose}>
+                  <span>Checkout</span>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                </Link>
+
+                <button type="button" className="cartsheet__keep" onClick={onClose}>
+                  Keep shopping
+                </button>
               </div>
-
-              <p className="cartsheet__note">Shipping and tax at checkout.</p>
-
-              <Link href="/checkout" className="cartsheet__cta" onClick={onClose}>
-                Checkout
-              </Link>
-
-              <button type="button" className="cartsheet__keep" onClick={onClose}>
-                Keep shopping
-              </button>
             </div>
           </>
         )}
