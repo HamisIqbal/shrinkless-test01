@@ -799,6 +799,34 @@
 
 .hm-search__cell { min-width: 0; }
 
+/* A result is a thumbnail being scanned, so its name is set at label size
+   and held to two lines — two columns on a phone leave each card ~170px, and
+   a long name at the shop grid's size stacked three and four lines deep. */
+.hm-search .pcard { gap: 0.6rem; }
+
+.hm-search .pcard__foot { gap: 0.5rem; }
+
+.hm-search .pcard__title,
+.hm-search .pcard__price {
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+}
+
+.hm-search .pcard__title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: normal;
+}
+
+@media (min-width: 48rem) {
+  .hm-search .pcard__title,
+  .hm-search .pcard__price { font-size: var(--text-meta); }
+}
+
 .hm-search__empty {
   max-width: 34rem;
   font-family: var(--hm-sans);

@@ -1,6 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // The cloud name every browser-built image address needs. A product upload
+  // is stored as a bare public id and rebuilt into an address in the browser,
+  // so a deployment with only the server's CLOUDINARY_CLOUD_NAME baked an
+  // empty name into the bundle: the admin's freshly uploaded photograph
+  // pointed at https://res.cloudinary.com//image/upload/… and never appeared.
+  // Server-rendered pages hid it, because the server knows the name. The name
+  // is not a secret — it is in every image address the store serves.
+  env: {
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME:
+      process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME || "",
+  },
   images: {
     // Product uploads come from Cloudinary. Editorial and placeholder
     // photography comes from Unsplash until real Shrinkless shots exist —

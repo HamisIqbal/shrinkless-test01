@@ -143,7 +143,12 @@
   html {
     background-color: var(--color-paper);
     color: var(--color-ink);
+    /* Both spellings. Safari reads the prefixed one; Chrome on Android reads
+       only the bare one, and without it "font boosting" inflates small type
+       inside wide fixed surfaces — the search sheet's card titles came out
+       at twice their size on a phone while desktop emulation showed 13px. */
     -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
