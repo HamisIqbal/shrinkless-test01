@@ -9,7 +9,7 @@ export function LogoutButton() {
   return (
     <button
       type="button"
-      className="btn btn--outline"
+      className="sh-btn sh-btn--ghost sh-btn--block"
       disabled={pending}
       onClick={() => startTransition(logoutAction)}
     >

@@ -11,6 +11,9 @@ type Props = {
   lede?: string;
   /** Shown as a two-digit count beside the title. */
   count?: number;
+  /** What the count is counting, singular then plural. Styles on a
+   *  collection; the cart counts items and the account counts orders. */
+  unit?: [string, string];
   /** When the collection has photography of its own. Without it the head is
    *  type on paper — a stand-in photograph would be a lie about the page. */
   image?: BrandImage;
@@ -26,7 +29,14 @@ const pad = (value: number) => String(value).padStart(2, '0');
  * come through. The masthead stays on paper over it — these routes are not in
  * `lib/shop/chrome.ts`.
  */
-export function CatalogueHead({ title, eyebrow, lede, count, image }: Props) {
+export function CatalogueHead({
+  title,
+  eyebrow,
+  lede,
+  count,
+  unit = ['style', 'styles'],
+  image,
+}: Props) {
   const lit = Boolean(image);
 
   return (
@@ -61,7 +71,7 @@ export function CatalogueHead({ title, eyebrow, lede, count, image }: Props) {
 
           {typeof count === 'number' && count > 0 ? (
             <p className="pg-head__count tnum" data-hm-fade data-hm-delay="0.2">
-              {pad(count)} {count === 1 ? 'style' : 'styles'}
+              {pad(count)} {count === 1 ? unit[0] : unit[1]}
             </p>
           ) : null}
         </div>

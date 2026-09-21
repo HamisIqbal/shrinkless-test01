@@ -30,6 +30,7 @@
    -------------------------------------------------------------------------- */
 
 .buybar,
+.sh-account,
 .sh-cart,
 .sh-faq,
 .sh-pdp,
@@ -693,17 +694,6 @@
   font-family: var(--sh-sans);
 }
 
-.sh-cart__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem 1.5rem;
-  padding-bottom: 1.25rem;
-  margin-bottom: clamp(1.75rem, 4vw, 3rem);
-  border-bottom: 1px solid var(--sh-ink);
-}
-
 .sh-cart__layout { display: grid; gap: clamp(2.5rem, 5vw, 4rem); }
 
 @media (min-width: 56.25rem) {
@@ -887,7 +877,6 @@
   justify-items: start;
   gap: 1.5rem;
   max-width: 42rem;
-  padding-block: clamp(3rem, 9vw, 7rem);
 }
 
 /* ==========================================================================
@@ -1635,4 +1624,181 @@
   .sh-btn { transition: none; }
 
   .sh-pdp__shot:hover img { transform: none; }
+}
+
+/* ==========================================================================
+   Account — signing in, the account itself, and the password pages
+
+   These were the last pages still inside the original shell: its header, its
+   footer spacing, a paper ground, sentence-case heads in Inter Tight and form
+   fields drawn as rounded boxes. They open on the same chalk band as a
+   collection now (`CatalogueHead`), and everything under it is built from the
+   primitives above — the ledger row for orders, the receipt's chalk panel for
+   the details, and a hairline for a field, the way the collection's search
+   and the footer's signup are already drawn.
+   ========================================================================== */
+
+.sh-account {
+  padding-block: clamp(2.5rem, 5vw, 4.5rem) clamp(4rem, 8vw, 7rem);
+  background: var(--sh-white);
+  color: var(--sh-ink);
+  font-family: var(--sh-sans);
+}
+
+/* A form is read top to bottom, so it keeps to a column a line of type can
+   cross comfortably rather than the width of the page. */
+.sh-account__narrow {
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 2.5rem);
+  max-width: 30rem;
+}
+
+/* --- fields --------------------------------------------------------------- */
+
+.sh-form { display: grid; gap: 1.5rem; }
+
+.sh-field { display: grid; gap: 0.35rem; }
+
+.sh-field__label {
+  color: var(--sh-stone);
+  font-family: var(--sh-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+/* A hairline, not a box: the same field as the collection's search. The rule
+   darkens when the field is in use, which is the whole of its focus state
+   beside the browser's own ring for a keyboard. */
+.sh-input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--sh-line);
+  border-radius: 0;
+  background: none;
+  color: var(--sh-ink);
+  font-family: var(--sh-sans);
+  font-size: 1rem;
+  transition: border-color 0.35s var(--sh-ease);
+}
+
+.sh-input:focus { outline: 0; border-bottom-color: var(--sh-ink); }
+.sh-input:focus-visible { box-shadow: 0 1px 0 0 var(--sh-ink); }
+
+.sh-field__hint {
+  color: var(--sh-smoke);
+  font-family: var(--sh-mono);
+  font-size: 0.625rem;
+  text-transform: uppercase;
+}
+
+.sh-notice {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  background: var(--sh-chalk);
+  color: var(--sh-ink);
+  font-family: var(--sh-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.sh-notice--error { background: var(--sh-ink); color: var(--sh-white); }
+
+/* The way to the other form — sign in, register, reset — under a rule, in
+   the care-label voice. */
+.sh-swap {
+  display: grid;
+  gap: 0.6rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--sh-line);
+  color: var(--sh-stone);
+  font-family: var(--sh-sans);
+  font-size: 0.9375rem;
+}
+
+.sh-swap .sh-link { margin-left: 0.35rem; color: var(--sh-ink); }
+
+/* --- the account ---------------------------------------------------------- */
+
+.sh-account__layout { display: grid; gap: clamp(2.5rem, 5vw, 4rem); }
+
+@media (min-width: 56.25rem) {
+  .sh-account__layout {
+    grid-template-columns: minmax(0, 1fr) 21rem;
+    align-items: start;
+  }
+}
+
+.sh-account__section { display: grid; gap: 1.25rem; align-content: start; }
+
+/* An order as a ledger row: its number set like a product name, the total
+   where the cart puts a line's figure, and the date and state on the rule
+   beneath. */
+.sh-orders { display: grid; margin: 0; padding: 0; list-style: none; }
+
+.sh-order {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  padding-block: 1.25rem;
+  border-bottom: 1px solid var(--sh-line);
+}
+
+.sh-order:first-child { border-top: 1px solid var(--sh-line); }
+
+.sh-order__num {
+  font-family: var(--sh-display);
+  font-size: 1.375rem;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.sh-order__total {
+  font-family: var(--sh-mono);
+  font-size: 0.8125rem;
+  text-align: right;
+}
+
+.sh-order__meta {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  color: var(--sh-stone);
+  font-family: var(--sh-mono);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+}
+
+.sh-order__status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.6rem;
+  padding-inline: 0.7rem;
+  border: 1px solid var(--sh-line);
+  border-radius: 999px;
+  color: var(--sh-ink);
+}
+
+.sh-account__none {
+  display: grid;
+  justify-items: start;
+  gap: 1.25rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--sh-line);
+}
+
+.sh-account__acts { display: grid; gap: 0.6rem; }
+
+/* An email address is read as written, and a long one wraps rather than
+   pushing the panel wider than its column. */
+.sh-account .sh-receipt__rows dd {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-transform: none;
 }

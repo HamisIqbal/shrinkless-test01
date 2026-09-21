@@ -3,6 +3,9 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { ResetPasswordForm } from '@/components/account/ResetPasswordForm';
 import { checkResetToken } from '@/lib/services/password-reset';
+import { CatalogueHead } from '@/components/pages/CatalogueHead';
+import { homeFonts } from '@/components/home/fonts';
+import '@/components/shop/shop.css';
 
 export const metadata = { title: 'Set a new password' };
 
@@ -29,29 +32,39 @@ export default async function ResetPasswordPage(props: PageProps<'/reset-passwor
 
   if (!check.valid) {
     return (
-      <div className="pagehead">
-        <p className="eyebrow">Account</p>
-        <h1 className="head">That link is no longer good</h1>
+      <>
+        <CatalogueHead
+          eyebrow="Account"
+          title="That link is no longer good"
+          lede={REASONS[check.reason]}
+        />
 
-        <p className="lede authform__step">{REASONS[check.reason]}</p>
-
-        <p className="authswap">
-          <Link href="/forgot-password" className="ulink">Ask for a new link</Link>
-        </p>
-      </div>
+        <div className={`sh-account ${homeFonts}`}>
+          <div className="sh-wrap">
+            <div className="sh-account__narrow">
+              <Link href="/forgot-password" className="sh-btn">Ask for a new link</Link>
+            </div>
+          </div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="pagehead">
-      <p className="eyebrow">Account</p>
-      <h1 className="head">Set a new password</h1>
+    <>
+      <CatalogueHead
+        eyebrow="Account"
+        title="Set a new password"
+        lede={`For ${check.email}. Choosing one signs you straight in.`}
+      />
 
-      <p className="lede authform__step">
-        For <strong>{check.email}</strong>. Choosing one signs you straight in.
-      </p>
-
-      <ResetPasswordForm token={supplied} />
-    </div>
+      <div className={`sh-account ${homeFonts}`}>
+        <div className="sh-wrap">
+          <div className="sh-account__narrow">
+            <ResetPasswordForm token={supplied} />
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

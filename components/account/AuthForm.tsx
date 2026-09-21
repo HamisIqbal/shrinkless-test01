@@ -30,35 +30,35 @@ export function AuthForm({ action, submitLabel, includeName = false }: Props) {
   }
 
   return (
-    <form action={handleSubmit} className="authform">
+    <form action={handleSubmit} className="sh-form">
       {includeName && (
-        <label className="field">
-          Name
-          <input type="text" name="name" autoComplete="name" className="input" />
+        <label className="sh-field">
+          <span className="sh-field__label">Name</span>
+          <input type="text" name="name" autoComplete="name" className="sh-input" />
         </label>
       )}
 
-      <label className="field">
-        Email
-        <input type="email" name="email" required autoComplete="email" className="input" />
+      <label className="sh-field">
+        <span className="sh-field__label">Email</span>
+        <input type="email" name="email" required autoComplete="email" className="sh-input" />
       </label>
 
-      <label className="field">
-        Password
+      <label className="sh-field">
+        <span className="sh-field__label">Password</span>
         <input
           type="password"
           name="password"
           required
-          className="input"
+          className="sh-input"
           autoComplete={includeName ? 'new-password' : 'current-password'}
         />
       </label>
 
-      <button type="submit" className="btn btn--block authform__submit" disabled={pending}>
+      <button type="submit" className="sh-btn sh-btn--block" disabled={pending}>
         {pending ? 'Working…' : submitLabel}
       </button>
 
-      {error ? <p role="alert" className="notice notice--error">{error}</p> : null}
+      {error ? <p role="alert" className="sh-notice sh-notice--error">{error}</p> : null}
     </form>
   );
 }

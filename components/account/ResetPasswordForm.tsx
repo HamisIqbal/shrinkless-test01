@@ -31,43 +31,43 @@ export function ResetPasswordForm({ token }: { token: string }) {
   }
 
   return (
-    <form action={handleSubmit} className="authform">
+    <form action={handleSubmit} className="sh-form">
       <input type="hidden" name="token" value={token} />
 
-      <label className="field">
-        New password
+      <label className="sh-field">
+        <span className="sh-field__label">New password</span>
         <input
           type="password"
           name="password"
           required
           minLength={8}
           autoComplete="new-password"
-          className="input"
+          className="sh-input"
         />
-        <small className="checkoutform__hint">At least 8 characters.</small>
+        <small className="sh-field__hint">At least 8 characters.</small>
       </label>
 
-      <label className="field">
-        Confirm new password
+      <label className="sh-field">
+        <span className="sh-field__label">Confirm new password</span>
         <input
           type="password"
           name="confirm"
           required
           minLength={8}
           autoComplete="new-password"
-          className="input"
+          className="sh-input"
         />
       </label>
 
-      <button type="submit" className="btn btn--block authform__submit" disabled={pending || dead}>
+      <button type="submit" className="sh-btn sh-btn--block" disabled={pending || dead}>
         {pending ? 'Saving…' : 'Set new password'}
       </button>
 
-      {error ? <p role="alert" className="notice notice--error">{error}</p> : null}
+      {error ? <p role="alert" className="sh-notice sh-notice--error">{error}</p> : null}
 
       {dead ? (
-        <p className="authswap">
-          <Link href="/forgot-password" className="ulink">Ask for a new link</Link>
+        <p className="sh-swap">
+          <Link href="/forgot-password" className="sh-link">Ask for a new link</Link>
         </p>
       ) : null}
     </form>

@@ -34,13 +34,13 @@ export function ForgotPasswordForm() {
 
   if (sent) {
     return (
-      <div className="authform">
-        <p className="notice notice--ok">{sent}</p>
-        <p className="lede authform__step">
+      <div className="sh-form">
+        <p className="sh-notice">{sent}</p>
+        <p className="sh-body">
           Nothing arrived? Check the spam folder before asking again — every
           request retires the previous link.
         </p>
-        <button type="button" className="ulink" onClick={() => setSent('')}>
+        <button type="button" className="sh-link" onClick={() => setSent('')}>
           Use a different email
         </button>
       </div>
@@ -48,17 +48,17 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <form action={handleSubmit} className="authform">
-      <label className="field">
-        Email
-        <input type="email" name="email" required autoComplete="email" className="input" />
+    <form action={handleSubmit} className="sh-form">
+      <label className="sh-field">
+        <span className="sh-field__label">Email</span>
+        <input type="email" name="email" required autoComplete="email" className="sh-input" />
       </label>
 
-      <button type="submit" className="btn btn--block authform__submit" disabled={pending}>
+      <button type="submit" className="sh-btn sh-btn--block" disabled={pending}>
         {pending ? 'Sending…' : 'Email me a reset link'}
       </button>
 
-      {error ? <p role="alert" className="notice notice--error">{error}</p> : null}
+      {error ? <p role="alert" className="sh-notice sh-notice--error">{error}</p> : null}
     </form>
   );
 }
