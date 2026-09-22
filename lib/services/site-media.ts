@@ -63,8 +63,9 @@ const TILE: ViewRatios = { desktop: { w: 4, h: 5 }, mobile: { w: 4, h: 5 } };
 const RAIL: ViewRatios = { desktop: { w: 3, h: 2 }, mobile: { w: 3, h: 2 } };
 const BAND: ViewRatios = { desktop: { w: 3, h: 1 }, mobile: { w: 4, h: 5 } };
 /** `.pg-open` — the opener a page other than Home starts on: the width of the
- *  window and most of its height, so landscape at a desk and tall in a hand. */
-const OPENER: ViewRatios = { desktop: { w: 16, h: 9 }, mobile: { w: 9, h: 16 } };
+ *  window, and landscape in a hand as well as at a desk, so a phone shows the
+ *  whole frame rather than a tall strip out of its middle. */
+const OPENER: ViewRatios = { desktop: { w: 16, h: 9 }, mobile: { w: 16, h: 9 } };
 
 /** The carousel is the viewport itself — landscape at a desk, portrait in a
  *  hand. No other slot changes shape this hard, which is why it is the one
@@ -176,13 +177,13 @@ const EDITORIAL: Record<string, EditorialDefinition> = {
      what these slots exist to stop. */
   storyHero: {
     label: 'Our Story (Hero)',
-    where: 'Our Story — the full-bleed film or photograph the page opens on, behind the title',
+    where: 'Our Story — the full-bleed film or photograph the page opens on',
     default: STORY_FILM,
     ratios: OPENER,
   },
   whyHero: {
     label: 'Why Shrinkless (Hero)',
-    where: 'Why Shrinkless — the full-bleed photograph the page opens on, behind the title',
+    where: 'Why Shrinkless — the full-bleed film or photograph the page opens on',
     default: HERO_SLIDES[2],
     ratios: OPENER,
   },

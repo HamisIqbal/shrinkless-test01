@@ -13,64 +13,41 @@
 
 .pg-open {
   position: relative;
-  display: grid;
-  align-items: end;
   overflow: hidden;
-  min-height: 78svh;
-  padding-block: clamp(4rem, 12vh, 9rem);
+  /* Below a desk the frame is the film's own landscape shape, full width, so
+     nothing is cut off its sides to make it taller. */
+  aspect-ratio: 16 / 9;
   background: var(--hm-ink);
-  color: var(--hm-white);
 }
 
 /* The masthead is transparent over this at desktop width, so the media runs to
    the top of the screen the way the campaign does. */
 @media (min-width: 62rem) {
   .pg-open {
+    aspect-ratio: auto;
     margin-top: calc(var(--hm-head-h) * -1);
     min-height: calc(86svh + var(--hm-head-h) - var(--hm-announce));
-    padding-top: calc(var(--hm-head-h) + 4rem);
   }
 }
 
 /* A parallax layer at p=6 travels 6% of its own height each way, so it must
    overscan its section by at least p/(1-2p) ≈ 6.8% on each side — rounded up
-   to 8% — or a strip of ground shows mid-scroll. */
-.pg-open__stage { position: absolute; inset: -8% 0; z-index: 0; }
+   to 8% — or a strip of ground shows mid-scroll. Below a desk the drift is off
+   and the stage is the frame exactly, so the whole film stays in view. */
+.pg-open__stage { position: absolute; inset: 0; z-index: 0; }
+
+@media (min-width: 62rem) {
+  .pg-open__stage { inset: -8% 0; }
+}
+
+@media (max-width: 61.9375rem) {
+  .pg-open__stage { transform: none !important; }
+}
 
 .pg-open__image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-/* Enough ground for white type over an unknown photograph — the admin can
-   publish anything here, so the scrim cannot depend on what is behind it. */
-.pg-open__scrim {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: linear-gradient(to top, rgba(10, 10, 10, 0.78) 0%, rgba(10, 10, 10, 0.25) 45%, rgba(10, 10, 10, 0.35) 100%);
-}
-
-.pg-open__inner { position: relative; z-index: 2; }
-
-.pg-open__title {
-  margin: 0;
-  font-family: var(--hm-bebas);
-  font-size: clamp(3rem, 11vw, 9rem);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 0.88;
-  text-transform: uppercase;
-}
-
-.pg-open__body {
-  max-width: 46ch;
-  margin: clamp(1rem, 2.5vw, 1.75rem) 0 0;
-  color: rgba(255, 255, 255, 0.82);
-  font-family: var(--hm-accent);
-  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
-  line-height: 1.6;
 }
 
 /* --- the chapters --------------------------------------------------------- */

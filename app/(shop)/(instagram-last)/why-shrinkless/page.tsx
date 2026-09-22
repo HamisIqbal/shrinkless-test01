@@ -45,7 +45,6 @@ export default async function WhyShrinklessPage() {
       <PageOpener
         media={media.editorial.whyHero}
         title={copy['why.title']}
-        body={copy['why.lede']}
       />
 
       <ChapterBand chapters={points(media, copy)} label="The four points" />
