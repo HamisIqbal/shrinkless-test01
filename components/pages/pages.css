@@ -50,6 +50,40 @@
   object-fit: cover;
 }
 
+/* --- the intro ------------------------------------------------------------ */
+
+/* The opener's words, set on paper beneath the film rather than over it. */
+.pg-intro {
+  padding-block: clamp(3rem, 9vh, 6.5rem);
+  background: var(--hm-white);
+  color: var(--hm-ink);
+  text-align: center;
+}
+
+.pg-intro__inner {
+  display: grid;
+  justify-items: center;
+}
+
+.pg-intro__title {
+  margin: 0;
+  font-family: var(--hm-bebas);
+  font-size: clamp(3rem, 11vw, 9rem);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.88;
+  text-transform: uppercase;
+}
+
+.pg-intro__body {
+  max-width: 46ch;
+  margin: clamp(1rem, 2.5vw, 1.75rem) auto 0;
+  color: var(--hm-stone);
+  font-family: var(--hm-accent);
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  line-height: 1.6;
+}
+
 /* --- the chapters --------------------------------------------------------- */
 
 .pg-chapters {

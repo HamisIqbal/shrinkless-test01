@@ -52,6 +52,7 @@ export default async function OurStoryPage() {
       <PageOpener
         media={media.editorial.storyHero}
         title={copy['story.title']}
+        body={copy['story.body']}
       />
 
       <ChapterBand chapters={chapters(media, copy)} label="How the tee is made" />
