@@ -84,6 +84,12 @@
   line-height: 1.6;
 }
 
+/* From a tablet up the lede can run most of the screen's width; 46ch left a
+   long paragraph as a narrow column in the middle of a wide band. */
+@media (min-width: 48rem) {
+  .pg-intro__body { max-width: 70vw; }
+}
+
 /* --- the chapters --------------------------------------------------------- */
 
 .pg-chapters {
