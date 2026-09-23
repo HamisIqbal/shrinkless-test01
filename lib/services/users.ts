@@ -99,13 +99,43 @@ export async function verifyCredentials(
   const normalised = email.trim().toLowerCase();
   const user = await User.findOne({ email: normalised }).lean();
 
-  if (!user) {
+  // A Google-only account has no password to match, and must cost the same
+  // time as a missing one.
+  if (!user || !user.passwordHash) {
     await verify(await getDummyHash(), password).catch(() => false);
     return null;
   }
 
   const valid = await verify(user.passwordHash, password).catch(() => false);
   if (!valid) return null;
+
+  return toUserDTO(user as unknown as UserShape);
+}
+
+export async function getUserByEmail(email: string): Promise<UserDTO | null> {
+  await connectToDatabase();
+  const user = await User.findOne({ email: email.trim().toLowerCase() }).lean();
+
+  return user ? toUserDTO(user as unknown as UserShape) : null;
+}
+
+/**
+ * The account behind a Google sign-in, made on the first one.
+ *
+ * Matched on the address, so a customer who registered with a password and
+ * later presses "Continue with Google" lands in the same account with the same
+ * orders. Only safe because the caller has already checked Google verified
+ * that address. The role is never taken from Google.
+ */
+export async function findOrCreateGoogleUser(email: string, name: string): Promise<UserDTO> {
+  await connectToDatabase();
+
+  const normalised = email.trim().toLowerCase();
+  const user = await User.findOneAndUpdate(
+    { email: normalised },
+    { $setOnInsert: { email: normalised, name: name.trim().slice(0, 120), role: 'customer' } },
+    { upsert: true, returnDocument: 'after' },
+  ).lean();
 
   return toUserDTO(user as unknown as UserShape);
 }

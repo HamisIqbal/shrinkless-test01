@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { auth } from '@/auth';
+import { auth, googleEnabled } from '@/auth';
 import { registerAction } from '@/app/actions/auth';
 import { AuthForm } from '@/components/account/AuthForm';
+import { GoogleButton } from '@/components/account/GoogleButton';
 import { CatalogueHead } from '@/components/pages/CatalogueHead';
 import { homeFonts } from '@/components/home/fonts';
 import '@/components/shop/shop.css';
@@ -24,6 +25,7 @@ export default async function RegisterPage() {
       <div className={`sh-account ${homeFonts}`}>
         <div className="sh-wrap">
           <div className="sh-account__narrow">
+            {googleEnabled ? <GoogleButton /> : null}
             <AuthForm action={registerAction} submitLabel="Create account" includeName />
 
             <p className="sh-swap">

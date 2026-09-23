@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { AuthError } from 'next-auth';
-import { auth, signIn, signOut } from '@/auth';
+import { googleEnabled, signIn, signOut } from '@/auth';
 import { EmailTakenError, createUser } from '@/lib/services/users';
 import { loginSchema, registerSchema } from '@/lib/validation/auth';
 import {
@@ -16,8 +16,7 @@ import { passwordResetMail } from '@/lib/email/password-reset';
 import { absoluteUrl } from '@/lib/site';
 import { forgotPasswordSchema, resetPasswordSchema } from '@/lib/validation/auth';
 import { sendMail } from '@/lib/email/send';
-import { mergeGuestCartIntoUserCart } from '@/lib/services/cart';
-import { persistCartId, readCartId } from '@/lib/cart-session';
+import { landingFor, mergeCartForCurrentUser } from '@/lib/auth/after-sign-in';
 import { LIMITS, consume, reset, retryAfterMinutes } from '@/lib/security/rate-limit';
 import { headers } from 'next/headers';
 
@@ -41,42 +40,6 @@ async function clientAddress(): Promise<string> {
 
   return forwarded.split(',')[0]?.trim() || 'unknown';
 }
-/**
- * Where a sign-in lands.
- *
- * An admin signs in to work, so the panel is the destination rather than a
- * customer account page they have no use for. `/account` is still there, and
- * the rail's "View store" link is how they leave.
- */
-function landingFor(role: string | undefined): string {
-  return role === 'admin' ? '/admin' : '/account';
-}
-
-/**
- * After a successful sign-in, fold any guest cart into the account cart so a
- * shopper who filled a basket before logging in does not lose it.
- */
-async function mergeCartForCurrentUser(): Promise<string | undefined> {
-  const session = await auth();
-  const userId = session?.user?.id;
-  const guestCartId = await readCartId();
-
-  // Returned rather than fetched again by the caller: the session was already
-  // read here, and it is the only authority on what the browser now holds.
-  const role = session?.user?.role;
-
-  if (!userId || !guestCartId) return role;
-
-  try {
-    const mergedId = await mergeGuestCartIntoUserCart(guestCartId, userId);
-    await persistCartId(mergedId);
-  } catch {
-    // A missing or already-merged cart must never block signing in.
-  }
-
-  return role;
-}
-
 export async function registerAction(formData: FormData): Promise<AuthResult> {
   const parsed = registerSchema.safeParse({
     email: formData.get('email'),
@@ -172,6 +135,15 @@ export async function loginAction(formData: FormData): Promise<AuthResult> {
   const role = await mergeCartForCurrentUser();
   revalidatePath('/', 'layout');
   redirect(landingFor(role));
+}
+
+/**
+ * Off to Google. The same button signs in and signs up: the first visit makes
+ * the account. Comes back through /auth/continue for the cart and the landing.
+ */
+export async function googleSignInAction(): Promise<void> {
+  if (!googleEnabled) redirect('/login');
+  await signIn('google', { redirectTo: '/auth/continue' });
 }
 
 export async function logoutAction(): Promise<void> {

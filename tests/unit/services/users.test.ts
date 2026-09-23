@@ -4,6 +4,7 @@ import { User } from '@/lib/db/models/user';
 import {
   EmailTakenError,
   createUser,
+  findOrCreateGoogleUser,
   getUserById,
   verifyCredentials,
 } from '@/lib/services/users';
@@ -111,5 +112,32 @@ describe('getUserById', () => {
 
   it('returns null for a malformed id rather than throwing', async () => {
     expect(await getUserById('not-an-id')).toBeNull();
+  });
+});
+
+describe('findOrCreateGoogleUser', () => {
+  it('makes a customer with no password on the first visit', async () => {
+    const user = await findOrCreateGoogleUser('New@Example.com', 'New Buyer');
+    const stored = await User.findOne({ email: 'new@example.com' }).lean();
+
+    expect(user.role).toBe('customer');
+    expect(user.name).toBe('New Buyer');
+    expect(stored?.passwordHash).toBe('');
+  });
+
+  it('lands in the existing account, keeping its name and password', async () => {
+    const existing = await createUser(input);
+    const user = await findOrCreateGoogleUser('BUYER@example.com', 'Someone Else');
+
+    expect(user.id).toBe(existing.id);
+    expect(user.name).toBe('A Buyer');
+    expect(await verifyCredentials(input.email, input.password)).not.toBeNull();
+    expect(await User.countDocuments({})).toBe(1);
+  });
+
+  it('leaves a Google-only account unreachable by any password', async () => {
+    await findOrCreateGoogleUser('g@example.com', '');
+    expect(await verifyCredentials('g@example.com', '')).toBeNull();
+    expect(await verifyCredentials('g@example.com', 'anything')).toBeNull();
   });
 });

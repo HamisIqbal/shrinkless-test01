@@ -29,7 +29,9 @@ const customerNoteSchema = new Schema(
 const userSchema = new Schema(
   {
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    passwordHash: { type: String, required: true },
+    /* Empty for an account that has only ever signed in with Google. Such an
+       account cannot pass a password check until a reset sets one. */
+    passwordHash: { type: String, default: '' },
     name: { type: String, default: '' },
     role: { type: String, enum: ['customer', 'admin'], default: 'customer', index: true },
     addresses: { type: [addressSchema], default: [] },

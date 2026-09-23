@@ -1,11 +1,25 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
+import Google from 'next-auth/providers/google';
 import { loginSchema } from '@/lib/validation/auth';
-import { verifyCredentials } from '@/lib/services/users';
+import {
+  findOrCreateGoogleUser,
+  getUserByEmail,
+  verifyCredentials,
+} from '@/lib/services/users';
+
+/** Google is offered only once its keys are set, so the site runs without
+ *  them and the button never leads to a dead end. Auth.js reads the two
+ *  variables itself. */
+export const googleEnabled = Boolean(
+  process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET,
+);
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: 'jwt' },
-  pages: { signIn: '/login' },
+  // A refused sign-in comes back to the form, which says why, rather than to
+  // Auth.js's own error page.
+  pages: { signIn: '/login', error: '/login' },
   providers: [
     Credentials({
       credentials: {
@@ -22,9 +36,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return { id: user.id, email: user.email, name: user.name, role: user.role };
       },
     }),
+    ...(googleEnabled ? [Google] : []),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    async signIn({ account, profile }) {
+      if (account?.provider !== 'google') return true;
+
+      // An unverified address proves nothing about who owns it, and matching
+      // accounts by address is only safe when it does.
+      if (!profile?.email || profile.email_verified !== true) return false;
+
+      // The back office stays behind its password: a Google account is not a
+      // second way into it.
+      const existing = await getUserByEmail(profile.email);
+      if (existing?.role === 'admin') return false;
+
+      return true;
+    },
+    async jwt({ token, user, account, profile }) {
+      // Google's `user` carries Google's id, so the session is minted from
+      // this store's own account instead.
+      if (account?.provider === 'google' && profile?.email) {
+        const own = await findOrCreateGoogleUser(profile.email, profile.name ?? '');
+        token.id = own.id;
+        token.role = own.role;
+        token.name = own.name || token.name;
+        return token;
+      }
+
       // `user` is only present on the sign-in pass.
       if (user) {
         token.id = user.id;

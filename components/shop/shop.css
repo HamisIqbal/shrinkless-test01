@@ -1721,6 +1721,30 @@
 
 .sh-swap .sh-link { margin-left: 0.35rem; color: var(--sh-ink); }
 
+/* Google above the form, then a rule with "or" set in it — the two ways in
+   read as one choice rather than a button bolted onto a form. */
+.sh-oauth { display: grid; gap: clamp(1.75rem, 4vw, 2.5rem); }
+
+.sh-oauth__btn svg { flex: none; }
+
+.sh-oauth__or {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+  color: var(--sh-stone);
+  font-family: var(--sh-mono);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+}
+
+.sh-oauth__or::before,
+.sh-oauth__or::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--sh-line);
+}
+
 /* --- the account ---------------------------------------------------------- */
 
 .sh-account__layout { display: grid; gap: clamp(2.5rem, 5vw, 4rem); }
