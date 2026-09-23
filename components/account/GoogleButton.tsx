@@ -7,6 +7,7 @@ import { googleSignInAction } from '@/app/actions/auth';
 export function GoogleButton({ label }: { label: string }) {
   return (
     <form action={googleSignInAction} className="sh-oauth">
+      <p className="sh-oauth__or" aria-hidden="true"><span>or</span></p>
       <button type="submit" className="sh-btn sh-btn--ghost sh-btn--block sh-oauth__btn">
         <svg aria-hidden="true" viewBox="0 0 18 18" width="18" height="18">
           <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z" />
@@ -16,7 +17,6 @@ export function GoogleButton({ label }: { label: string }) {
         </svg>
         <span>{label}</span>
       </button>
-      <p className="sh-oauth__or" aria-hidden="true"><span>or with email</span></p>
     </form>
   );
 }

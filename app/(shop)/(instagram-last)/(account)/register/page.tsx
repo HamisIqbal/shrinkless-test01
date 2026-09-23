@@ -26,8 +26,8 @@ export default async function RegisterPage() {
       <div className={`sh-account ${homeFonts}`}>
         <div className="sh-wrap">
           <div className="sh-account__narrow">
-            {googleEnabled ? <GoogleButton label="Sign up with Google" /> : null}
             <AuthForm action={registerAction} submitLabel="Create account" includeName />
+            {googleEnabled ? <GoogleButton label="Sign up with Google" /> : null}
 
             <p className="sh-swap">
               <span>
