@@ -46,13 +46,16 @@ const statement = ({ editorial }: SiteMedia, copy: SiteContent): Chapter[] => [
   },
 ];
 
-// Placeholder copy until real reviews exist — spec §11.3. Editable on the
-// Content tab, so replacing it is not a deploy.
-const quotes = (copy: SiteContent): Quote[] => [
-  { text: copy['home.reviews.1.text'], name: copy['home.reviews.1.name'] },
-  { text: copy['home.reviews.2.text'], name: copy['home.reviews.2.name'] },
-  { text: copy['home.reviews.3.text'], name: copy['home.reviews.3.name'] },
-];
+// Real reviews only, entered on the Content tab. A quote without both words
+// and a name is not drawn, and the band is not drawn without one — an
+// unattributed or invented testimonial is a fake review under the FTC's rule
+// (16 CFR Part 465), and the defaults ship empty for that reason.
+const quotes = (copy: SiteContent): Quote[] =>
+  [
+    { text: copy['home.reviews.1.text'], name: copy['home.reviews.1.name'] },
+    { text: copy['home.reviews.2.text'], name: copy['home.reviews.2.name'] },
+    { text: copy['home.reviews.3.text'], name: copy['home.reviews.3.name'] },
+  ].filter((quote) => quote.text?.trim() && quote.name?.trim());
 
 export default async function HomePage() {
   const [media, copy, layer, mediaLayer, newArrivals, featured, ...categories] = await Promise.all([
@@ -138,11 +141,13 @@ export default async function HomePage() {
         />
       ) : null}
 
-      <HomeReviews
-        eyebrow={copy['home.reviews.eyebrow']}
-        heading={copy['home.reviews.heading']}
-        quotes={quotes(copy)}
-      />
+      {quotes(copy).length ? (
+        <HomeReviews
+          eyebrow={copy['home.reviews.eyebrow']}
+          heading={copy['home.reviews.heading']}
+          quotes={quotes(copy)}
+        />
+      ) : null}
 
       <ContentLayer {...layer} />
 

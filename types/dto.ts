@@ -61,6 +61,10 @@ export type ProductDTO = {
   minPriceCents: number;
   tags: string[];
   baseSku: string;
+  /** e.g. "100% cotton". Blank until set on the product. */
+  fiberContent: string;
+  /** e.g. "Made in USA", "Imported". Blank until set on the product. */
+  origin: string;
   seo: SeoDTO;
   quantityRule: QuantityRuleDTO;
   archived: boolean;
@@ -203,6 +207,13 @@ export type InventoryAdjustmentDTO = {
   at: string;
 };
 
+export type BusinessDetailsDTO = {
+  legalName: string;
+  address: string;
+  phone: string;
+  governingState: string;
+};
+
 export type SettingsDTO = {
   storeEmail: string;
   announcement: string;
@@ -211,6 +222,7 @@ export type SettingsDTO = {
   lowStockThreshold: number;
   taxMode: 'none' | 'flat' | 'stripe';
   flatTaxRateBasisPoints: number;
+  business: BusinessDetailsDTO;
 };
 
 export type OrderStatus =
@@ -374,6 +386,8 @@ export type WholesaleProductDTO = {
   /** The retail price the ladder is struck from. Shown as the comparison. */
   retailCents: number;
   tiers: WholesaleTierDTO[];
+  fiberContent: string;
+  origin: string;
 };
 
 /**

@@ -59,7 +59,7 @@ export default async function ShopLayout({ children }: LayoutProps<'/'>) {
       </div>
 
       <FooterReveal>
-        <HomeFooter storeEmail={settings.storeEmail} />
+        <HomeFooter storeEmail={settings.storeEmail} legalName={settings.business.legalName} />
       </FooterReveal>
     </div>
     </ToastProvider>

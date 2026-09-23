@@ -1,6 +1,6 @@
 'use server';
 
-import { headers } from 'next/headers';
+import { clientAddress } from '@/lib/security/client-address';
 import { sendMail } from '@/lib/email/send';
 import { wholesaleEnquiryMail } from '@/lib/email/wholesale-enquiry';
 import { LIMITS, consume } from '@/lib/security/rate-limit';
@@ -23,11 +23,8 @@ export type WholesaleEnquiryState =
 const THROTTLED = 'That is a lot of enquiries from one place. Try again shortly.';
 
 async function withinLimit(): Promise<boolean> {
-  const store = await headers();
-  const address = (store.get('x-forwarded-for') ?? '').split(',')[0]?.trim() || 'unknown';
-
   const result = await consume(
-    `wholesale:${address}`,
+    `wholesale:${await clientAddress()}`,
     LIMITS.publicWrite.limit,
     LIMITS.publicWrite.windowMs,
   );

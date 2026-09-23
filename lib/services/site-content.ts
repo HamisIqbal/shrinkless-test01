@@ -1,6 +1,8 @@
 import { connectToDatabase } from '@/lib/db/connection';
 import { ContentSlot } from '@/lib/db/models/content-slot';
 import { AdminOperationError } from '@/lib/admin/action';
+import { LEGAL_PAGES, type LegalPageId } from '@/lib/legal/pages';
+import { POLICY_TEXT } from '@/lib/legal/policy-text';
 import {
   MOBILE_MAX,
   WIDE_MIN,
@@ -108,43 +110,33 @@ export * from '@/lib/content/style';
 /* --------------------------------------------------------------------------
    The policies
 
-   Four pages of the same shape: a title and a short introduction in the head,
+   Five pages of the same shape: a title and a short introduction in the head,
    then numbered clauses, each a heading and its text. Declared through one
-   builder so the four cannot drift apart, and held here like every other
-   word on the site, so the admin can correct a clause without a deploy.
+   builder so they cannot drift apart, and held here like every other word on
+   the site, so the admin can correct a clause without a deploy.
 
-   Anything the business has not yet confirmed — the return window, where it
-   ships — is marked [TBC] exactly as the FAQ marks it. A guessed number on a
-   policy page is a promise the shop then has to keep.
+   The wording itself lives in lib/legal/policy-text.ts, and the list of legal
+   pages in lib/legal/pages.ts — read the notes there before changing either.
    -------------------------------------------------------------------------- */
 
-type Clause = { heading: string; body: string };
-
 /** The ids the policy pages are registered under, and their addresses. */
-export const POLICY_PAGES = {
-  terms: '/terms',
-  refunds: '/refund-policy',
-  shipping: '/shipping-returns',
-  privacy: '/privacy-policy',
-} as const;
+export const POLICY_PAGES = Object.fromEntries(
+  LEGAL_PAGES.map((page) => [page.id, page.href]),
+) as { [Id in LegalPageId]: Extract<(typeof LEGAL_PAGES)[number], { id: Id }>['href'] };
 
-export type PolicyId = keyof typeof POLICY_PAGES;
+export type PolicyId = LegalPageId;
 
 /** How many clauses each policy carries. The page renders exactly these. */
-export const POLICY_CLAUSES: Record<PolicyId, number> = {
-  terms: 4,
-  refunds: 3,
-  shipping: 4,
-  privacy: 5,
-};
+export const POLICY_CLAUSES = Object.fromEntries(
+  LEGAL_PAGES.map((page) => [page.id, POLICY_TEXT[page.id].clauses.length]),
+) as Record<PolicyId, number>;
 
-function policyPage(
-  id: PolicyId,
-  label: string,
-  title: string,
-  lede: string,
-  clauses: Clause[],
-): ContentPageDefinition {
+const TOKEN_NOTE =
+  ' Words in double braces — {{legalName}}, {{email}}, {{address}}, {{phone}}, {{state}} — are filled in from Settings → Business details; a paragraph whose detail is blank there is left out.';
+
+function policyPage(id: PolicyId, label: string): ContentPageDefinition {
+  const { title, lede, clauses } = POLICY_TEXT[id];
+
   return {
     id: `policy-${id}`,
     label,
@@ -163,7 +155,10 @@ function policyPage(
       {
         id: 'clauses',
         label: 'The clauses',
-        note: 'Numbered in the order they are listed. A blank line in the text starts a new paragraph.',
+        note:
+          'Numbered in the order they are listed. A blank line in the text starts a new paragraph.' +
+          TOKEN_NOTE +
+          ' This is legal text: have changes checked, and never leave a placeholder in it.',
         tone: 'paper',
         fields: clauses.flatMap((clause, index) => {
           const n = index + 1;
@@ -190,134 +185,7 @@ function policyPage(
   };
 }
 
-const POLICIES: ContentPageDefinition[] = [
-  policyPage(
-    'terms',
-    'Terms & Conditions',
-    'Terms & Conditions',
-    'The terms that apply to every order placed on this website. Placing an order means you agree to them, so please read them before you buy.',
-    [
-      {
-        heading: 'Orders, payments & pricing',
-        body:
-          'Every order placed on this website is subject to availability and to our confirmation. Prices are shown in US dollars and may change without notice; the price you pay is the one shown at checkout when you place your order.\n\n' +
-          'We may refuse or cancel an order because of a pricing error, suspected fraud or a stock problem. If we cancel an order you have already paid for, we refund the full amount to the original payment method.\n\n' +
-          'Payment is taken at checkout using the payment methods shown there. Card payments are processed by our payment provider, Stripe.',
-      },
-      {
-        heading: 'Shipping, returns & exchanges',
-        body:
-          'Shipping costs and delivery estimates are shown at checkout and vary with the destination. We aim to dispatch every order promptly, but delivery times are estimates rather than guarantees.\n\n' +
-          'Returns and exchanges are accepted within the return period on items that are unworn, unwashed and in their original condition. Please read our Shipping & Returns page and our Refund Policy before you buy.',
-      },
-      {
-        heading: 'Product care & use',
-        body:
-          'Shrinkless tees are garment dyed organic cotton, made to hold their size and shape wash after wash when they are cared for as the care label directs. Please check the size and fit notes on each product page before ordering.\n\n' +
-          'Garment dyeing means every piece is slightly different in shade; that variation is part of the process and is not a fault. We are not responsible for damage caused by washing or treating a garment against its care label, or for ordinary wear.',
-      },
-      {
-        heading: 'Wholesale orders',
-        body:
-          'Wholesale orders are made to order, from 150 units, on terms we agree with you in writing. Where a written wholesale agreement and these terms differ, the written agreement applies.',
-      },
-    ],
-  ),
-
-  policyPage(
-    'refunds',
-    'Refund Policy',
-    'Refund Policy',
-    'If something is not right, we want to put it right. This page explains how returns, exchanges and refunds work.',
-    [
-      {
-        heading: 'Returns & exchanges',
-        body:
-          'Sometimes a tee is not what you expected, and we want returning or exchanging it to be simple. We accept returns on unworn, unwashed items in their original condition within [TBC] days of delivery.\n\n' +
-          'Once your return reaches us and has been checked, we refund the original payment method or send the exchange. Return shipping: [TBC].',
-      },
-      {
-        heading: 'Made-to-order & wholesale orders',
-        body:
-          'There are no refunds on made-to-order or wholesale orders, because they are made to your specification.\n\n' +
-          'Lead times on made-to-order work can run longer when we have a lot of it in production. We confirm the timeline when your order is agreed.',
-      },
-      {
-        heading: 'Getting help',
-        body:
-          'If you have a question about returns or exchanges, or you need help with one, email us and we will take you through it step by step.',
-      },
-    ],
-  ),
-
-  policyPage(
-    'shipping',
-    'Shipping & Returns',
-    'Shipping & Returns',
-    'How your order reaches you, and how to send something back.',
-    [
-      {
-        heading: 'Shipping information',
-        body:
-          'Every Shrinkless order is packed with care and sent on its way as soon as we can. We keep our shipping options clear and our costs visible, so you know what you are paying before you pay it.',
-      },
-      {
-        heading: 'Costs & delivery times',
-        body:
-          'Shipping costs and delivery estimates are shown at checkout before you pay, and depend on where the order is going. Delivery times are estimates, not guarantees.\n\n' +
-          'Where we ship to: [TBC].',
-      },
-      {
-        heading: 'Returns',
-        body:
-          'Returns are accepted on unworn, unwashed items in their original condition within [TBC] days of delivery. Our Refund Policy explains how refunds and exchanges are handled, and what cannot be returned.',
-      },
-      {
-        heading: 'Questions',
-        body:
-          'Customer satisfaction comes first. If you have a question about shipping, or about an order on its way to you, email us and we will help.',
-      },
-    ],
-  ),
-
-  policyPage(
-    'privacy',
-    'Privacy Policy',
-    'Privacy Policy',
-    'What we collect when you shop with us, why we collect it, and how we keep it safe.',
-    [
-      {
-        heading: 'Customer care',
-        body:
-          'This page is a plain guide to how Shrinkless looks after the information you share with us before, during and after a purchase. It does not replace the terms that apply to a particular order. For help with an order, shipping, a return, sizing or a product, email us and we will answer you directly.',
-      },
-      {
-        heading: 'What we collect',
-        body:
-          'When you create an account: your name, your email address and a password, which we store only in a scrambled form that cannot be read back.\n\n' +
-          'When you place an order: your name, email address, shipping address and the details of the order, so we can send it and help you with it afterwards.\n\n' +
-          'When you join our list: your email address, used only to tell you about restocks and new releases.',
-      },
-      {
-        heading: 'Payments & safety',
-        body:
-          'Card payments are handled by our payment provider, Stripe. Your card details go directly to them and are never stored by us.\n\n' +
-          'We protect your details with encrypted connections and access controls, and only use them to run your orders, your account and the updates you asked for. We do not sell your information.',
-      },
-      {
-        heading: 'Cookies',
-        body:
-          'We use a small number of cookies that the site needs to work: one keeps your cart, one keeps you signed in, and one remembers that you closed the announcement bar. We do not use advertising or tracking cookies.',
-      },
-      {
-        heading: 'Wholesale enquiries',
-        body:
-          'When you send a wholesale enquiry, we collect your company name, your name, email address, phone number, country and your message, and use them only to answer you and to agree terms. Wholesale orders are made to order, from 150 units.\n\n' +
-          'To ask what we hold about you, or to have it corrected or deleted, email us.',
-      },
-    ],
-  ),
-];
+const POLICIES: ContentPageDefinition[] = LEGAL_PAGES.map((page) => policyPage(page.id, page.label));
 
 /**
  * The pages, in the order the panel lists them.
@@ -339,24 +207,24 @@ const PAGES: ContentPageDefinition[] = [
         note: 'The type set over the carousel. The photography behind it is edited on Media.',
         tone: 'ink',
         fields: [
-          { key: 'home.hero.eyebrow', label: 'Eyebrow', kind: 'eyebrow', default: 'Made in USA' },
+          { key: 'home.hero.eyebrow', label: 'Eyebrow', kind: 'eyebrow', default: 'Garment dyed' },
           {
             key: 'home.hero.headline1',
             label: 'Headline, first line',
             kind: 'heading',
-            default: 'Organic tees',
+            default: 'Cotton tees',
           },
           {
             key: 'home.hero.headline2',
             label: 'Headline, second line',
             kind: 'heading',
-            default: "that don't shrink.",
+            default: 'that hold their size.',
           },
           {
             key: 'home.hero.lede',
             label: 'Lede',
             kind: 'lede',
-            default: 'Garment dyed organic cotton, cut and sewn in the United States.',
+            default: 'Garment dyed cotton, pre-shrunk before it ever reaches you.',
           },
           {
             key: 'home.hero.primary',
@@ -467,7 +335,7 @@ const PAGES: ContentPageDefinition[] = [
       {
         id: 'reviews',
         label: 'Reviews',
-        note: 'Three quotes and the names under them.',
+        note: 'Three quotes and the names under them. Publish only genuine reviews from real customers, used with their permission and not edited to change their meaning — invented or paid-for reviews are illegal under FTC rules. Leave a name blank to hide that quote; the band hides when none are left.',
         tone: 'paper',
         columns: 3,
         fields: [
@@ -482,43 +350,42 @@ const PAGES: ContentPageDefinition[] = [
             key: 'home.reviews.1.text',
             label: 'First quote',
             kind: 'body',
-            default: 'Finally found a tee that still fits the way I want it to after washing.',
+            default: '',
             group: 'one',
           },
           {
             key: 'home.reviews.1.name',
             label: 'First name',
             kind: 'label',
-            default: 'Placeholder review',
+            default: '',
             group: 'one',
           },
           {
             key: 'home.reviews.2.text',
             label: 'Second quote',
             kind: 'body',
-            default:
-              'The colour has settled into something better than it started. It looks worn in, not worn out.',
+            default: '',
             group: 'two',
           },
           {
             key: 'home.reviews.2.name',
             label: 'Second name',
             kind: 'label',
-            default: 'Placeholder review',
+            default: '',
             group: 'two',
           },
           {
             key: 'home.reviews.3.text',
             label: 'Third quote',
             kind: 'body',
-            default: 'I bought one to try it. I now own four.',
+            default: '',
             group: 'three',
           },
           {
             key: 'home.reviews.3.name',
             label: 'Third name',
             kind: 'label',
-            default: 'Placeholder review',
+            default: '',
             group: 'three',
           },
         ],
@@ -600,7 +467,7 @@ const PAGES: ContentPageDefinition[] = [
             label: 'Story',
             kind: 'body',
             default:
-              'Founded in 2015 by Nicholas Bowles, Shrinkless was created from a simple belief: your favorite T-shirt shouldn’t change after you wash it. Frustrated by shirts that lost their fit, shape, and feel after just a few washes, Nicholas set out to create something better. Today, Shrinkless makes garment-dyed organic cotton tees that are made in the USA and designed to keep their fit, feel, and character wash after wash. We believe a great T-shirt should be simple, comfortable, and built to last, which is why we focus on quality materials, thoughtful craftsmanship, and timeless design rather than chasing trends. From the way our tees feel when you first put them on to the way they become part of your everyday wardrobe, everything we do comes back to one idea: make a T-shirt you can count on. No unnecessary fuss, no disposable fashion, just exceptionally comfortable tees made to be worn, washed, and worn again. That’s Shrinkless.',
+              'Founded in 2015 by Nicholas Bowes, Shrinkless was created from a simple belief: your favorite T-shirt shouldn’t change after you wash it. Frustrated by shirts that lost their fit, shape, and feel after just a few washes, Nicholas set out to create something better. Today, Shrinkless makes garment-dyed cotton tees designed to keep their fit, feel, and character wash after wash. We believe a great T-shirt should be simple, comfortable, and built to last, which is why we focus on quality materials, thoughtful craftsmanship, and timeless design rather than chasing trends. From the way our tees feel when you first put them on to the way they become part of your everyday wardrobe, everything we do comes back to one idea: make a T-shirt you can count on. No unnecessary fuss, no disposable fashion, just exceptionally comfortable tees made to be worn, washed, and worn again. That’s Shrinkless.',
           },
         ],
       },
@@ -645,7 +512,7 @@ const PAGES: ContentPageDefinition[] = [
             key: 'story.ch3.title',
             label: 'Third — title',
             kind: 'heading',
-            default: 'Made where we can stand in the room',
+            default: 'Made by people we know',
             group: 'three',
           },
           {
@@ -653,7 +520,7 @@ const PAGES: ContentPageDefinition[] = [
             label: 'Third — paragraph',
             kind: 'body',
             default:
-              'Cut, sewn, dyed and washed in the United States, in workshops we visit. It costs more than the alternative and it is the reason the tee behaves the way it does.',
+              'Cut, sewn, dyed and washed by workshops we work with directly. It costs more than the alternative and it is the reason the tee behaves the way it does.',
             group: 'three',
           },
         ],
@@ -665,8 +532,8 @@ const PAGES: ContentPageDefinition[] = [
         tone: 'paper',
         columns: 2,
         fields: [
-          { key: 'story.spec.1', label: 'First', kind: 'label', default: 'Made in USA' },
-          { key: 'story.spec.2', label: 'Second', kind: 'label', default: 'Organic cotton' },
+          { key: 'story.spec.1', label: 'First', kind: 'label', default: 'Pre-shrunk' },
+          { key: 'story.spec.2', label: 'Second', kind: 'label', default: 'Cotton' },
           { key: 'story.spec.3', label: 'Third', kind: 'label', default: 'Garment dyed' },
           { key: 'story.spec.4', label: 'Fourth', kind: 'label', default: 'Holds its fit' },
         ],
@@ -681,7 +548,7 @@ const PAGES: ContentPageDefinition[] = [
             key: 'story.statement',
             label: 'Statement',
             kind: 'heading',
-            default: 'Buy it once. Wash it forever.',
+            default: 'Buy it once. Wash it often.',
           },
           { key: 'story.cta', label: 'Button', kind: 'button', default: 'Shop the tees' },
         ],
@@ -721,14 +588,14 @@ const PAGES: ContentPageDefinition[] = [
             key: 'why.1.title',
             label: 'First — title',
             kind: 'heading',
-            default: 'Organic Cotton',
+            default: 'Chosen Cotton',
             group: 'one',
           },
           {
             key: 'why.1.body',
             label: 'First — body',
             kind: 'body',
-            default: 'Premium organic cotton, selected for everyday wear. Certification: [TBC].',
+            default: 'Cotton selected for everyday wear. Each style lists its exact fibre content on its page.',
             group: 'one',
           },
           { key: 'why.2.index', label: 'Second — number', kind: 'label', default: '02', group: 'two' },
@@ -751,7 +618,7 @@ const PAGES: ContentPageDefinition[] = [
             key: 'why.3.title',
             label: 'Third — title',
             kind: 'heading',
-            default: "Doesn't Shrink",
+            default: 'Pre-Shrunk',
             group: 'three',
           },
           {
@@ -759,7 +626,7 @@ const PAGES: ContentPageDefinition[] = [
             label: 'Third — body',
             kind: 'body',
             default:
-              'Built to maintain its fit and proportions wash after wash. Expected residual shrinkage: [TBC]%.',
+              'Shrunk before it is sold, so it keeps its fit and proportions when washed as the care label directs.',
             group: 'three',
           },
           { key: 'why.4.index', label: 'Fourth — number', kind: 'label', default: '04', group: 'four' },
@@ -767,14 +634,14 @@ const PAGES: ContentPageDefinition[] = [
             key: 'why.4.title',
             label: 'Fourth — title',
             kind: 'heading',
-            default: 'Made in USA',
+            default: 'Made to Last',
             group: 'four',
           },
           {
             key: 'why.4.body',
             label: 'Fourth — body',
             kind: 'body',
-            default: 'Proudly made in the USA.',
+            default: 'Simple construction, made to be worn and washed again and again.',
             group: 'four',
           },
         ],
@@ -782,15 +649,15 @@ const PAGES: ContentPageDefinition[] = [
       {
         id: 'proof',
         label: 'The proof',
-        note: 'One figure, set large, and the line that explains it.',
+        note: 'One figure, set large, and the line that explains it. Leave the figure blank to hide the band — only publish a figure you can back with test results.',
         tone: 'ink',
         fields: [
-          { key: 'why.proof.figure', label: 'Figure', kind: 'heading', default: '[TBC]%' },
+          { key: 'why.proof.figure', label: 'Figure', kind: 'heading', default: '' },
           {
             key: 'why.proof.caption',
             label: 'Caption',
             kind: 'label',
-            default: 'Shrinkage after repeated home washing — figure to be confirmed.',
+            default: '',
           },
         ],
       },
@@ -841,7 +708,7 @@ const PAGES: ContentPageDefinition[] = [
             key: 'faq.1.q',
             label: 'Question 1',
             kind: 'question',
-            default: 'Does it really not shrink?',
+            default: 'Will it shrink?',
             group: '1',
           },
           {
@@ -849,7 +716,7 @@ const PAGES: ContentPageDefinition[] = [
             label: 'Answer 1',
             kind: 'answer',
             default:
-              'The fabric is pre-shrunk and the finished garment is dyed at temperature, so the shrinkage happens before the tee reaches you. Expected residual shrinkage after washing: [TBC]%.',
+              'The fabric is pre-shrunk and the finished garment is dyed at temperature, so most of the shrinkage happens before the tee reaches you. Washed cold and dried low, as the care label directs, it keeps its fit.',
             group: '1',
           },
           {
@@ -872,7 +739,7 @@ const PAGES: ContentPageDefinition[] = [
             key: 'faq.3.a',
             label: 'Answer 3',
             kind: 'answer',
-            default: '[TBC]oz organic cotton, [TBC] knit. Certification body: [TBC].',
+            default: 'Cotton, dyed after the garment is sewn. The exact fibre content and country of origin of each style are listed on its product page and its care label.',
             group: '3',
           },
           { key: 'faq.4.q', label: 'Question 4', kind: 'question', default: 'How does it fit?', group: '4' },
@@ -881,7 +748,7 @@ const PAGES: ContentPageDefinition[] = [
             label: 'Answer 4',
             kind: 'answer',
             default:
-              'A regular fit through the body and shoulder, not boxy and not slim. Full measurements by size: [TBC].',
+              'A regular fit through the body and shoulder, not boxy and not slim. If you are between sizes, email us and we will help you choose.',
             group: '4',
           },
           { key: 'faq.5.q', label: 'Question 5', kind: 'question', default: 'Should I size up?', group: '5' },
@@ -905,7 +772,7 @@ const PAGES: ContentPageDefinition[] = [
             label: 'Answer 6',
             kind: 'answer',
             default:
-              'Machine wash cold with like colours and tumble dry low. Garment dyed cotton keeps its character best out of high heat. Full care instructions: [TBC].',
+              'Machine wash cold with like colours and tumble dry low. Garment dyed cotton keeps its character best out of high heat. The care label has the full instructions.',
             group: '6',
           },
           { key: 'faq.7.q', label: 'Question 7', kind: 'question', default: 'Where do you ship?', group: '7' },
@@ -913,7 +780,7 @@ const PAGES: ContentPageDefinition[] = [
             key: 'faq.7.a',
             label: 'Answer 7',
             kind: 'answer',
-            default: 'Shipping destinations, options and delivery estimates: [TBC].',
+            default: 'We ship to addresses in the United States. Orders leave us within 1–3 business days, and the shipping cost and delivery estimate are shown at checkout before you pay.',
             group: '7',
           },
           { key: 'faq.8.q', label: 'Question 8', kind: 'question', default: 'Can I return it?', group: '8' },
@@ -922,7 +789,7 @@ const PAGES: ContentPageDefinition[] = [
             label: 'Answer 8',
             kind: 'answer',
             default:
-              'Returns are accepted on unworn items within [TBC] days. Return shipping policy: [TBC].',
+              'Yes. Unworn, unwashed items in their original condition can be returned within 30 days of delivery. Return shipping is yours to pay unless the item arrived damaged, faulty or wrong — our Refund Policy has the details.',
             group: '8',
           },
         ],
@@ -1028,6 +895,25 @@ type ContentOverride = {
   selector?: string;
 };
 
+/**
+ * When a policy's wording last changed: the shipped date, or the latest edit
+ * saved to its title, introduction or clauses on the Content tab, whichever
+ * is newer. A policy has to say when it took effect, and an edit is a change.
+ */
+export async function policyEffectiveDate(id: PolicyId, shipped: string): Promise<Date> {
+  await connectToDatabase();
+
+  const latest = await ContentSlot.findOne({ key: { $regex: `^policy\\.${id}\\.` } })
+    .sort({ updatedAt: -1 })
+    .select('updatedAt')
+    .lean();
+
+  const base = new Date(`${shipped}T00:00:00Z`);
+  const edited = latest?.updatedAt instanceof Date ? latest.updatedAt : null;
+
+  return edited && edited > base ? edited : base;
+}
+
 async function loadOverrides(): Promise<Map<string, ContentOverride>> {
   await connectToDatabase();
 
@@ -1062,10 +948,22 @@ export async function getSiteContent(): Promise<SiteContent> {
 
   for (const [key, field] of FIELDS) {
     const stored = overrides.get(key)?.value;
-    content[key] = stored ? stored : field.default;
+    content[key] = stored && !hasPlaceholder(stored) ? stored : field.default;
   }
 
   return content;
+}
+
+/**
+ * Whether a piece of copy still carries an unfinished marker.
+ *
+ * "[TBC]" on a live page is an empty promise at best and, on a policy or a
+ * product claim, a legal problem: a shopper reads it as the store's word. The
+ * shipped defaults carry none (tests/unit/legal enforces it), so a saved edit
+ * that still has one falls back to the default rather than going out.
+ */
+export function hasPlaceholder(text: string): boolean {
+  return /\[\s*(TBC|TBD|TODO|PLACEHOLDER)\s*\]|lorem ipsum/i.test(text);
 }
 
 /* --------------------------------------------------------------------------

@@ -2,7 +2,15 @@ import { Types } from 'mongoose';
 import { connectToDatabase } from '@/lib/db/connection';
 import { Order } from '@/lib/db/models/order';
 import { Payment } from '@/lib/db/models/payment';
-import { commitStockForOrder, releaseStockForOrder, type Actor } from '@/lib/services/inventory';
+import {
+  InsufficientStockError,
+  VariantNotFoundError,
+  commitStockForOrder,
+  releaseStockForOrder,
+  type Actor,
+} from '@/lib/services/inventory';
+import { sendMail } from '@/lib/email/send';
+import { orderShippedMail } from '@/lib/email/order';
 import {
   pageWindow,
   searchRegex,
@@ -234,6 +242,15 @@ export async function transitionOrder(input: {
   actorId?: string;
   note?: string;
   trackingNumber?: string;
+  /**
+   * Payment only. Money Stripe has already taken cannot be refused, so when
+   * the shelf came up short between checkout and payment — two shoppers and
+   * one last tee — the order is still marked paid and flagged for a person to
+   * refund or fulfil, instead of throwing. Throwing sent the webhook a 500,
+   * Stripe retried for three days, and the order sat in `pending` with the
+   * customer's money against it.
+   */
+  tolerateShortStock?: boolean;
 }): Promise<OrderDTO> {
   if (!Types.ObjectId.isValid(input.id)) throw new OrderNotFoundError(input.id);
 
@@ -247,7 +264,21 @@ export async function transitionOrder(input: {
 
   const actor: Actor = { id: input.actorId ?? '', email: input.actor };
 
-  if (input.to === 'paid') await commitStockForOrder(input.id, actor);
+  let shortStockNote = '';
+
+  if (input.to === 'paid') {
+    try {
+      await commitStockForOrder(input.id, actor);
+    } catch (error) {
+      const short = error instanceof InsufficientStockError || error instanceof VariantNotFoundError;
+      if (!input.tolerateShortStock || !short) throw error;
+
+      shortStockNote =
+        `Paid, but stock was short when the payment landed (${error.message}). ` +
+        'Nothing was taken from inventory. Fulfil it by hand or refund it.';
+      console.error(`order ${order.orderNumber}: ${shortStockNote}`);
+    }
+  }
   if (input.to === 'cancelled') await releaseStockForOrder(input.id, 'cancellation', actor);
 
   // Re-read: the inventory helpers write to this same document.
@@ -263,11 +294,25 @@ export async function transitionOrder(input: {
     note: input.note ?? '',
   });
 
+  if (shortStockNote) {
+    fresh.notes.push({ body: shortStockNote, actorId: '', actorEmail: 'system', at: new Date() });
+  }
+
   await fresh.save();
 
-  // TODO(Phase 5): when `to === 'shipped'`, fire the shipping-confirmation
-  // email. The transport now exists in lib/email; the template does not.
-  return toOrderDTO(fresh.toObject());
+  const dto = toOrderDTO(fresh.toObject());
+
+  // The status change is the record; the mail is a courtesy. A mail outage
+  // must never undo or fail a fulfilment.
+  if (input.to === 'shipped') {
+    try {
+      await sendMail(orderShippedMail(dto));
+    } catch (error) {
+      console.error(`shipping mail for ${dto.orderNumber} failed`, error);
+    }
+  }
+
+  return dto;
 }
 
 /** An internal note. Never shown to the customer. */

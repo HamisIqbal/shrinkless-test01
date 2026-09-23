@@ -9,6 +9,21 @@ const shippingZoneSchema = new Schema(
   { _id: false },
 );
 
+/** Who the store legally is. Named in the Terms and the Privacy Policy, and
+ *  required there by California's online-seller rule (Civ. Code §1789.3) and
+ *  by CAN-SPAM for any marketing mail. Empty until the owner fills it in; the
+ *  policies leave out a sentence whose fact is missing rather than print a
+ *  blank. */
+const businessSchema = new Schema(
+  {
+    legalName: { type: String, default: '', trim: true },
+    address: { type: String, default: '', trim: true },
+    phone: { type: String, default: '', trim: true },
+    governingState: { type: String, default: '', trim: true },
+  },
+  { _id: false },
+);
+
 const settingsSchema = new Schema(
   {
     key: { type: String, required: true, unique: true, default: 'store' },
@@ -20,6 +35,7 @@ const settingsSchema = new Schema(
     lowStockThreshold: { type: Number, default: 3, min: 0 },
     taxMode: { type: String, enum: ['none', 'flat', 'stripe'], default: 'none' },
     flatTaxRateBasisPoints: { type: Number, default: 0, min: 0 },
+    business: { type: businessSchema, default: () => ({}) },
   },
   { timestamps: true },
 );

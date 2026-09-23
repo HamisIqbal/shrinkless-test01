@@ -8,6 +8,8 @@ import { Payment } from '@/lib/db/models/payment';
 import { getCartView } from '@/lib/services/cart';
 import { priceOrder } from '@/lib/services/pricing';
 import { transitionOrder } from '@/lib/services/orders';
+import { sendMail } from '@/lib/email/send';
+import { orderConfirmationMail } from '@/lib/email/order';
 import { CURRENCY, getStripe } from '@/lib/stripe/client';
 import type { CheckoutInput } from '@/lib/validation/checkout';
 import type { CartViewDTO } from '@/types/dto';
@@ -301,12 +303,20 @@ export async function settlePaidOrder(
   await recordPayment(intent, eventId, String(order._id));
 
   if (order.status === 'pending') {
-    await transitionOrder({
+    const paid = await transitionOrder({
       id: String(order._id),
       to: 'paid',
       actor: 'stripe',
       note: `Paid via ${describeMethod(intent)}`,
+      tolerateShortStock: true,
     });
+
+    // Inside the pending branch, so a retried webhook does not mail twice.
+    try {
+      await sendMail(orderConfirmationMail(paid));
+    } catch (error) {
+      console.error(`confirmation mail for ${paid.orderNumber} failed`, error);
+    }
   }
 
   // The cart has served its purpose. Removing it here rather than in the

@@ -54,6 +54,16 @@ function ruleOf(product: { quantityRule?: { min?: number; step?: number; max?: n
   };
 }
 
+/**
+ * Whether a product can be sold right now. A draft has not launched and an
+ * archived product has left the shop; neither may be added to a cart, and a
+ * line that becomes one of them after it was added drops out of the cart view
+ * — which is what checkout prices from, so it cannot be bought either.
+ */
+function onSale(product: { status?: string | null; archivedAt?: Date | null } | null): boolean {
+  return product?.status === 'published' && !product.archivedAt;
+}
+
 function toObjectId(id: string): Types.ObjectId {
   if (!Types.ObjectId.isValid(id)) throw new Error(`Invalid id: ${id}`);
   return new Types.ObjectId(id);
@@ -92,7 +102,7 @@ export async function getCartView(cartId: string): Promise<CartViewDTO | null> {
     if (!variant) continue;
 
     const product = productById.get(String(variant.productId));
-    if (!product) continue;
+    if (!product || !onSale(product)) continue;
 
     lines.push({
       variantId: String(variant._id),
@@ -135,7 +145,11 @@ async function assertQuantityAllowed(
   productId: Types.ObjectId,
   quantity: number,
 ): Promise<void> {
-  const product = await Product.findById(productId).select('quantityRule').lean();
+  const product = await Product.findById(productId)
+    .select('quantityRule status archivedAt')
+    .lean();
+  if (!onSale(product)) throw new StockError(0);
+
   const rule = ruleOf(product);
 
   if (!isAllowedQuantity(quantity, rule)) throw new QuantityRuleError(rule, quantity);

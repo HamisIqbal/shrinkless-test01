@@ -95,6 +95,8 @@ export const productInputSchema = z.object({
   rating: z.number().min(0).max(5).default(0),
   tags: z.array(z.string().trim().toLowerCase().min(1)).max(30).default([]),
   baseSku: z.string().trim().toUpperCase().default(''),
+  fiberContent: z.string().trim().max(200).default(''),
+  origin: z.string().trim().max(120).default(''),
   seo: seoInputSchema.default({ title: '', description: '', keywords: [] }),
   quantityRule: quantityRuleSchema.default({ min: 1, step: 1, max: null }),
   images: z.array(imageSchema).default([]),

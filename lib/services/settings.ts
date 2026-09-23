@@ -30,10 +30,18 @@ export async function getStoreSettings(): Promise<SettingsDTO> {
     lowStockThreshold: settings.lowStockThreshold ?? 3,
     taxMode: settings.taxMode as 'none' | 'flat' | 'stripe',
     flatTaxRateBasisPoints: settings.flatTaxRateBasisPoints,
+    business: {
+      legalName: settings.business?.legalName ?? '',
+      address: settings.business?.address ?? '',
+      phone: settings.business?.phone ?? '',
+      governingState: settings.business?.governingState ?? '',
+    },
   };
 }
 
-export async function updateStoreSettings(input: Omit<SettingsInput, 'lowStockThreshold'> & { lowStockThreshold?: number }): Promise<SettingsDTO> {
+export async function updateStoreSettings(
+  input: Omit<SettingsInput, 'lowStockThreshold'> & { lowStockThreshold?: number },
+): Promise<SettingsDTO> {
   await connectToDatabase();
 
   await Settings.findOneAndUpdate(
@@ -47,6 +55,9 @@ export async function updateStoreSettings(input: Omit<SettingsInput, 'lowStockTh
         lowStockThreshold: input.lowStockThreshold ?? 3,
         taxMode: input.taxMode,
         flatTaxRateBasisPoints: input.flatTaxRateBasisPoints,
+        // Left alone when a caller does not send it, so an older form cannot
+        // blank the legal details by omission.
+        ...(input.business ? { business: input.business } : {}),
       },
       $setOnInsert: { key: 'store' },
     },

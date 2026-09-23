@@ -1,5 +1,6 @@
 'use client';
 
+import { ConsentNote } from '@/components/legal/ConsentNote';
 import { useActionState, useEffect, useRef } from 'react';
 import {
   submitWholesaleEnquiryAction,
@@ -160,6 +161,8 @@ export function WholesaleEnquiryForm({ lines, onSent }: Props) {
           ? 'Choose a quantity above.'
           : 'We reply to trade enquiries within one business day.'}
       </p>
+
+      <ConsentNote kind="enquiry" />
     </form>
   );
 }

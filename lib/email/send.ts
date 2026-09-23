@@ -11,6 +11,8 @@ export type Mail = {
   subject: string;
   text: string;
   html?: string;
+  /** Extra headers — List-Unsubscribe on marketing mail, for one. */
+  headers?: Record<string, string>;
 };
 
 export class EmailNotConfiguredError extends Error {
@@ -56,6 +58,7 @@ export async function sendMail(
       subject: mail.subject,
       text: mail.text,
       ...(mail.html ? { html: mail.html } : {}),
+      ...(mail.headers ? { headers: mail.headers } : {}),
     }),
   });
 

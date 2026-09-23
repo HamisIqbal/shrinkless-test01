@@ -7,7 +7,7 @@ import {
 import { VariantPicker } from '@/components/shop/VariantPicker';
 import { ProductGallery } from '@/components/shop/ProductGallery';
 import { ProductCard } from '@/components/shop/ProductCard';
-import { StarIcon } from '@/components/site/icons';
+import { DISPATCH_BUSINESS_DAYS, RETURN_WINDOW_DAYS } from '@/lib/legal/pages';
 import { homeFonts } from '@/components/home/fonts';
 import '@/components/shop/shop.css';
 
@@ -19,17 +19,20 @@ import '@/components/shop/shop.css';
  * four values, which is a table, and a table can be read at a glance instead
  * of opened one row at a time.
  *
- * Every unconfirmed value is [TBC] rather than invented — spec §11.2. A
- * guessed fabric weight is a claim the business then has to stand behind.
+ * Fibre content and origin come from the product itself, because the FTC
+ * Textile Rules require both on any clothing sold online and they differ by
+ * style. A row whose value has not been entered is left out — a guessed
+ * fabric or a guessed country is a claim the business then has to stand
+ * behind. Never put a placeholder here: the page renders what it is given.
  */
-const SPEC: { key: string; value: string }[] = [
-  { key: 'Fabric', value: '[TBC]oz organic cotton, [TBC] knit' },
-  { key: 'Finish', value: 'Garment dyed' },
-  { key: 'Construction', value: 'Ribbed collar, shoulder-to-shoulder taping' },
-  { key: 'Residual shrinkage', value: '[TBC]%' },
-  { key: 'Certification', value: '[TBC]' },
-  { key: 'Made in', value: 'USA — mill and factory [TBC]' },
-];
+function specFor(product: { fiberContent: string; origin: string }) {
+  return [
+    { key: 'Fabric', value: product.fiberContent },
+    { key: 'Finish', value: 'Garment dyed' },
+    { key: 'Construction', value: 'Ribbed collar, shoulder-to-shoulder taping' },
+    { key: 'Origin', value: product.origin },
+  ].filter((row) => row.value);
+}
 
 /**
  * The two that really are prose, and stay folded.
@@ -39,19 +42,21 @@ const SPEC: { key: string; value: string }[] = [
  */
 const SECTIONS = [
   {
-    title: "Why it doesn't shrink",
+    title: 'How it holds its size',
     body:
       'The fabric is pre-shrunk and the finished garment is dyed at temperature ' +
-      'before it is ever sold, so the shrinking happens in our facility rather ' +
-      'than in your machine.',
+      'before it is ever sold, so most of the shrinking happens in our facility ' +
+      'rather than in your machine. Washed and dried as the care label directs, ' +
+      'it keeps its fit.',
   },
   {
     title: 'Care, shipping and returns',
     body:
-      'Machine wash cold with like colours, tumble dry low. Garment dyed cotton ' +
-      'keeps its character best out of high heat. Full care instructions: [TBC]. ' +
-      'Shipping options and delivery estimates: [TBC]. Returns accepted within ' +
-      '[TBC] days on unworn items.',
+      'Machine wash cold with like colours, tumble dry low, and follow the care ' +
+      'label. Garment dyed cotton keeps its character best out of high heat. ' +
+      `We ship within the US and orders leave us within ${DISPATCH_BUSINESS_DAYS} ` +
+      'business days; the cost and delivery estimate are shown at checkout. ' +
+      `Unworn, unwashed items can be returned within ${RETURN_WINDOW_DAYS} days of delivery.`,
   },
 ];
 
@@ -116,15 +121,11 @@ export default async function ProductPage(props: PageProps<'/product/[slug]'>) {
         <div className="sh-pdp__info">
           <header className="sh-pdp__titles">
             <p className="sh-label">{categoryLabel}</p>
+            {/* No star rating. The stored figure is typed in by an admin, not
+                earned from reviews, and showing it as a rating is a fake
+                review under the FTC's 2024 rule (16 CFR Part 465). Bring it
+                back only on top of real, collected customer reviews. */}
             <h1 className="sh-pdp__title">{product.title}</h1>
-
-            {product.rating > 0 ? (
-              <p className="sh-pdp__rating">
-                <StarIcon className="sh-pdp__star" />
-                <span className="tnum">{product.rating.toFixed(1).replace(/\.0$/, '')}</span>
-                <span className="visually-hidden"> out of 5</span>
-              </p>
-            ) : null}
           </header>
 
           {/* The description rides inside the picker, directly under the
@@ -139,12 +140,14 @@ export default async function ProductPage(props: PageProps<'/product/[slug]'>) {
             description={product.description}
             initialColor={requestedColor}
             quantityRule={product.quantityRule}
+            fiberContent={product.fiberContent}
+            origin={product.origin}
           />
 
           <section aria-labelledby="spec-heading">
             <h2 id="spec-heading" className="sh-label">Specification</h2>
             <dl className="sh-spec">
-              {SPEC.map((row) => (
+              {specFor(product).map((row) => (
                 <div key={row.key} style={{ display: 'contents' }}>
                   <dt className="sh-spec__key">{row.key}</dt>
                   <dd className="sh-spec__value">{row.value}</dd>

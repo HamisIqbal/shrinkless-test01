@@ -236,3 +236,33 @@ describe('listOrdersPaged', () => {
     expect(page.pageCount).toBe(2);
   });
 });
+
+describe('a payment that lands after the stock has gone', () => {
+  it('still refuses by default, so an admin cannot mark an unfillable order paid', async () => {
+    await seedVariant(0, 'SHORT-A');
+    const order = await seedOrder('SHORT-A');
+
+    await expect(
+      transitionOrder({ id: String(order._id), to: 'paid', actor: 'admin' }),
+    ).rejects.toBeInstanceOf(InsufficientStockError);
+  });
+
+  it('marks the order paid and flags it when the webhook tolerates it', async () => {
+    const variant = await seedVariant(0, 'SHORT-B');
+    const order = await seedOrder('SHORT-B');
+
+    const paid = await transitionOrder({
+      id: String(order._id),
+      to: 'paid',
+      actor: 'stripe',
+      tolerateShortStock: true,
+    });
+
+    expect(paid.status).toBe('paid');
+
+    const stored = await Order.findById(order._id).lean();
+    expect(stored?.stockCommittedAt ?? null).toBeNull();
+    expect(stored?.notes.at(-1)?.body).toMatch(/stock was short/i);
+    expect((await Variant.findById(variant._id).lean())?.stock).toBe(0);
+  });
+});

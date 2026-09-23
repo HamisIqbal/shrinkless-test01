@@ -24,18 +24,32 @@ describe('getSiteContent with nothing saved', () => {
   it('renders the wording the site ships with', async () => {
     const copy = await getSiteContent();
 
-    expect(copy['home.hero.eyebrow']).toBe('Made in USA');
+    expect(copy['home.hero.eyebrow']).toBe('Garment dyed');
     expect(copy['story.title']).toBe('Our Story');
-    expect(copy['faq.1.q']).toBe('Does it really not shrink?');
+    expect(copy['faq.1.q']).toBe('Will it shrink?');
   });
 
   it('answers for every key the registry declares', async () => {
     const copy = await getSiteContent();
 
+    // Empty on purpose until the owner has something true to put there: the
+    // reviews (genuine customers only) and the measured-shrinkage figure.
+    const optional = /^home\.reviews\.\d\.|^why\.proof\./;
+
     for (const key of CONTENT_KEYS) {
-      expect(copy[key], key).toBeTruthy();
+      if (!optional.test(key)) expect(copy[key], key).toBeTruthy();
       expect(copy[key], key).toBe(defaultContent(key));
     }
+  });
+
+  it('never serves a saved edit that still carries a placeholder', async () => {
+    await ContentSlot.create({ key: 'faq.7.a', value: 'We ship to [TBC].' });
+    await ContentSlot.create({ key: 'faq.8.a', value: 'Returns within 30 days.' });
+
+    const copy = await getSiteContent();
+
+    expect(copy['faq.7.a']).toBe(defaultContent('faq.7.a'));
+    expect(copy['faq.8.a']).toBe('Returns within 30 days.');
   });
 });
 
@@ -125,6 +139,7 @@ describe('listContentPages', () => {
       'policy-refunds',
       'policy-shipping',
       'policy-privacy',
+      'policy-accessibility',
     ]);
   });
 

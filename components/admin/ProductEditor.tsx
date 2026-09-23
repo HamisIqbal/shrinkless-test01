@@ -50,6 +50,8 @@ export function ProductEditor({
   const [images, setImages] = useState<ImageDTO[]>(product?.images ?? []);
   const [tagsText, setTagsText] = useState((product?.tags ?? []).join(', '));
   const [baseSku, setBaseSku] = useState(product?.baseSku ?? '');
+  const [fiberContent, setFiberContent] = useState(product?.fiberContent ?? '');
+  const [origin, setOrigin] = useState(product?.origin ?? '');
   const [seoTitle, setSeoTitle] = useState(product?.seo?.title ?? '');
   const [seoDescription, setSeoDescription] = useState(product?.seo?.description ?? '');
   const [seoKeywords, setSeoKeywords] = useState((product?.seo?.keywords ?? []).join(', '));
@@ -125,6 +127,8 @@ export function ProductEditor({
         rating: Number(rating) || 0,
         tags: toList(tagsText),
         baseSku,
+        fiberContent,
+        origin,
         seo: {
           title: seoTitle,
           description: seoDescription,
@@ -266,7 +270,11 @@ export function ProductEditor({
               value={rating}
               onChange={(e) => setRating(e.target.value)}
             />
-            <small>Out of 5. Zero draws no rating at all.</small>
+            <small>
+              Internal only — not shown on the storefront. A rating typed in by
+              hand is a fake review under FTC rules; one can be shown again
+              once it comes from real customer reviews.
+            </small>
           </label>
         </div>
 
@@ -371,6 +379,30 @@ export function ProductEditor({
           <input value={baseSku} onChange={(e) => setBaseSku(e.target.value.toUpperCase())} />
           <small>The family code. Each variant carries its own SKU below.</small>
         </label>
+
+        <div className="fieldrow">
+          <label className="adfield">
+            Fibre content
+            <input
+              value={fiberContent}
+              onChange={(e) => setFiberContent(e.target.value)}
+              placeholder="100% cotton"
+              maxLength={200}
+            />
+            <small>By percentage, as on the care label. Required by the FTC for clothing sold online.</small>
+          </label>
+
+          <label className="adfield">
+            Country of origin
+            <input
+              value={origin}
+              onChange={(e) => setOrigin(e.target.value)}
+              placeholder="Made in USA / Imported"
+              maxLength={120}
+            />
+            <small>&ldquo;Made in USA&rdquo; only if all or virtually all of it is. Otherwise &ldquo;Imported&rdquo;.</small>
+          </label>
+        </div>
 
         <VariantMatrix rows={rows} onRowChange={handleRowChange} onApplyToAll={handleApplyToAll} />
       </section>

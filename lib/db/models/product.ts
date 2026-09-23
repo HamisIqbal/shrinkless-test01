@@ -71,6 +71,13 @@ const productSchema = new Schema(
     /** Product-level stock keeping code. Variants carry their own SKUs, which
      *  are what actually ship; this is the family they belong to. */
     baseSku: { type: String, default: '', uppercase: true, trim: true },
+    /* The two facts the FTC Textile Rules (16 CFR 303.34) require any clothing
+       sold online to state: what it is made of, by percentage, and where it was
+       made. Per product because they differ by style, and blank until someone
+       who knows fills them in — the product page prints nothing it was not
+       told rather than a claim nobody made. */
+    fiberContent: { type: String, default: '', trim: true },
+    origin: { type: String, default: '', trim: true },
     seo: { type: seoSchema, default: () => ({}) },
     quantityRule: { type: quantityRuleSchema, default: () => ({}) },
     /* Images are ordered. Position 0 is the featured image — the one a card,

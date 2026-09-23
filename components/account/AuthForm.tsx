@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import type { AuthResult } from '@/app/actions/auth';
+import { ConsentNote } from '@/components/legal/ConsentNote';
 
 type Props = {
   action: (formData: FormData) => Promise<AuthResult>;
@@ -57,6 +58,8 @@ export function AuthForm({ action, submitLabel, includeName = false }: Props) {
       <button type="submit" className="sh-btn sh-btn--block" disabled={pending}>
         {pending ? 'Working…' : submitLabel}
       </button>
+
+      {includeName ? <ConsentNote kind="account" /> : null}
 
       {error ? <p role="alert" className="sh-notice sh-notice--error">{error}</p> : null}
     </form>

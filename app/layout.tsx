@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s — Shrinkless",
   },
   description:
-    "Garment dyed organic cotton tees engineered to hold their shape, wash after wash. Made in USA.",
+    "Garment dyed, pre-shrunk cotton tees made to hold their shape, wash after wash.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

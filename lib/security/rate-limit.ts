@@ -100,6 +100,8 @@ export const LIMITS = {
   login: { limit: 10, windowMs: 15 * 60 * 1000 },
   /** Sign-in attempts from one address, whatever email they name. */
   loginByIp: { limit: 30, windowMs: 15 * 60 * 1000 },
+  /** New accounts from one address. */
+  register: { limit: 10, windowMs: 60 * 60 * 1000 },
   /** Newsletter and back-in-stock sign-ups from one address. */
   publicWrite: { limit: 20, windowMs: 60 * 60 * 1000 },
   /** Password reset links mailed for one address, per day. Counted against

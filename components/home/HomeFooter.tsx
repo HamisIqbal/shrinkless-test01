@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { NewsletterForm } from '@/components/site/NewsletterForm';
 import { homeFonts } from '@/components/home/fonts';
 import { BackToTop } from '@/components/home/HomeFooterMotion';
+import { LEGAL_PAGES } from '@/lib/legal/pages';
 
 const INSTAGRAM = 'https://www.instagram.com/shrinkless/';
 
@@ -19,7 +20,7 @@ type Group = { title: string; links: { href: string; label: string; external?: b
  * It stays short on purpose. On a desk it is pinned under the page
  * (components/site/FooterReveal), so all of it has to fit a laptop window.
  */
-export function HomeFooter({ storeEmail }: { storeEmail: string }) {
+export function HomeFooter({ storeEmail, legalName }: { storeEmail: string; legalName?: string }) {
   const groups: Group[] = [
     {
       title: 'Shop',
@@ -49,12 +50,9 @@ export function HomeFooter({ storeEmail }: { storeEmail: string }) {
     },
     {
       title: 'Policies',
-      links: [
-        { href: '/terms', label: 'Terms & Conditions' },
-        { href: '/refund-policy', label: 'Refund Policy' },
-        { href: '/shipping-returns', label: 'Shipping & Returns' },
-        { href: '/privacy-policy', label: 'Privacy Policy' },
-      ],
+      // Every legal page, from the one list, so a new policy cannot exist
+      // without being linked from every page of the site.
+      links: LEGAL_PAGES.map((page) => ({ href: page.href, label: page.label })),
     },
   ];
 
@@ -67,7 +65,7 @@ export function HomeFooter({ storeEmail }: { storeEmail: string }) {
               Shrinkless
             </Link>
             <p className="hm-foot__tagline">
-              Organic tees that hold their size, wash after wash.
+              Cotton tees that hold their size, wash after wash.
             </p>
 
             <div className="hm-foot__news">
@@ -108,7 +106,7 @@ export function HomeFooter({ storeEmail }: { storeEmail: string }) {
         </div>
 
         <div className="hm-foot__base">
-          <p className="tnum">&copy; {new Date().getFullYear()} Shrinkless. Made in USA.</p>
+          <p className="tnum">&copy; {new Date().getFullYear()} {legalName || 'Shrinkless'}. All rights reserved.</p>
           <BackToTop />
         </div>
       </div>

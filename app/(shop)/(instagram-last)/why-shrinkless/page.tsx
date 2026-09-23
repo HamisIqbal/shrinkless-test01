@@ -50,16 +50,20 @@ export default async function WhyShrinklessPage() {
 
       <ChapterBand chapters={points(media, copy)} label="The four points" />
 
-      <HomeScene className={`pg-proof ${homeFonts}`} aria-label="Measured shrinkage">
-        <div className="hm-wrap">
-          <div className="hm-mask hm-mask--tall">
-            <p className="pg-proof__figure" data-hm-rise>{copy['why.proof.figure']}</p>
+      {/* A measured figure is a claim that needs test results behind it, so
+          the band ships hidden and appears only once one is entered. */}
+      {copy['why.proof.figure']?.trim() ? (
+        <HomeScene className={`pg-proof ${homeFonts}`} aria-label="Measured shrinkage">
+          <div className="hm-wrap">
+            <div className="hm-mask hm-mask--tall">
+              <p className="pg-proof__figure" data-hm-rise>{copy['why.proof.figure']}</p>
+            </div>
+            <p className="pg-proof__caption" data-hm-fade data-hm-delay="0.15">
+              {copy['why.proof.caption']}
+            </p>
           </div>
-          <p className="pg-proof__caption" data-hm-fade data-hm-delay="0.15">
-            {copy['why.proof.caption']}
-          </p>
-        </div>
-      </HomeScene>
+        </HomeScene>
+      ) : null}
 
       <StatementBand
         image={media.editorial.whyStatement}

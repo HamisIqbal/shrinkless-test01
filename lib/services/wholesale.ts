@@ -79,6 +79,8 @@ function toWholesaleDTO(
     sizes: product.optionSets?.sizes ?? [],
     retailCents,
     tiers: tierLadder(retailCents),
+    fiberContent: product.fiberContent ?? '',
+    origin: product.origin ?? '',
   };
 }
 

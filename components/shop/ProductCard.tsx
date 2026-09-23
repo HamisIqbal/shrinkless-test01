@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { formatCents } from '@/lib/money';
 import { imageUrl } from '@/lib/images';
 import { toColorways } from '@/lib/shop/colorways';
-import { EyeIcon, StarIcon } from '@/components/site/icons';
+import { EyeIcon } from '@/components/site/icons';
 import type { ProductDTO } from '@/types/dto';
 import { cropStyle } from '@/lib/media/crop';
 
@@ -226,13 +226,8 @@ export function ProductCard({
           )}
         </div>
 
-        {product.rating > 0 ? (
-          <p className="pcard__rating">
-            <StarIcon className="pcard__star" />
-            <span className="tnum">{product.rating.toFixed(1).replace(/\.0$/, '')}</span>
-            <span className="visually-hidden"> out of 5</span>
-          </p>
-        ) : null}
+        {/* No star rating: the stored figure is set by hand, not earned from
+            reviews, and the FTC treats that as a fake review (16 CFR 465). */}
 
         {/* Desktop only — CSS hides it where there is no hover to reveal it
             with. On a phone the photograph is the whole screen and tapping it

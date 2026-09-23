@@ -28,6 +28,8 @@ const product: ProductDTO = {
   rating: 0,
   tags: [],
   baseSku: '',
+  fiberContent: '',
+  origin: '',
   seo: { title: '', description: '', keywords: [] },
   quantityRule: { min: 1, step: 1, max: null },
   archived: false,

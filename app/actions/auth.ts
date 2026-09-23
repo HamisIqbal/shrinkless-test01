@@ -18,7 +18,7 @@ import { forgotPasswordSchema, resetPasswordSchema } from '@/lib/validation/auth
 import { sendMail } from '@/lib/email/send';
 import { landingFor, mergeCartForCurrentUser } from '@/lib/auth/after-sign-in';
 import { LIMITS, consume, reset, retryAfterMinutes } from '@/lib/security/rate-limit';
-import { headers } from 'next/headers';
+import { clientAddress } from '@/lib/security/client-address';
 
 export type AuthResult = { ok: true } | { ok: false; error: string };
 
@@ -26,20 +26,6 @@ const GENERIC_LOGIN_ERROR = 'That email and password combination is not correct.
 const THROTTLED_ERROR = (minutes: number) =>
   `Too many attempts. Try again in ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}.`;
 
-/**
- * Best-effort client address, for the per-address limit.
- *
- * A forwarded header can be spoofed, which is exactly why it is only ever the
- * *second* limit — the per-email one does the real work and cannot be dodged
- * by lying about where you are, because the account being attacked is the
- * account named in the form.
- */
-async function clientAddress(): Promise<string> {
-  const store = await headers();
-  const forwarded = store.get('x-forwarded-for') ?? '';
-
-  return forwarded.split(',')[0]?.trim() || 'unknown';
-}
 export async function registerAction(formData: FormData): Promise<AuthResult> {
   const parsed = registerSchema.safeParse({
     email: formData.get('email'),
@@ -49,6 +35,17 @@ export async function registerAction(formData: FormData): Promise<AuthResult> {
 
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? 'Check your details.' };
+  }
+
+  // An unauthenticated write, and each one hashes a password: without a limit
+  // a loop could fill the user collection and pin the CPU doing it.
+  const bySource = await consume(
+    `register:${await clientAddress()}`,
+    LIMITS.register.limit,
+    LIMITS.register.windowMs,
+  );
+  if (!bySource.allowed) {
+    return { ok: false, error: THROTTLED_ERROR(retryAfterMinutes(bySource)) };
   }
 
   try {

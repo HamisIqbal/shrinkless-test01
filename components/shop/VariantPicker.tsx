@@ -28,6 +28,10 @@ type Props = {
   /** How this product is sold: a minimum, a step, and an optional ceiling.
    *  The stepper offers only legal values; the server enforces the same rule. */
   quantityRule?: QuantityRuleDTO;
+  /** The product's own fibre and origin disclosure. Printed only when set:
+   *  these are legal claims, and a blank one is left out rather than guessed. */
+  fiberContent?: string;
+  origin?: string;
 };
 
 const SINGLES: QuantityRuleDTO = { min: 1, step: 1, max: null };
@@ -41,6 +45,8 @@ export function VariantPicker({
   description,
   initialColor,
   quantityRule = SINGLES,
+  fiberContent = '',
+  origin = '',
 }: Props) {
   const router = useRouter();
   const toast = useToast();
@@ -114,9 +120,10 @@ export function VariantPicker({
       <ProductStory description={description} />
 
       <ul className="sh-picker__claims">
-        <li>Garment Dyed Organic Cotton</li>
-        <li>Made in USA</li>
-        <li>Doesn&rsquo;t Shrink</li>
+        <li>Garment dyed</li>
+        {fiberContent ? <li>{fiberContent}</li> : null}
+        {origin ? <li>{origin}</li> : null}
+        <li>Pre-shrunk</li>
       </ul>
 
       <fieldset className="sh-picker__group">

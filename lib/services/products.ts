@@ -55,6 +55,8 @@ function toProductDTO(product: WithId<ProductDoc>, variants: WithId<VariantDoc>[
     minPriceCents: sellable.length ? Math.min(...sellable.map((v) => v.priceCents)) : 0,
     tags: product.tags ?? [],
     baseSku: product.baseSku ?? '',
+    fiberContent: product.fiberContent ?? '',
+    origin: product.origin ?? '',
     seo: {
       title: product.seo?.title ?? '',
       description: product.seo?.description ?? '',
@@ -401,6 +403,8 @@ export async function saveProduct(
     | 'rating'
     | 'tags'
     | 'baseSku'
+    | 'fiberContent'
+    | 'origin'
     | 'seo'
     | 'quantityRule'
     | 'variants'
@@ -414,6 +418,8 @@ export async function saveProduct(
     rating?: number;
     tags?: string[];
     baseSku?: string;
+    fiberContent?: string;
+    origin?: string;
     seo?: { title: string; description: string; keywords: string[] };
     quantityRule?: { min: number; step: number; max: number | null };
     /* The crop is optional here and defaulted by the schema, so a caller that
@@ -457,6 +463,8 @@ export async function saveProduct(
     rating: input.rating ?? 0,
     tags: input.tags ?? [],
     baseSku: input.baseSku ?? '',
+    fiberContent: input.fiberContent ?? '',
+    origin: input.origin ?? '',
     seo: input.seo ?? { title: '', description: '', keywords: [] },
     quantityRule: input.quantityRule ?? { min: 1, step: 1, max: null },
     images: input.images,
@@ -635,6 +643,8 @@ export async function duplicateProduct(id: string): Promise<string> {
     rating: source.rating,
     tags: source.tags,
     baseSku: source.baseSku,
+    fiberContent: source.fiberContent,
+    origin: source.origin,
     seo: source.seo,
     quantityRule: source.quantityRule,
     images: source.images,

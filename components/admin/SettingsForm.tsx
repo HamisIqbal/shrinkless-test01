@@ -20,6 +20,9 @@ export function SettingsForm({ settings }: { settings: SettingsDTO }) {
   const [lowStock, setLowStock] = useState(String(settings.lowStockThreshold));
   const [taxMode, setTaxMode] = useState(settings.taxMode);
   const [taxRate, setTaxRate] = useState(String(settings.flatTaxRateBasisPoints));
+  const [business, setBusiness] = useState(settings.business);
+
+  const missingLegal = !business.legalName || !business.address || !business.governingState;
 
   function updateZone(index: number, patch: Partial<Zone>) {
     setZones(zones.map((zone, i) => (i === index ? { ...zone, ...patch } : zone)));
@@ -39,6 +42,7 @@ export function SettingsForm({ settings }: { settings: SettingsDTO }) {
         lowStockThreshold: Number(lowStock),
         taxMode,
         flatTaxRateBasisPoints: Number(taxRate),
+        business,
       });
 
       if (!result.ok) {
@@ -79,6 +83,72 @@ export function SettingsForm({ settings }: { settings: SettingsDTO }) {
               placeholder="Leave blank to hide the bar"
             />
           </label>
+        </div>
+      </div>
+
+      <div className="settings__group">
+        <div className="settings__aside">
+          <h2 className="settings__grouptitle">Business details</h2>
+          <p className="settings__groupnote">
+            Printed in the Terms, the Privacy Policy and the footer. US law asks
+            an online store to say who it is and where it can be reached by
+            post — a sentence whose detail is blank is left out of the policies
+            until it is filled in.
+          </p>
+        </div>
+
+        <div className="settings__fields">
+          {missingLegal ? (
+            <p role="status" className="settings__groupnote">
+              Legal name, mailing address and governing state are still blank, so the
+              policies cannot name them yet.
+            </p>
+          ) : null}
+
+          <label className="adfield">
+            Legal business name
+            <input
+              value={business.legalName}
+              onChange={(e) => setBusiness({ ...business, legalName: e.target.value })}
+              placeholder="Shrinkless LLC"
+              maxLength={120}
+            />
+          </label>
+
+          <label className="adfield">
+            Mailing address
+            <input
+              value={business.address}
+              onChange={(e) => setBusiness({ ...business, address: e.target.value })}
+              placeholder="Street, city, state, ZIP"
+              maxLength={300}
+            />
+            <small>A real postal address — a PO box is fine for mail.</small>
+          </label>
+
+          <div className="fieldrow">
+            <label className="adfield">
+              Phone
+              <input
+                type="tel"
+                value={business.phone}
+                onChange={(e) => setBusiness({ ...business, phone: e.target.value })}
+                placeholder="Optional"
+                maxLength={40}
+              />
+            </label>
+
+            <label className="adfield">
+              Governing-law state
+              <input
+                value={business.governingState}
+                onChange={(e) => setBusiness({ ...business, governingState: e.target.value })}
+                placeholder="Texas"
+                maxLength={40}
+              />
+              <small>Usually the state the business is registered in.</small>
+            </label>
+          </div>
         </div>
       </div>
 

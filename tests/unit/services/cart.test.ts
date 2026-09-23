@@ -118,6 +118,7 @@ describe('quantity rules', () => {
       title: 'Bulk Tee',
       slug: 'bulk-tee',
       category: 'tees',
+      status: 'published',
       quantityRule: { min: 12, step: 12, max: 36 },
     });
 
@@ -152,6 +153,7 @@ describe('quantity rules', () => {
       title: 'Pair Socks',
       slug: 'pair-socks',
       category: 'socks',
+      status: 'published',
       quantityRule: { min: 2, step: 2, max: null },
     });
 
@@ -176,7 +178,7 @@ describe('quantity rules', () => {
   });
 
   it('leaves ordinary products alone', async () => {
-    const product = await Product.create({ title: 'Tee', slug: 'plain-tee', category: 'tees' });
+    const product = await Product.create({ title: 'Tee', slug: 'plain-tee', category: 'tees', status: 'published' });
     const variant = await Variant.create({
       productId: product._id,
       size: 's',
@@ -191,5 +193,28 @@ describe('quantity rules', () => {
 
     expect(view.lines[0].quantity).toBe(1);
     expect(view.lines[0].quantityRule).toEqual({ min: 1, step: 1, max: null });
+  });
+});
+
+describe('products that are not on sale', () => {
+  it('refuses to add a draft product', async () => {
+    const draft = await Product.create({ title: 'Draft', slug: 'draft-tee', category: 'tees' });
+    const variant = await Variant.create({
+      productId: draft._id, size: 'm', color: 'ink', sku: 'DR-M', priceCents: 3000, stock: 5,
+    });
+
+    const cartId = await createCart();
+    await expect(addItemToCart(cartId, String(variant._id), 1)).rejects.toThrowError(/sold out/i);
+  });
+
+  it('drops a line from the cart once its product is archived, so it cannot be checked out', async () => {
+    const cartId = await createCart();
+    await addItemToCart(cartId, variantId, 1);
+
+    await Product.updateOne({ slug: 'field-shirt' }, { archivedAt: new Date() });
+
+    const view = await getCartView(cartId);
+    expect(view?.lines).toHaveLength(0);
+    expect(view?.subtotalCents).toBe(0);
   });
 });

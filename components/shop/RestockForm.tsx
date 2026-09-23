@@ -1,5 +1,6 @@
 'use client';
 
+import { ConsentNote } from '@/components/legal/ConsentNote';
 import { useActionState, useEffect } from 'react';
 import { notifyRestockAction, type NewsletterState } from '@/app/actions/newsletter';
 import { useToast } from '@/components/ui/Toast';
@@ -76,6 +77,7 @@ export function RestockForm({ slug, color }: Props) {
               {pending ? 'Saving' : 'Notify me'}
             </button>
           </form>
+          <ConsentNote kind="restock" />
         </>
       )}
     </div>

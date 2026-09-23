@@ -1,6 +1,39 @@
 import type { NextConfig } from "next";
 
+/**
+ * Sent on every response. Deliberately no script CSP: Next's inline bootstrap,
+ * Stripe's Payment Element and the animation libraries would each need a
+ * nonce or an allowance, and a CSP that is wrong breaks checkout silently.
+ * What is here is what costs nothing to get right.
+ *
+ * - frame-ancestors 'self': only this site may frame it. The admin Content
+ *   tab frames the storefront, which is why this is not 'none'.
+ * - payment: Apple Pay and Google Pay run inside Stripe's frame.
+ */
+const SECURITY_HEADERS = [
+  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  { key: "Content-Security-Policy", value: "frame-ancestors 'self'; base-uri 'self'; object-src 'none'" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: 'camera=(), microphone=(), geolocation=(), browsing-topics=(), payment=(self "https://js.stripe.com")',
+  },
+];
+
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
+  async headers() {
+    return [
+      { source: "/:path*", headers: SECURITY_HEADERS },
+      // Private pages: never in a search index.
+      {
+        source: "/(admin|account|checkout)/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+    ];
+  },
   // The cloud name every browser-built image address needs. A product upload
   // is stored as a bare public id and rebuilt into an address in the browser,
   // so a deployment with only the server's CLOUDINARY_CLOUD_NAME baked an

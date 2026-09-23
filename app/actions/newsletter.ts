@@ -1,7 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-import { headers } from 'next/headers';
+import { clientAddress } from '@/lib/security/client-address';
 import { notifyWhenBackInStock, subscribe } from '@/lib/services/subscribers';
 import { LIMITS, consume } from '@/lib/security/rate-limit';
 
@@ -11,11 +11,8 @@ import { LIMITS, consume } from '@/lib/security/rate-limit';
  * enough that a loop cannot fill the subscriber collection.
  */
 async function withinLimit(): Promise<boolean> {
-  const store = await headers();
-  const address = (store.get('x-forwarded-for') ?? '').split(',')[0]?.trim() || 'unknown';
-
   const result = await consume(
-    `public:${address}`,
+    `public:${await clientAddress()}`,
     LIMITS.publicWrite.limit,
     LIMITS.publicWrite.windowMs,
   );

@@ -623,3 +623,19 @@
 .ulink[disabled]:active,
 .ulink[aria-disabled="true"]:hover,
 .ulink[aria-disabled="true"]:active { color: inherit; }
+
+/* The consent line under every form that takes personal information
+   (components/legal/ConsentNote). Quiet, but legible and underlined: a notice
+   nobody can read or find is not notice. */
+.consent-note {
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+.consent-note a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}

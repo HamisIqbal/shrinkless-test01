@@ -4,6 +4,7 @@ import { useActionState, useEffect } from 'react';
 import { subscribeAction, type NewsletterState } from '@/app/actions/newsletter';
 import { useToast } from '@/components/ui/Toast';
 import { ArrowIcon } from '@/components/site/icons';
+import { ConsentNote } from '@/components/legal/ConsentNote';
 
 const INITIAL: NewsletterState = { status: 'idle' };
 
@@ -20,25 +21,29 @@ export function NewsletterForm() {
   }, [state, toast]);
 
   return (
-    <form action={formAction} className="hm-news">
-      <label htmlFor="newsletter-email" className="visually-hidden">
-        Email address
-      </label>
+    <>
+      <form action={formAction} className="hm-news">
+        <label htmlFor="newsletter-email" className="visually-hidden">
+          Email address
+        </label>
 
-      <input
-        id="newsletter-email"
-        name="email"
-        type="email"
-        required
-        autoComplete="email"
-        placeholder="Email address"
-        className="hm-news__input"
-      />
+        <input
+          id="newsletter-email"
+          name="email"
+          type="email"
+          required
+          autoComplete="email"
+          placeholder="Email address"
+          className="hm-news__input"
+        />
 
-      <button type="submit" className="hm-news__submit" disabled={pending}>
-        {pending ? 'Joining' : 'Join'}
-        <ArrowIcon className="hm-news__arrow" />
-      </button>
-    </form>
+        <button type="submit" className="hm-news__submit" disabled={pending}>
+          {pending ? 'Joining' : 'Join'}
+          <ArrowIcon className="hm-news__arrow" />
+        </button>
+      </form>
+
+      <ConsentNote kind="marketing" />
+    </>
   );
 }

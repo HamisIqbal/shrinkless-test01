@@ -1866,6 +1866,10 @@
   }
 }
 
+/* The effective date and the clauses, as one grid item. min-width: 0 so a
+   long word or address wraps instead of widening the page on a phone. */
+.sh-policy__main { min-width: 0; }
+
 .sh-policy__clauses { display: grid; margin: 0; padding: 0; list-style: none; }
 
 .sh-policy__clause {

@@ -74,6 +74,8 @@ export function WholesaleEditor({ product }: { product: ProductDTO | null }) {
   const [sizesText, setSizesText] = useState((product?.sizes ?? WHOLESALE_SIZES).join(', '));
   const [colorsText, setColorsText] = useState((product?.colors ?? WHOLESALE_COLORS).join(', '));
   const [baseSku, setBaseSku] = useState(product?.baseSku ?? '');
+  const [fiberContent, setFiberContent] = useState(product?.fiberContent ?? '');
+  const [origin, setOrigin] = useState(product?.origin ?? '');
   const [seoTitle, setSeoTitle] = useState(product?.seo?.title ?? '');
   const [seoDescription, setSeoDescription] = useState(product?.seo?.description ?? '');
   const [seoKeywords, setSeoKeywords] = useState((product?.seo?.keywords ?? []).join(', '));
@@ -191,6 +193,8 @@ export function WholesaleEditor({ product }: { product: ProductDTO | null }) {
         // style's existing tags keeps any others an admin has added.
         tags: product?.tags?.length ? product.tags : [WHOLESALE_TAG],
         baseSku,
+        fiberContent,
+        origin,
         seo: {
           title: seoTitle,
           description: seoDescription,
@@ -401,6 +405,30 @@ export function WholesaleEditor({ product }: { product: ProductDTO | null }) {
           <input value={baseSku} onChange={(e) => setBaseSku(e.target.value.toUpperCase())} />
           <small>The family code. Each variant carries its own SKU below.</small>
         </label>
+
+        <div className="fieldrow">
+          <label className="adfield">
+            Fibre content
+            <input
+              value={fiberContent}
+              onChange={(e) => setFiberContent(e.target.value)}
+              placeholder="100% cotton"
+              maxLength={200}
+            />
+            <small>By percentage, as on the care label. Required by the FTC for clothing sold online.</small>
+          </label>
+
+          <label className="adfield">
+            Country of origin
+            <input
+              value={origin}
+              onChange={(e) => setOrigin(e.target.value)}
+              placeholder="Made in USA / Imported"
+              maxLength={120}
+            />
+            <small>&ldquo;Made in USA&rdquo; only if all or virtually all of it is. Otherwise &ldquo;Imported&rdquo;.</small>
+          </label>
+        </div>
 
         <VariantMatrix rows={rows} onRowChange={handleRowChange} onApplyToAll={handleApplyToAll} />
       </section>

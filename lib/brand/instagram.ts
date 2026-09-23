@@ -57,17 +57,16 @@ type GraphMedia = {
   caption?: string;
 };
 
-/** A caption is a paragraph and a pile of hashtags; alt text is one line. */
-function toAlt(caption: string | undefined): string {
-  const first = (caption ?? '')
-    .split('\n')
-    .map((line) => line.trim())
-    .find((line) => line.length > 0 && !line.startsWith('#'));
-
-  if (!first) return `A post from @${INSTAGRAM_HANDLE} on Instagram.`;
-
-  const trimmed = first.replace(/#\w+/g, '').replace(/\s+/g, ' ').trim();
-  return trimmed.length > 140 ? `${trimmed.slice(0, 139)}\u2026` : trimmed;
+/**
+ * Alt text for a post, deliberately not taken from its caption.
+ *
+ * Captions are marketing written for Instagram \u2014 "100% organic", "we
+ * guarantee\u2026" \u2014 and printing them on the store republishes those claims as the
+ * store's own, on every page, where the FTC reads them as advertising. The
+ * image is a link out to the post, so saying where it goes is the useful alt.
+ */
+function toAlt(): string {
+  return `Post from @${INSTAGRAM_HANDLE} on Instagram (opens in a new tab)`;
 }
 
 /**
@@ -103,7 +102,7 @@ export async function fetchInstagramPosts(limit = 12): Promise<InstagramPost[]> 
           id: media.id,
           permalink: media.permalink,
           imageUrl: image,
-          alt: toAlt(media.caption),
+          alt: toAlt(),
         } satisfies InstagramPost;
       })
       .filter((post): post is InstagramPost => post !== null);

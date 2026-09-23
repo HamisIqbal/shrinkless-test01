@@ -102,8 +102,9 @@ export function WholesaleBuyPanel({ style }: Props) {
       <ProductStory description={style.description} />
 
       <ul className="sh-picker__claims">
-        <li>Garment Dyed Organic Cotton</li>
-        <li>Made in USA</li>
+        <li>Garment dyed</li>
+        {style.fiberContent ? <li>{style.fiberContent}</li> : null}
+        {style.origin ? <li>{style.origin}</li> : null}
         <li>Made to order</li>
         {/* Stated rather than chosen: the run's size ratio is settled in the
             enquiry, but the buyer still has to know what the style is cut in. */}

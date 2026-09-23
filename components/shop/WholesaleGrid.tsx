@@ -47,6 +47,8 @@ export function WholesaleGrid({ styles }: Props) {
           minPriceCents: opening?.unitPriceCents ?? style.retailCents,
           tags: [],
           baseSku: '',
+          fiberContent: style.fiberContent,
+          origin: style.origin,
           seo: { title: '', description: '', keywords: [] },
           quantityRule: { min: 1, step: 1, max: null },
           archived: false,

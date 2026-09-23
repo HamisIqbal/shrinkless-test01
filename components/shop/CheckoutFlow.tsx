@@ -1,5 +1,6 @@
 'use client';
 
+import { ConsentNote } from '@/components/legal/ConsentNote';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { loadStripe } from '@stripe/stripe-js';
@@ -275,6 +276,8 @@ function PaymentStep({
           currency: 'USD',
         })}`}
       </button>
+
+      <ConsentNote kind="order" />
 
       <button type="button" className="ulink checkoutform__back" onClick={onBack}>
         Edit contact or address

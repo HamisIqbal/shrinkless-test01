@@ -6,6 +6,13 @@ const zoneSchema = z.object({
   rateCents: z.number().int().min(0),
 });
 
+export const businessDetailsSchema = z.object({
+  legalName: z.string().trim().max(120).default(''),
+  address: z.string().trim().max(300).default(''),
+  phone: z.string().trim().max(40).default(''),
+  governingState: z.string().trim().max(40).default(''),
+});
+
 export const settingsInputSchema = z.object({
   storeEmail: z.string().trim().toLowerCase().pipe(z.email()),
   announcement: z.string().trim().default(''),
@@ -14,6 +21,7 @@ export const settingsInputSchema = z.object({
   lowStockThreshold: z.number().int().min(0).max(10_000).default(3),
   taxMode: z.enum(['none', 'flat', 'stripe']),
   flatTaxRateBasisPoints: z.number().int().min(0).max(10_000).default(0),
+  business: businessDetailsSchema.optional(),
 });
 
 export type SettingsInput = z.infer<typeof settingsInputSchema>;
