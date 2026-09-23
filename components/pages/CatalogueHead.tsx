@@ -17,6 +17,9 @@ type Props = {
   /** When the collection has photography of its own. Without it the head is
    *  type on paper — a stand-in photograph would be a lie about the page. */
   image?: BrandImage;
+  /** Centres the type from desktop width up, for the one-column account
+   *  forms where a left-set head would sit off to the side of the form. */
+  centered?: boolean;
 };
 
 const pad = (value: number) => String(value).padStart(2, '0');
@@ -36,12 +39,13 @@ export function CatalogueHead({
   count,
   unit = ['style', 'styles'],
   image,
+  centered = false,
 }: Props) {
   const lit = Boolean(image);
 
   return (
     <HomeScene
-      className={`pg-head${lit ? ' pg-head--lit' : ''} ${homeFonts}`}
+      className={`pg-head${lit ? ' pg-head--lit' : ''}${centered ? ' pg-head--center' : ''} ${homeFonts}`}
       aria-label={title}
     >
       {image ? (

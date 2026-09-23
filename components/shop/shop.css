@@ -1721,6 +1721,14 @@
 
 .sh-swap .sh-link { margin-left: 0.35rem; color: var(--sh-ink); }
 
+/* On a desktop the form column sits under a centred head, in the middle of
+   the page rather than against its left edge. The fields keep their left
+   edge; only the column and the ways out are centred. */
+@media (min-width: 56.25rem) {
+  .sh-account__narrow { margin-inline: auto; }
+  .sh-swap { text-align: center; }
+}
+
 /* Google above the form, then a rule with "or" set in it — the two ways in
    read as one choice rather than a button bolted onto a form. */
 .sh-oauth { display: grid; gap: clamp(1.75rem, 4vw, 2.5rem); }

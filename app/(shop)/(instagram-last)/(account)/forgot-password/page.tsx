@@ -15,6 +15,7 @@ export default async function ForgotPasswordPage() {
   return (
     <>
       <CatalogueHead
+        centered
         eyebrow="Account"
         title="Forgot your password"
         lede="Give us the email on your account and we will send a link that lets you set a new password."

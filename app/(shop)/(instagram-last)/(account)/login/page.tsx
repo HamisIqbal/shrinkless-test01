@@ -36,6 +36,7 @@ export default async function LoginPage({
   return (
     <>
       <CatalogueHead
+        centered
         eyebrow="Account"
         title="Sign in"
         lede="Your orders, and a quicker way through checkout."
@@ -45,7 +46,7 @@ export default async function LoginPage({
         <div className="sh-wrap">
           <div className="sh-account__narrow">
             {message ? <p role="alert" className="sh-notice sh-notice--error">{message}</p> : null}
-            {googleEnabled ? <GoogleButton /> : null}
+            {googleEnabled ? <GoogleButton label="Sign in with Google" /> : null}
             <AuthForm action={loginAction} submitLabel="Sign in" />
 
             {/* One block, two offers. Two rules would read as two unrelated

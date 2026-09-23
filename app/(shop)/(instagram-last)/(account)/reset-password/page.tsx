@@ -34,6 +34,7 @@ export default async function ResetPasswordPage(props: PageProps<'/reset-passwor
     return (
       <>
         <CatalogueHead
+        centered
           eyebrow="Account"
           title="That link is no longer good"
           lede={REASONS[check.reason]}
@@ -53,6 +54,7 @@ export default async function ResetPasswordPage(props: PageProps<'/reset-passwor
   return (
     <>
       <CatalogueHead
+        centered
         eyebrow="Account"
         title="Set a new password"
         lede={`For ${check.email}. Choosing one signs you straight in.`}

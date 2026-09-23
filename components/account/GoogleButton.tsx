@@ -1,10 +1,10 @@
 import { googleSignInAction } from '@/app/actions/auth';
 
 /**
- * One button for signing in and signing up alike — Google makes the account
+ * One Google flow for signing in and signing up alike — it makes the account
  * on the first visit. A plain form post, so it works before any script loads.
  */
-export function GoogleButton() {
+export function GoogleButton({ label }: { label: string }) {
   return (
     <form action={googleSignInAction} className="sh-oauth">
       <button type="submit" className="sh-btn sh-btn--ghost sh-btn--block sh-oauth__btn">
@@ -14,7 +14,7 @@ export function GoogleButton() {
           <path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3.01-2.33z" />
           <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z" />
         </svg>
-        <span>Continue with Google</span>
+        <span>{label}</span>
       </button>
       <p className="sh-oauth__or" aria-hidden="true"><span>or with email</span></p>
     </form>

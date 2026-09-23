@@ -332,6 +332,12 @@
 }
 
 .pg-head--lit .pg-head__lede { color: rgba(255, 255, 255, 0.82); }
+
+@media (min-width: 56.25rem) {
+  .pg-head--center .pg-head__inner { text-align: center; }
+  .pg-head--center .pg-head__line { justify-content: center; }
+  .pg-head--center .pg-head__lede { margin-inline: auto; }
+}
 .pg-head--lit :focus-visible { outline: 2px solid var(--hm-white); outline-offset: 3px; }
 
 /* --- on ink --------------------------------------------------------------- */

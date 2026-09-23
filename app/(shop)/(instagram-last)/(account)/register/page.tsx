@@ -17,6 +17,7 @@ export default async function RegisterPage() {
   return (
     <>
       <CatalogueHead
+        centered
         eyebrow="Account"
         title="Create an account"
         lede="Keep your orders in one place, and check out without typing your details twice."
@@ -25,7 +26,7 @@ export default async function RegisterPage() {
       <div className={`sh-account ${homeFonts}`}>
         <div className="sh-wrap">
           <div className="sh-account__narrow">
-            {googleEnabled ? <GoogleButton /> : null}
+            {googleEnabled ? <GoogleButton label="Sign up with Google" /> : null}
             <AuthForm action={registerAction} submitLabel="Create account" includeName />
 
             <p className="sh-swap">
