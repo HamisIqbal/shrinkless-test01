@@ -323,14 +323,14 @@
     border-bottom-left-radius: var(--radius-slab);
     border-bottom-right-radius: var(--radius-slab);
     margin-bottom: var(--footer-h, 0px);
-    /* Lifts the slab off the footer it uncovers. The footer is ink, where a
-       dark shadow cannot show, so the lift is a pale glow: a hairline at the
-       edge, then a soft falloff. `overflow: clip` clips content, not the
-       box's own shadow, and the slab's z-index keeps it over the footer. */
+    /* Lifts the slab off the footer it uncovers. The footer's ground is
+       already near black, so the shadow shows where it falls across the
+       footer's pale type, dimming the top of it as the slab passes over.
+       `overflow: clip` clips content, not the box's own shadow, and the
+       slab's z-index keeps it over the footer. */
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.06),
-      0 6px 16px -4px rgba(255, 255, 255, 0.08),
-      0 18px 50px -8px rgba(255, 255, 255, 0.16);
+      0 8px 24px rgba(0, 0, 0, 0.7),
+      0 24px 72px rgba(0, 0, 0, 0.85);
   }
 
   .footerdock {
