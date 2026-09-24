@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { buildFilterQuery, toggleValue } from '@/lib/shop/filters';
 import { formatCents } from '@/lib/money';
+import { SearchIcon } from '@/components/site/icons';
 import type { ProductFilter } from '@/lib/validation/catalogue';
 import './shop.css';
 
@@ -125,7 +126,12 @@ export function FilterPanel({
           className="sh-filters__input"
           onChange={(event) => setTerm(event.target.value)}
         />
-        <button type="submit" className="sh-link">Go</button>
+        {/* A loose "Go" floated at the end of the rule and read as a stray
+            label; the field is a search, and a search submits on a glass. */}
+        <button type="submit" className="sh-filters__submit">
+          <SearchIcon className="sh-filters__glass" />
+          <span className="visually-hidden">Search</span>
+        </button>
       </div>
 
       {applied.length ? (
@@ -226,7 +232,12 @@ export function FilterPanel({
                     checked={filter.colors.includes(color)}
                     onChange={() => apply({ colors: toggleValue(filter.colors, color) })}
                   />
-                  <span className={`swatchdot dot--${color}`} aria-hidden="true" />
+                  <span
+                    className={`swatchdot dot--${color}${
+                      filter.colors.includes(color) ? ' swatchdot--on' : ''
+                    }`}
+                    aria-hidden="true"
+                  />
                   {color}
                 </label>
               </li>

@@ -81,7 +81,9 @@ export function ShopBrowser({
   const router = useRouter();
 
   const total = count ?? products?.length ?? 0;
-  const [column, setColumn] = useState(true);
+  // Closed until asked for. The grid is what the shopper came for; the filters
+  // are one tap away in the bar, and a dot on that tap says when some are on.
+  const [column, setColumn] = useState(false);
   const [sheet, setSheet] = useState(false);
   const [quick, setQuick] = useState<ProductDTO | null>(null);
 
@@ -204,7 +206,7 @@ export function ShopBrowser({
             {/* Both labels are rendered and CSS picks one. Choosing in JS would
                 mean the server guessing the viewport, and a desktop would read
                 "Filters" for the frame before hydration corrected it. */}
-            <span className="sh-shop__wide">{column ? 'Hide filters' : 'Filters'}</span>
+            <span className="sh-shop__wide">{column ? 'Hide filters' : 'Show filters'}</span>
             <span className="sh-shop__narrow">Filters</span>
             {active && !open ? <span className="sh-shop__dot" aria-hidden="true" /> : null}
           </button>
@@ -245,6 +247,18 @@ export function ShopBrowser({
             </ul>
           )
         )}
+
+        {/* The whole collection is on the page at once, so without this the
+            grid simply stopped and a shopper was left scrolling into the
+            footer wondering whether more would load. */}
+        {total > 0 ? (
+          <p className="sh-shop__end tnum">
+            <span>
+              {total === 1 ? "That's the only style" : `That's all ${total} styles`}
+              {active ? ' matching your filters' : ''}
+            </span>
+          </p>
+        ) : null}
       </div>
 
       {/* One dialog for the whole grid rather than one per card. Keyed by

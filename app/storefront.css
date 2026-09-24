@@ -1632,6 +1632,17 @@
 .dot--heather  { --dot: #b6b8ba; }
 .dot--olive    { --dot: #6b6a4f; }
 .dot--teal     { --dot: #2f4f52; }
+.dot--grey,
+.dot--gray     { --dot: #8f908c; }
+.dot--mocha    { --dot: #7a5f4e; }
+.dot--navy     { --dot: #1f2a44; }
+.dot--brown    { --dot: #5a3e2b; }
+.dot--sand     { --dot: #cdbb9b; }
+.dot--cream    { --dot: #f1ead8; }
+.dot--green    { --dot: #3f5a3c; }
+.dot--blue     { --dot: #3b5b8a; }
+.dot--red      { --dot: #9b2f2f; }
+.dot--pink     { --dot: #e2b4b8; }
 
 /* --------------------------------------------------------------------------
    Statement

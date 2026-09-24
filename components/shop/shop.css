@@ -426,30 +426,58 @@
    visible at the top, with its own way off.
    ========================================================================== */
 
-.sh-filters { display: grid; gap: 1.25rem; font-family: var(--sh-sans); }
+/* One voice through the panel: every label, chip and name is set in the same
+   small mono capitals as the results bar beside it. It used to mix a 16px sans
+   placeholder, mono headings and 14px sans colour names in one column. */
+.sh-filters { display: grid; font-family: var(--sh-sans); }
 
+/* A field that looks like one: the same pill as the chips below it, with the
+   search mark as its button. */
 .sh-filters__search {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding-bottom: 0.6rem;
-  border-bottom: 1px solid var(--sh-line);
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-left: 1.1rem;
+  border: 1px solid var(--sh-line);
+  border-radius: 999px;
   transition: border-color 0.35s var(--sh-ease);
 }
 
-.sh-filters__search:focus-within { border-bottom-color: var(--sh-ink); }
+.sh-filters__search:is(:hover, :focus-within) { border-color: var(--sh-ink); }
 
 .sh-filters__input {
   flex: 1;
   min-width: 0;
-  min-height: 2.5rem;
+  min-height: 2.75rem;
   padding: 0;
   border: 0;
   background: none;
   color: var(--sh-ink);
-  font-family: var(--sh-sans);
-  font-size: 1rem;
+  font-family: var(--sh-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
 }
+
+/* The native clear cross drew a blue x in a field with no other colour. */
+.sh-filters__input::-webkit-search-cancel-button { appearance: none; }
+
+.sh-filters__submit {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--sh-ink);
+  cursor: pointer;
+}
+
+.sh-filters__glass { width: 1.05rem; height: 1.05rem; }
 
 .sh-filters__input::placeholder { color: var(--sh-smoke); opacity: 1; }
 .sh-filters__input:focus-visible { outline: 0; }
@@ -459,7 +487,7 @@
 .sh-filters__active {
   display: grid;
   gap: 0.6rem;
-  padding-bottom: 1.1rem;
+  padding-block: 0.5rem 1rem;
   border-bottom: 1px solid var(--sh-line);
 }
 
@@ -503,10 +531,7 @@
 
 /* --- a folding group ------------------------------------------------------ */
 
-.sh-filters__group {
-  padding-bottom: 1.1rem;
-  border-bottom: 1px solid var(--sh-line);
-}
+.sh-filters__group { border-bottom: 1px solid var(--sh-line); }
 
 .sh-filters__legend {
   display: flex;
@@ -514,7 +539,7 @@
   justify-content: space-between;
   gap: 1rem;
   width: 100%;
-  min-height: 2.75rem;
+  min-height: 3.25rem;
   padding: 0;
   border: 0;
   background: none;
@@ -551,35 +576,49 @@
 .sh-filters__mark::after { transform: rotate(90deg); transition: transform 0.4s var(--sh-ease); }
 .sh-filters__legend[aria-expanded='true'] .sh-filters__mark::after { transform: rotate(0deg); }
 
-.sh-filters__body { padding-top: 0.35rem; }
+.sh-filters__body { padding-bottom: 1.25rem; }
 
-.sh-filters__chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+/* Sizes on an even grid, so XXL does not wrap onto a row of its own under
+   five chips of a different width. */
+.sh-filters__chips {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+}
 
-/* Colours read as a list of names beside their swatch, not as a row of dots
-   somebody has to hover to identify. */
-.sh-filters__colors { display: grid; gap: 0.15rem; }
+.sh-filters__chips .sh-chip { justify-content: center; padding-inline: 0.5rem; }
+
+/* Colours read as names beside their swatch, not as a row of dots somebody
+   has to hover to identify. Two to a row, because a column of four short
+   words left most of the panel empty. The chosen one is ringed, the same mark
+   the product card uses. */
+.sh-filters__colors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.15rem 0.75rem;
+}
 
 .sh-filters__color {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  min-height: 2.25rem;
+  gap: 0.7rem;
+  min-height: 2.5rem;
   color: var(--sh-stone);
-  font-family: var(--sh-sans);
-  font-size: 0.875rem;
-  text-transform: capitalize;
+  font-family: var(--sh-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
   cursor: pointer;
   transition: color 0.3s var(--sh-ease);
 }
 
-.sh-filters__color:hover { color: var(--sh-ink); }
+.sh-filters__color:is(:hover, :focus-within) { color: var(--sh-ink); }
 .sh-filters__color--on { color: var(--sh-ink); }
 
-.sh-filters__color--on::after {
-  content: "";
-  width: 0.9rem;
-  height: 1px;
-  background: currentColor;
+.sh-filters__color .swatchdot { flex: none; width: 1rem; height: 1rem; }
+
+.sh-filters__color .swatchdot--on {
+  box-shadow: 0 0 0 2px var(--sh-white), 0 0 0 3px var(--sh-ink);
 }
 
 .sh-filters__price {
@@ -667,6 +706,30 @@
     border-top: 1px solid var(--sh-line);
   }
 }
+
+/* --- the end of the collection -------------------------------------------- */
+
+.sh-shop__end {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: clamp(3rem, 6vw, 5rem);
+  color: var(--sh-smoke);
+  font-family: var(--sh-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.sh-shop__end::before,
+.sh-shop__end::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--sh-line);
+}
+
+.sh-shop__end span { flex: none; text-align: center; }
 
 @media (min-width: 62rem) {
   .sh-shop__scrim,
@@ -1365,9 +1428,32 @@
 
 /* The run-size menu on the trade page. A select rather than chips, because a
    buyer is picking one of five tiers and each one carries a figure. */
+.sh-picker__field {
+  position: relative;
+  display: block;
+  color: var(--sh-ink);
+}
+
+/* The browser's own arrow sat hard against the pill's rounded end, and a long
+   tier ran its text straight under it. The arrow is drawn here instead, in its
+   own reserved lane, and like the sort menu's it takes the ground's ink. */
+.sh-picker__field::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 1.4rem;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+
 .sh-picker__select {
+  width: 100%;
   min-height: 3.25rem;
-  padding: 0 1rem;
+  padding: 0 3.25rem 0 1.25rem;
   border: 1px solid var(--sh-line);
   border-radius: 999px;
   background: transparent;
@@ -1375,9 +1461,14 @@
   font-family: var(--sh-mono);
   font-size: 0.6875rem;
   letter-spacing: 0;
+  text-overflow: ellipsis;
   text-transform: uppercase;
+  appearance: none;
   cursor: pointer;
+  transition: border-color 0.35s var(--sh-ease);
 }
+
+.sh-picker__select:is(:hover, :focus-visible) { border-color: var(--sh-ink); }
 
 /* The menu paints on the system ground rather than the page's. */
 .sh-picker__select option { background: #ffffff; color: #0a0a0a; }

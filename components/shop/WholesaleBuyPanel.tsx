@@ -142,24 +142,27 @@ export function WholesaleBuyPanel({ style }: Props) {
         <label className="sh-label" htmlFor="wholesale-quantity">
           Quantity — sold by the run
         </label>
-        <select
-          id="wholesale-quantity"
-          className="sh-picker__select"
-          value={picked ?? ''}
-          onChange={(event) => {
-            const next = event.target.value;
-            setPicked(next ? (Number(next) as WholesaleTier) : null);
-          }}
-        >
-          <option value="">Choose a quantity</option>
-          {style.tiers.map((step) => (
-            <option key={step.tier} value={step.tier}>
-              {`${UNITS.format(step.tier)} units — ${formatCents(
-                step.unitPriceCents,
-              )} per unit · ${formatCents(step.totalCents)}`}
-            </option>
-          ))}
-        </select>
+        {/* The wrapper draws the chevron; see .sh-picker__field. */}
+        <span className="sh-picker__field">
+          <select
+            id="wholesale-quantity"
+            className="sh-picker__select"
+            value={picked ?? ''}
+            onChange={(event) => {
+              const next = event.target.value;
+              setPicked(next ? (Number(next) as WholesaleTier) : null);
+            }}
+          >
+            <option value="">Choose a quantity</option>
+            {style.tiers.map((step) => (
+              <option key={step.tier} value={step.tier}>
+                {`${UNITS.format(step.tier)} units — ${formatCents(
+                  step.unitPriceCents,
+                )} per unit · ${formatCents(step.totalCents)}`}
+              </option>
+            ))}
+          </select>
+        </span>
 
         {chosen ? (
           <p className="sh-picker__total tnum" aria-live="polite">
