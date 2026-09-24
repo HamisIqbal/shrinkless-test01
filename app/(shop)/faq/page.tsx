@@ -25,8 +25,7 @@ const items = (copy: SiteContent): FaqItem[] =>
     a: copy[`faq.${n}.a`],
   }));
 
-/* No Instagram band here — app/(shop)/(instagram-last)/layout.tsx already
-   renders the homepage's one after every page's content. */
+/* No Instagram band here — it belongs to the homepage alone. */
 export default async function FaqPage() {
   const [copy, layer, mediaLayer, settings] = await Promise.all([
     getSiteContent(),

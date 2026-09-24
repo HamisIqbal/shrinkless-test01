@@ -36,8 +36,7 @@ const specs = (copy: SiteContent): string[] => [
  * the admin can change it. Three chapters run under it, then the care label,
  * then the line the page closes on.
  *
- * No Instagram band here — app/(shop)/(instagram-last)/layout.tsx renders
- * it after every page's content.
+ * No Instagram band here — it belongs to the homepage alone.
  */
 export default async function OurStoryPage() {
   const [media, copy, layer, mediaLayer] = await Promise.all([

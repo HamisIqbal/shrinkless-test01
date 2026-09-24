@@ -96,10 +96,8 @@ export default async function HomePage() {
           Two full-bleed doors, no heading of its own. */}
       <HomeGateway gateways={gateways} />
 
-      {/* On the homepage the community band is not a footer ornament: the real
-          account, high up, before the first grid of product cards. Every other
-          shop page still gets it last, from
-          app/(shop)/(instagram-last)/layout.tsx. */}
+      {/* The community band is the homepage's alone: the real account, high
+          up, before the first grid of product cards. No other page shows it. */}
       <HomeInstagram />
 
       <HomeShelf

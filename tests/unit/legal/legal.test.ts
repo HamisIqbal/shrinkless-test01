@@ -19,7 +19,7 @@ import {
  * that the business could be held to — read docs/compliance.md first.
  */
 
-const SHOP = join(process.cwd(), 'app', '(shop)', '(instagram-last)');
+const SHOP = join(process.cwd(), 'app', '(shop)');
 const FOOTER = readFileSync(join(process.cwd(), 'components/home/HomeFooter.tsx'), 'utf8');
 
 describe('legal pages', () => {
