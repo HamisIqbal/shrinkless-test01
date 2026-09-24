@@ -864,7 +864,18 @@
   scrollbar-color: var(--hm-ash) transparent;
 }
 
-@media (min-width: 62rem) { .hm-mega { display: block; } }
+/* On a desktop the panel is fixed to the window, docked under the bar at the
+   edge HomeHeader measures into `--hm-mega-top`. Hung off the bar with
+   `absolute` it was clipped by the page slab's rounded foot, which sits just
+   under the bar once the footer is in view. */
+@media (min-width: 62rem) {
+  .hm-mega {
+    position: fixed;
+    top: var(--hm-mega-top, 5.25rem);
+    display: block;
+    max-height: calc(100svh - var(--hm-mega-top, 5.25rem) - 1.5rem);
+  }
+}
 
 .hm-mega.is-open { visibility: visible; transition-delay: 0s; }
 

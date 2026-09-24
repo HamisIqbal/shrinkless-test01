@@ -97,9 +97,42 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail, products
 
   const searchInput = useRef<HTMLInputElement>(null);
   const hoverTimer = useRef(0);
+  const headRef = useRef<HTMLElement>(null);
 
   const megaOpen = megaPanel !== null;
   const panel = megaOpen || searchOpen;
+
+  /* The shop panel is pinned to the window rather than hung off the bar,
+     because the bar lives inside the page slab and the slab clips to its
+     rounded foot. Scrolled down to the footer, the foot is just under the bar
+     and the panel was cut off there. Fixed, it escapes the clip; this keeps
+     it docked to the bar's lower edge, which moves as the announcement bar
+     scrolls away and the bar goes compact. */
+  useEffect(() => {
+    const head = headRef.current;
+    if (!megaOpen || !head) return;
+
+    let frame = 0;
+    const dock = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        head.style.setProperty('--hm-mega-top', `${head.getBoundingClientRect().bottom}px`);
+      });
+    };
+
+    dock();
+    window.addEventListener('scroll', dock, { passive: true });
+    window.addEventListener('resize', dock);
+    const observer = new ResizeObserver(dock);
+    observer.observe(head);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', dock);
+      window.removeEventListener('resize', dock);
+      observer.disconnect();
+    };
+  }, [megaOpen]);
 
   // The sheet opens showing the whole catalogue and narrows as you type, so it
   // is a way into the shop rather than an empty box waiting to be fed. Matched
@@ -252,7 +285,7 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail, products
 
   return (
     <>
-      <header className={classes} onMouseLeave={hoverClose}>
+      <header ref={headRef} className={classes} onMouseLeave={hoverClose}>
         <div className="hm-head__bar">
           <div className="hm-head__left" onMouseEnter={leaveMega}>
             <button
