@@ -1540,11 +1540,19 @@
 
 .sh-quick__media { background: var(--sh-chalk); }
 
+/* Sized by its column's width, never its height. It used to take the row's
+   height too, and with a 4:5 ratio a tall description made the photograph
+   wider than its column, so it spread across the title and copy beside it. */
 .sh-quick__frame {
   position: relative;
   overflow: hidden;
+  width: 100%;
   aspect-ratio: 4 / 5;
-  height: 100%;
+}
+
+/* Beside the copy, the photograph holds its place while the panel scrolls. */
+@media (min-width: 48rem) {
+  .sh-quick__frame { position: sticky; top: 0; }
 }
 
 .sh-quick__frame img { object-fit: cover; }
