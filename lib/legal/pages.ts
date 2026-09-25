@@ -26,7 +26,7 @@ export type LegalPageId = (typeof LEGAL_PAGES)[number]['id'];
  *
  * Change it whenever the *default* wording of a policy changes in
  * lib/services/site-content.ts. Edits made on the admin Content tab are dated
- * by the database instead — see PolicyPage.
+ * by the database instead — see loadPolicy in components/pages/policy-data.ts.
  */
 export const POLICIES_EFFECTIVE = '2026-09-24';
 

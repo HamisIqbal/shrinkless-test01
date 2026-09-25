@@ -1,5 +1,6 @@
 /* ==========================================================================
-   The privacy policy — see PrivacyPage.tsx.
+   The policy pages — terms, refunds, shipping, privacy, accessibility.
+   See PolicyPage.tsx.
 
    Built from the site's own vocabulary and tokens (hm-core.css): Bebas for
    the heads, Space Grotesk for running copy, the mono for small print, and
@@ -51,12 +52,16 @@
 /* Stone is the eyebrow's colour on paper; on ink it is too dim to read. */
 .pv-head .hm-eyebrow { color: var(--hm-ash); }
 
+/* The title is sized by its column, not the window, so the longest single
+   word a policy is named with — ACCESSIBILITY — still fits beside the label. */
+.pv-head__words { container-type: inline-size; }
+
 .pv-head__mask { margin-top: clamp(0.75rem, 1.5vw, 1.25rem); }
 
 .pv-head__title {
   margin: 0;
   font-family: var(--hm-bebas);
-  font-size: clamp(4rem, 13vw, 12.5rem);
+  font-size: clamp(4rem, min(13vw, 21cqi), 12.5rem);
   font-weight: 400;
   letter-spacing: 0;
   line-height: 0.84;

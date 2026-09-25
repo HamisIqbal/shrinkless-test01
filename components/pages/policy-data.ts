@@ -20,8 +20,8 @@ export type PolicyClauseView = { heading: string; paragraphs: string[] };
  * Settings; see lib/legal/tokens.ts. A clause left with no heading or no
  * paragraphs — every paragraph named a detail not yet entered — is dropped.
  *
- * Shared by PolicyPage and the privacy page, which set the same words out
- * differently.
+ * Kept apart from PolicyPage so the reading and filling can be followed, and
+ * changed, without the layout around it.
  */
 export async function loadPolicy(id: PolicyId) {
   const [copy, layer, settings, effective] = await Promise.all([
