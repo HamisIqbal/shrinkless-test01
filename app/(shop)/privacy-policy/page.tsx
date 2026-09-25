@@ -1,4 +1,4 @@
-import { PolicyPage } from '@/components/pages/PolicyPage';
+import { PrivacyPage } from '@/components/pages/PrivacyPage';
 
 export const metadata = {
   title: 'Privacy Policy',
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function PrivacyPolicyPage() {
-  return <PolicyPage id="privacy" />;
+  return <PrivacyPage />;
 }

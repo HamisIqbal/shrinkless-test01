@@ -1,17 +1,10 @@
 import Link from 'next/link';
 import { CatalogueHead } from '@/components/pages/CatalogueHead';
+import { loadPolicy } from '@/components/pages/policy-data';
 import { ContentLayer } from '@/components/site/ContentLayer';
 import { homeFonts } from '@/components/home/fonts';
-import {
-  POLICY_CLAUSES,
-  getContentLayer,
-  getSiteContent,
-  policyEffectiveDate,
-  type PolicyId,
-} from '@/lib/services/site-content';
-import { getStoreSettings } from '@/lib/services/settings';
-import { LEGAL_PAGES, POLICIES_EFFECTIVE } from '@/lib/legal/pages';
-import { fillLine, fillParagraphs, policyTokens } from '@/lib/legal/tokens';
+import type { PolicyId } from '@/lib/services/site-content';
+import { LEGAL_PAGES } from '@/lib/legal/pages';
 import '@/components/shop/shop.css';
 
 const pad = (value: number) => String(value).padStart(2, '0');
@@ -26,36 +19,14 @@ const DATE = new Intl.DateTimeFormat('en-US', {
 /**
  * One policy page: the chalk band every page opens on, then the clauses as a
  * numbered ledger beside a panel that links the other policies and says where
- * to ask.
- *
- * The words are read from the content registry, like every other page's, so
- * a clause can be corrected on the Content tab. A blank line in a clause's
- * text is a paragraph break — the one piece of structure a policy needs, and
- * the only one the editor's plain text can carry. {{tokens}} are filled from
- * the business details in Settings; see lib/legal/tokens.ts.
+ * to ask. The words and their filling are loadPolicy's; see policy-data.ts.
  */
 export async function PolicyPage({ id }: { id: PolicyId }) {
-  const [copy, layer, settings, effective] = await Promise.all([
-    getSiteContent(),
-    getContentLayer(`policy-${id}`),
-    getStoreSettings(),
-    policyEffectiveDate(id, POLICIES_EFFECTIVE),
-  ]);
-
-  const tokens = policyTokens({ ...settings.business, email: settings.storeEmail });
-
-  const clauses = Array.from({ length: POLICY_CLAUSES[id] }, (_, index) => ({
-    heading: fillLine(copy[`policy.${id}.${index + 1}.heading`] ?? '', tokens),
-    paragraphs: fillParagraphs(copy[`policy.${id}.${index + 1}.body`] ?? '', tokens),
-  })).filter((clause) => clause.heading && clause.paragraphs.length);
+  const { title, lede, clauses, effective, layer, email, phone } = await loadPolicy(id);
 
   return (
     <>
-      <CatalogueHead
-        eyebrow="Policies"
-        title={fillLine(copy[`policy.${id}.title`], tokens)}
-        lede={fillLine(copy[`policy.${id}.lede`], tokens)}
-      />
+      <CatalogueHead eyebrow="Policies" title={title} lede={lede} />
 
       <div className={`sh-policy ${homeFonts}`}>
         <div className="sh-wrap sh-policy__layout">
@@ -99,13 +70,11 @@ export async function PolicyPage({ id }: { id: PolicyId }) {
 
             <div className="sh-policy__ask">
               <p className="sh-label">Questions</p>
-              <a href={`mailto:${settings.storeEmail}`} className="sh-btn sh-btn--block">
+              <a href={`mailto:${email}`} className="sh-btn sh-btn--block">
                 Email us
               </a>
-              <p className="sh-receipt__note">{settings.storeEmail}</p>
-              {settings.business.phone ? (
-                <p className="sh-receipt__note">{settings.business.phone}</p>
-              ) : null}
+              <p className="sh-receipt__note">{email}</p>
+              {phone ? <p className="sh-receipt__note">{phone}</p> : null}
             </div>
           </aside>
         </div>
