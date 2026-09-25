@@ -41,7 +41,7 @@ function withLinks(text: string, email: string, phone: string): ReactNode {
 }
 
 /**
- * One policy page: a plain document, black on white, in one narrow column.
+ * One policy page: a plain document, black on white, in one left-aligned column.
  * The title, the effective date, the lede, then each clause's heading and
  * text. No motion, no contents list, no links out to the other policies.
  *
