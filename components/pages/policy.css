@@ -2,402 +2,69 @@
    The policy pages — terms, refunds, shipping, privacy, accessibility.
    See PolicyPage.tsx.
 
-   Built from the site's own vocabulary and tokens (hm-core.css): Bebas for
-   the heads, Space Grotesk for running copy, the mono for small print, and
-   Archivo's width axis for the one woven wordmark. Nothing new in the palette
-   — ink, chalk, white and the greys between.
-
-   The one idea is the care label. The page opens on ink with the contents on
-   a white label hanging from the seam under the masthead; below, the clauses
-   are ledger rows on paper. Every rule is a finished resting state, so reduced
-   motion — or no JavaScript — shows the completed layout.
+   A plain document: black text on white, one narrow column, small type.
+   No motion and nothing decorative.
    ========================================================================== */
 
-/* The faces alias next/font variables that only exist on an element carrying
-   `homeFonts`, so they are declared on this root, which carries it — the
-   same arrangement hm-core.css makes for the section roots. */
-.pv {
-  --hm-display: var(--font-hm-display), "Helvetica Neue", Arial, sans-serif;
-  --hm-bebas: var(--font-hm-bebas), "Haettenschweiler", "Arial Narrow", sans-serif;
-  --hm-accent: var(--font-hm-accent), "Helvetica Neue", Arial, sans-serif;
-  --hm-mono: var(--font-hm-mono), ui-monospace, "SF Mono", Menlo, monospace;
-
-  /* The head's top padding. The label hangs from the seam by cancelling it. */
-  --pv-top: clamp(3rem, 8vw, 6.5rem);
-
-  background: var(--hm-white);
-  color: var(--hm-ink);
+.pl {
+  background: #fff;
+  color: #000;
+  font-family: var(--font-hm-accent), "Helvetica Neue", Arial, sans-serif;
 }
 
-/* --- the head: ink, the title, and the label ------------------------------ */
-
-.pv-head {
-  position: relative;
-  overflow: hidden;
-  padding-block: var(--pv-top) clamp(3rem, 7vw, 5.5rem);
-  background: var(--hm-ink);
-  color: var(--hm-white);
-}
-
-.pv-head__grid { display: grid; gap: clamp(2.5rem, 6vw, 4rem); }
-
-@media (min-width: 62rem) {
-  .pv-head__grid {
-    grid-template-columns: minmax(0, 1fr) 23rem;
-    column-gap: clamp(3rem, 7vw, 8rem);
-    align-items: start;
-  }
-}
-
-/* Stone is the eyebrow's colour on paper; on ink it is too dim to read. */
-.pv-head .hm-eyebrow { color: var(--hm-ash); }
-
-/* The title is sized by its column, not the window, so the longest single
-   word a policy is named with — ACCESSIBILITY — still fits beside the label. */
-.pv-head__words { container-type: inline-size; }
-
-.pv-head__mask { margin-top: clamp(0.75rem, 1.5vw, 1.25rem); }
-
-.pv-head__title {
-  margin: 0;
-  font-family: var(--hm-bebas);
-  font-size: clamp(4rem, min(13vw, 21cqi), 12.5rem);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 0.84;
-  text-transform: uppercase;
-  text-wrap: balance;
-}
-
-.pv-head__lede {
-  max-width: 40ch;
-  margin: clamp(1.25rem, 2.5vw, 2rem) 0 0;
-  color: var(--hm-ash);
-  font-family: var(--hm-accent);
-  font-size: clamp(1rem, 1.3vw, 1.2rem);
-  line-height: 1.55;
-}
-
-.pv-head__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem clamp(2rem, 5vw, 4rem);
-  max-width: 40rem;
-  margin: clamp(2rem, 4vw, 3rem) 0 0;
-  padding-top: 1rem;
-  border-top: 1px solid var(--hm-line-dark);
-  font-family: var(--hm-mono);
-  font-size: 0.6875rem;
-  line-height: 1.4;
-  text-transform: uppercase;
-}
-
-.pv-head__meta div { display: grid; gap: 0.4rem; }
-.pv-head__meta dt { color: var(--hm-smoke); }
-.pv-head__meta dd { margin: 0; color: var(--hm-white); }
-
-/* --- the label ------------------------------------------------------------ */
-
-/* White on the black tee. Its stitch is a dashed hairline across each end —
-   the fold a real label is sewn through. */
-.pv-label {
-  position: relative;
-  width: 100%;
-  max-width: 26rem;
-  padding: 2.5rem clamp(1.25rem, 4vw, 1.75rem) 2.5rem;
-  background: var(--hm-white);
-  color: var(--hm-ink);
-}
-
-.pv-label::before,
-.pv-label::after {
-  content: "";
-  position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
-  height: 1px;
-  background: repeating-linear-gradient(90deg, var(--hm-ash) 0 5px, transparent 5px 9px);
-  pointer-events: none;
-}
-
-.pv-label::before { top: 1.1rem; }
-.pv-label::after { bottom: 1.1rem; }
-
-/* From a desk up it hangs from the seam: flush with the top of the band, the
-   masthead's edge above it, and a shadow where it goes in under the seam. The
-   lower end is cut rather than folded, so only the top is stitched. */
-@media (min-width: 62rem) {
-  .pv-label {
-    margin-top: calc(var(--pv-top) * -1);
-    padding-top: 3.25rem;
-  }
-
-  .pv-label::before { top: 1.6rem; }
-
-  .pv-label::after {
-    inset: 0 0 auto;
-    height: 1.25rem;
-    background: linear-gradient(rgba(10, 10, 10, 0.26), rgba(10, 10, 10, 0));
-  }
-}
-
-/* The brand as it is woven on a neck label: Archivo, fully widened. */
-.pv-label__mark {
-  margin: 0;
-  font-family: var(--hm-display);
-  font-size: 1.05rem;
-  font-weight: 700;
-  font-variation-settings: "wdth" 125;
-  line-height: 1;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-.pv-label__heading {
-  margin: 0.6rem 0 0;
-  color: var(--hm-stone);
-  font-family: var(--hm-mono);
-  font-size: 0.625rem;
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 1.4;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-.pv-label__list {
-  display: grid;
-  margin: 1.25rem 0 0;
-  padding: 0.75rem 0 0;
-  border-top: 1px solid var(--hm-line-light);
-  list-style: none;
-}
-
-.pv-label__link {
-  display: grid;
-  grid-template-columns: 2rem minmax(0, 1fr);
-  align-items: baseline;
-  padding-block: 0.45rem;
-  color: inherit;
-  font-family: var(--hm-mono);
-  font-size: 0.75rem;
-  line-height: 1.35;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
-.pv-label__no { color: var(--hm-stone); }
-
-/* The site's quiet link: an underline drawn from the left. */
-.pv-label__name {
-  justify-self: start;
-  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
-  transition: background-size 0.45s var(--hm-ease);
-}
-
-.pv-label__link:is(:hover, :focus-visible) .pv-label__name { background-size: 100% 1px; }
-
-/* --- the clauses ---------------------------------------------------------- */
-
-.pv-body { padding-block: clamp(3.5rem, 8vw, 7rem); }
-
-.pv-clauses {
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--hm-ink);
-  list-style: none;
-}
-
-.pv-clause {
-  display: grid;
-  gap: 1.25rem;
-  padding-block: clamp(2rem, 4.5vw, 3.75rem);
-  border-bottom: 1px solid var(--hm-line-light);
-  scroll-margin-top: calc(var(--hm-head-h) + 1rem);
-}
-
-/* The heading waits in its column while a long clause scrolls past it. */
-@media (min-width: 62rem) {
-  .pv-clause {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    column-gap: clamp(3rem, 6vw, 7rem);
-  }
-
-  .pv-clause__head {
-    position: sticky;
-    top: calc(var(--hm-head-h) + 2rem);
-    align-self: start;
-  }
-}
-
-.pv-clause__no {
-  margin: 0;
-  color: var(--hm-stone);
-  font-family: var(--hm-mono);
-  font-size: 0.6875rem;
-  line-height: 1.4;
-  text-transform: uppercase;
-}
-
-.pv-clause__title {
-  margin: 0.75rem 0 0;
-  font-family: var(--hm-bebas);
-  font-size: clamp(2.1rem, 4vw, 3.75rem);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 0.9;
-  text-transform: uppercase;
-  text-wrap: balance;
-}
-
-.pv-clause__text {
-  display: grid;
-  gap: 1.1rem;
-  max-width: 60ch;
-}
-
-/* Down to the heading's first line, past the clause number above it. */
-@media (min-width: 62rem) {
-  .pv-clause__text { padding-top: 1.75rem; }
-}
-
-/* Graphite rather than the stone used for short copy elsewhere: this is the
-   one page on the site that asks to be read at length. */
-.pv-clause__text p {
-  margin: 0;
-  color: var(--hm-graphite);
-  font-family: var(--hm-accent);
-  font-size: clamp(1rem, 1.1vw, 1.0625rem);
+.pl-doc {
+  max-width: 42rem;
+  margin-inline: auto;
+  padding: clamp(2.5rem, 6vw, 4.5rem) 1rem clamp(3.5rem, 8vw, 6rem);
+  font-size: 0.875rem;
   line-height: 1.7;
 }
 
-.pv-inline {
-  color: var(--hm-ink);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-  overflow-wrap: anywhere;
+.pl-head {
+  padding-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e5e5;
 }
 
-/* --- the close: where to ask, and the other policies ---------------------- */
-
-.pv-ask {
-  display: grid;
-  gap: clamp(2.5rem, 5vw, 4rem);
-  margin-top: clamp(3.5rem, 7vw, 6rem);
-  padding: clamp(2rem, 5vw, 4rem);
-  background: var(--hm-ink);
-  color: var(--hm-white);
-}
-
-@media (min-width: 62rem) {
-  .pv-ask {
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    column-gap: clamp(3rem, 6vw, 7rem);
-    align-items: end;
-  }
-}
-
-.pv-ask .hm-eyebrow { color: var(--hm-ash); }
-
-.pv-ask :focus-visible {
-  outline: 2px solid var(--hm-white);
-  outline-offset: 3px;
-}
-
-.pv-ask__title {
-  margin: 0.75rem 0 0;
-  font-family: var(--hm-bebas);
-  font-size: clamp(2.5rem, 6vw, 5rem);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 0.9;
-  text-transform: uppercase;
-}
-
-.pv-ask__body {
-  max-width: 42ch;
-  margin: 1.25rem 0 0;
-  color: var(--hm-ash);
-  font-family: var(--hm-accent);
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
-.pv-ask__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1.25rem 2rem;
-  margin-top: clamp(1.75rem, 3vw, 2.5rem);
-}
-
-.pv-ask__contact {
-  display: grid;
-  gap: 0.4rem;
+.pl-title {
   margin: 0;
-  font-family: var(--hm-mono);
-  font-size: 0.6875rem;
-  line-height: 1.4;
-  text-transform: uppercase;
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
 }
 
-.pv-ask__contact a {
-  color: var(--hm-ash);
-  text-decoration: none;
-  overflow-wrap: anywhere;
-  transition: color 0.35s var(--hm-ease);
+.pl-date {
+  margin: 0.4rem 0 0;
+  color: #666;
+  font-size: 0.8125rem;
 }
 
-.pv-ask__contact a:is(:hover, :focus-visible) { color: var(--hm-white); }
-
-.pv-more__list {
+.pl-lede {
   margin: 1rem 0 0;
-  padding: 0;
-  border-top: 1px solid var(--hm-line-dark);
-  list-style: none;
 }
 
-.pv-more__link {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-block: 1.05rem;
-  border-bottom: 1px solid var(--hm-line-dark);
-  color: var(--hm-white);
-  font-family: var(--hm-mono);
-  font-size: 0.72rem;
-  line-height: 1.3;
-  text-decoration: none;
-  text-transform: uppercase;
+.pl-clause {
+  margin-top: 2rem;
 }
 
-.pv-more__link svg {
-  flex: none;
-  width: 1rem;
-  height: 1rem;
-  transition: transform 0.5s var(--hm-ease);
+.pl-clause h2 {
+  margin: 0 0 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.4;
 }
 
-.pv-more__link:is(:hover, :focus-visible) svg { transform: translateX(0.35rem); }
-
-/* --- motion --------------------------------------------------------------- */
-
-/* The label slides out from under the seam it hangs from; on a phone, where
-   it sits under the title instead, it lifts in with the rest of the head. */
-@media (prefers-reduced-motion: no-preference) {
-  .pv-label { animation: pv-lift 1s var(--hm-ease) 0.4s both; }
-
-  @media (min-width: 62rem) {
-    .pv-label { animation: pv-unfurl 1.3s var(--hm-ease) 0.3s both; }
-  }
+.pl-clause p {
+  margin: 0 0 0.75rem;
 }
 
-@keyframes pv-unfurl {
-  from { transform: translateY(-101%); }
-}
+.pl-clause p:last-child { margin-bottom: 0; }
 
-@keyframes pv-lift {
-  from { opacity: 0; transform: translateY(1.75rem); }
+.pl a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  overflow-wrap: anywhere;
 }
