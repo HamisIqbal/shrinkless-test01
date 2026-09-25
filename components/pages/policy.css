@@ -2,7 +2,7 @@
    The policy pages — terms, refunds, shipping, privacy, accessibility.
    See PolicyPage.tsx.
 
-   A plain document: black text on white, one left-aligned column, small type.
+   A plain document: black text on white, one wide centred column, small type.
    No motion and nothing decorative.
    ========================================================================== */
 
@@ -12,10 +12,11 @@
   font-family: var(--font-hm-accent), "Helvetica Neue", Arial, sans-serif;
 }
 
-/* Left-aligned under a small gutter rather than centred in a narrow column,
-   so a wide screen does not frame the text in two broad empty margins. */
+/* A wide column, centred, under a small gutter — not the old 42rem strip
+   that framed the text in two broad empty margins. */
 .pl-doc {
   max-width: 64rem;
+  margin-inline: auto;
   padding: clamp(2rem, 4vw, 3.5rem) clamp(1rem, 3vw, 2.5rem) clamp(3rem, 6vw, 5rem);
   font-size: 0.875rem;
   line-height: 1.7;
