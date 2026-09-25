@@ -32,6 +32,7 @@
 .buybar,
 .sh-account,
 .sh-cart,
+.sh-drawer,
 .sh-faq,
 .sh-pdp,
 .sh-picker,
@@ -189,7 +190,7 @@
 }
 
 /* ==========================================================================
-   The collection: filters, results bar, grid
+   The collection: results bar, grid, and the filter drawer
    ========================================================================== */
 
 .sh-shop {
@@ -198,41 +199,19 @@
   color: var(--sh-ink);
 }
 
-.sh-shop__layout { display: grid; gap: 1.5rem; }
-
 /* Without this the grid's tracks are sized by their widest card rather than by
-   the column, and a long product name pushes the whole grid past the gutter. */
-.sh-shop__main { min-width: 0; }
+   the row, and a long product name pushes the whole grid past the gutter. */
+.sh-shop__main { min-width: 0; transition: opacity 0.25s var(--sh-ease) 0.1s; }
 
-@media (min-width: 62rem) {
-  .sh-shop__layout {
-    grid-template-columns: 17rem minmax(0, 1fr);
-    gap: clamp(2rem, 4vw, 4rem);
-    align-items: start;
-  }
-
-  /* Collapsed: the column goes to nothing and the grid takes the pixels. */
-  .sh-shop__layout--shut { grid-template-columns: 0 minmax(0, 1fr); gap: 0; }
-  .sh-shop__layout--shut .sh-shop__aside { opacity: 0; pointer-events: none; }
-
-  .sh-shop__aside {
-    position: sticky;
-    top: calc(var(--hm-head-h, 5.25rem) + 1.5rem);
-    overflow: hidden;
-    transition: opacity 0.4s var(--sh-ease);
-  }
-}
-
+/* A filter is on its way. Dimmed after a beat, so a quick answer never
+   flickers the grid. */
+.sh-shop__main--pending { opacity: 0.5; }
 
 /* --- an ink collection ----------------------------------------------------
    The trade sheet is set on ink: it is the catalogue you were sent, not the
-   shop. Rather than a second copy of every rule above, the ground swaps what
-   "ink" and "white" mean and the rules follow — the same trade `.hm-dark`
-   makes for the bands around it.
-
-   The phone's filter sheet is left out of the swap. It is a panel that comes
-   up over the page rather than part of it, and it is its own paper surface
-   whichever collection opened it.
+   shop. Rather than a second copy of every rule, the ground swaps what "ink"
+   and "white" mean and the rules follow. The filter drawer is rendered
+   outside this ground, so it stays its own paper surface either way.
    -------------------------------------------------------------------------- */
 
 .sh-shop--ink {
@@ -243,20 +222,6 @@
   --sh-smoke: #8e8e8a;
   --sh-line: rgba(245, 244, 240, 0.2);
   --sh-line-soft: rgba(245, 244, 240, 0.1);
-}
-
-@media (max-width: 61.9375rem) {
-  .sh-shop--ink .sh-shop__aside {
-    --sh-ink: #0a0a0a;
-    --sh-white: #ffffff;
-    --sh-chalk: #f2f2f0;
-    --sh-stone: #5c5c58;
-    --sh-smoke: #8e8e8a;
-    --sh-line: rgba(10, 10, 10, 0.14);
-    --sh-line-soft: rgba(10, 10, 10, 0.08);
-
-    color: var(--sh-ink);
-  }
 }
 
 /* --- results bar ---------------------------------------------------------- */
@@ -272,78 +237,133 @@
   border-bottom: 1px solid var(--sh-line);
 }
 
+.sh-shop__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  min-width: 0;
+}
+
+/* The one filled control in the bar: the way into the drawer. */
 .sh-shop__toggle {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.55rem;
   min-height: 2.75rem;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--sh-ink);
+  padding: 0 1.15rem 0 1rem;
+  border: 1px solid var(--sh-ink);
+  border-radius: 999px;
+  background: var(--sh-ink);
+  color: var(--sh-white);
   font-family: var(--sh-mono);
   font-size: 0.6875rem;
   letter-spacing: 0;
+  line-height: 1;
   text-transform: uppercase;
   cursor: pointer;
+  transition:
+    background-color 0.35s var(--sh-ease),
+    color 0.35s var(--sh-ease);
 }
 
-/* Three bars that lose their middle when the column is open — a filter mark
-   that says which way the tap goes. */
-.sh-shop__togglemark {
-  position: relative;
-  width: 0.9rem;
-  height: 0.65rem;
-  border-top: 1px solid currentColor;
-  border-bottom: 1px solid currentColor;
-}
+.sh-shop__toggle:is(:hover, :focus-visible) { background: transparent; color: var(--sh-ink); }
 
-.sh-shop__togglemark::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: currentColor;
-  transform-origin: left;
-  transition: transform 0.4s var(--sh-ease);
-}
+.sh-shop__toggleicon { flex: none; width: 1.05rem; height: 1.05rem; }
 
-.sh-shop__toggle[aria-expanded='true'] .sh-shop__togglemark::after { transform: scaleX(0); }
-
-/* Both labels ship and the stylesheet picks one, because which control the
-   toggle operates is a question about the viewport and the server cannot
-   answer it. See the note in ShopBrowser. */
-.sh-shop__wide { display: none; }
-
-@media (min-width: 62rem) {
-  .sh-shop__wide { display: inline; }
-  .sh-shop__narrow { display: none; }
-}
-
-.sh-shop__dot {
-  width: 0.35rem;
-  height: 0.35rem;
+.sh-shop__togglecount {
+  display: grid;
+  place-items: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding-inline: 0.3rem;
   border-radius: 999px;
+  background: var(--sh-white);
+  color: var(--sh-ink);
+  font-size: 0.625rem;
+  transition:
+    background-color 0.35s var(--sh-ease),
+    color 0.35s var(--sh-ease);
+}
+
+.sh-shop__toggle:is(:hover, :focus-visible) .sh-shop__togglecount {
   background: var(--sh-ink);
+  color: var(--sh-white);
+}
+
+/* What is on, stated where the grid is, each with its own way off. */
+.sh-shop__applied {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sh-shop__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.25rem;
+  padding: 0 0.7rem 0 0.9rem;
+  border: 1px solid var(--sh-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--sh-ink);
+  font-family: var(--sh-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.3s var(--sh-ease);
+}
+
+.sh-shop__chip:is(:hover, :focus-visible) { border-color: var(--sh-ink); }
+.sh-shop__chip:disabled { opacity: 0.5; cursor: progress; }
+
+.sh-shop__chipx { flex: none; width: 0.8rem; height: 0.8rem; opacity: 0.6; }
+.sh-shop__chip:is(:hover, :focus-visible) .sh-shop__chipx { opacity: 1; }
+
+.sh-shop__clear { margin-left: 0.35rem; }
+.sh-shop__clear:disabled { opacity: 0.5; cursor: progress; }
+
+.sh-shop__order {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-left: auto;
 }
 
 .sh-shop__count {
+  margin: 0;
+  color: var(--sh-stone);
   font-family: var(--sh-mono);
   font-size: 0.6875rem;
   letter-spacing: 0;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
-/* Sort lives out here, beside the count, rather than at the foot of the
-   filter column where it was the last control in a form about something else.
-   It is not a filter — it reorders what the filters already chose. */
+/* On a phone the count would push Sort onto a row of its own. The collection
+   head and the drawer's button both state it there, so it stays for screen
+   readers only and Filters and Sort share one line. */
+@media (max-width: 29.9375rem) {
+  .sh-shop__count {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+
 .sh-shop__sort {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
 }
 
 /* The chevron is drawn rather than set as a background image, so it takes the
@@ -382,13 +402,12 @@
 
 /* One product at a time on a phone. Two-up draws every photograph at roughly
    170px wide on the commonest screen there is, which is a thumbnail of a
-   garment rather than a picture of one — and the card is built on the premise
-   that the photograph does the selling. One column costs a scroll and buys
-   twice the width. */
+   garment rather than a picture of one. The filters no longer take a column,
+   so from a desk up the grid has the whole row. */
 .sh-shop__grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: clamp(2rem, 4vw, 3.25rem) clamp(0.75rem, 1.6vw, 1.5rem);
+  gap: clamp(2.25rem, 4vw, 3.5rem) clamp(0.75rem, 1.6vw, 1.5rem);
   list-style: none;
 }
 
@@ -398,12 +417,16 @@
 
 @media (min-width: 62rem) {
   .sh-shop__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 
-  /* Filters folded away: the column the panel had goes to the grid. */
-  .sh-shop__layout--shut .sh-shop__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (min-width: 80rem) {
+  .sh-shop__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 .sh-shop__empty {
+  display: grid;
+  justify-items: center;
+  gap: 1.5rem;
   padding-block: clamp(3rem, 8vw, 6rem);
   color: var(--sh-stone);
   font-family: var(--sh-sans);
@@ -411,300 +434,391 @@
   text-align: center;
 }
 
+.sh-shop__empty p { margin: 0; }
+
 /* ==========================================================================
-   Filter panel
+   The filter drawer
 
-   Groups that fold, an active tray at the top, and nothing else. The panel
-   used to be six open fieldsets stacked in a column roughly two screens
-   deep — a search box, five size chips, every colour in the catalogue, a
-   slider, a sort menu and a count — so on a laptop the colour you wanted was
-   below the fold of the sidebar.
-
-   Folding them puts the whole set of questions on one screen, and the tray is
-   what makes that safe: whatever is chosen inside a folded group is still
-   visible at the top, with its own way off.
+   The cart's drawer, mirrored: from the left edge at every width, over a
+   scrim, full height, with the questions scrolling between a fixed title and
+   a fixed foot. Its own paper surface whichever collection opened it.
    ========================================================================== */
 
-/* One voice through the panel: every label, chip and name is set in the same
-   small mono capitals as the results bar beside it. It used to mix a 16px sans
-   placeholder, mono headings and 14px sans colour names in one column. */
-.sh-filters { display: grid; font-family: var(--sh-sans); }
+.sh-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  color: var(--sh-ink);
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s linear 0.5s;
+}
 
-/* A field that looks like one: the same pill as the chips below it, with the
-   search mark as its button. */
-.sh-filters__search {
+.sh-drawer--open { pointer-events: auto; visibility: visible; transition-delay: 0s; }
+
+.sh-drawer__scrim {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(10, 10, 10, 0.5);
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 0.45s var(--sh-ease);
+}
+
+.sh-drawer--open .sh-drawer__scrim { opacity: 1; }
+
+/* A strip of the page stays showing on a phone, so there is always somewhere
+   to tap that means "done". */
+.sh-drawer__panel {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(26rem, calc(100vw - 2.5rem));
+  background: var(--sh-white);
+  box-shadow: 1.5rem 0 4rem rgba(0, 0, 0, 0.25);
+  transform: translate3d(-100%, 0, 0);
+  transition: transform 0.5s var(--sh-ease);
+}
+
+.sh-drawer--open .sh-drawer__panel { transform: none; }
+
+.sh-drawer__bar {
+  flex: none;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  padding-left: 1.1rem;
-  border: 1px solid var(--sh-line);
-  border-radius: 999px;
-  transition: border-color 0.35s var(--sh-ease);
-}
-
-.sh-filters__search:is(:hover, :focus-within) { border-color: var(--sh-ink); }
-
-.sh-filters__input {
-  flex: 1;
-  min-width: 0;
-  min-height: 2.75rem;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--sh-ink);
-  font-family: var(--sh-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-/* The native clear cross drew a blue x in a field with no other colour. */
-.sh-filters__input::-webkit-search-cancel-button { appearance: none; }
-
-.sh-filters__submit {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: none;
-  color: var(--sh-ink);
-  cursor: pointer;
-}
-
-.sh-filters__glass { width: 1.05rem; height: 1.05rem; }
-
-.sh-filters__input::placeholder { color: var(--sh-smoke); opacity: 1; }
-.sh-filters__input:focus-visible { outline: 0; }
-
-/* --- the active tray ------------------------------------------------------ */
-
-.sh-filters__active {
-  display: grid;
-  gap: 0.6rem;
-  padding-block: 0.5rem 1rem;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.5rem;
   border-bottom: 1px solid var(--sh-line);
 }
 
-.sh-filters__activehead {
+.sh-drawer__title {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-family: var(--sh-display);
+  font-size: 1.875rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
-.sh-filters__tray { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-
-.sh-filters__pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 2rem;
-  padding: 0 0.6rem 0 0.75rem;
-  border: 0;
+.sh-drawer__badge {
+  display: grid;
+  place-items: center;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding-inline: 0.35rem;
   border-radius: 999px;
   background: var(--sh-ink);
   color: var(--sh-white);
   font-family: var(--sh-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  cursor: pointer;
+  font-size: 0.6875rem;
 }
 
-.sh-filters__pillx {
+.sh-drawer__close {
   display: grid;
+  flex: none;
   place-items: center;
-  width: 1rem;
-  height: 1rem;
-  font-size: 0.8rem;
-  line-height: 1;
-  opacity: 0.7;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-right: -0.4rem;
+  padding: 0;
+  border: 1px solid var(--sh-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--sh-ink);
+  cursor: pointer;
+  transition: border-color 0.3s var(--sh-ease);
 }
 
-.sh-filters__pill:is(:hover, :focus-visible) .sh-filters__pillx { opacity: 1; }
+.sh-drawer__close svg { width: 1.1rem; height: 1.1rem; }
+.sh-drawer__close:is(:hover, :focus-visible) { border-color: var(--sh-ink); }
 
-/* --- a folding group ------------------------------------------------------ */
+.sh-drawer__body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.25rem 1.5rem 0.5rem;
+}
 
-.sh-filters__group { border-bottom: 1px solid var(--sh-line); }
+.sh-drawer__foot {
+  flex: none;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.6rem;
+  padding: 1rem 1.5rem calc(1rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--sh-line);
+}
 
-.sh-filters__legend {
+.sh-drawer__foot .sh-btn { min-height: 3rem; padding-inline: 1.25rem; }
+
+.sh-drawer :focus-visible { outline: 2px solid var(--sh-ink); outline-offset: 2px; }
+
+/* --- the questions -------------------------------------------------------- */
+
+.sh-fp { display: grid; }
+
+.sh-fp__search {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  width: 100%;
-  min-height: 3.25rem;
+  gap: 0.6rem;
+  padding: 0 0.3rem 0 1rem;
+  border: 1px solid var(--sh-line);
+  border-radius: 999px;
+  transition: border-color 0.3s var(--sh-ease);
+}
+
+.sh-fp__search:is(:hover, :focus-within) { border-color: var(--sh-ink); }
+
+.sh-fp__glass { flex: none; width: 1.1rem; height: 1.1rem; color: var(--sh-stone); }
+
+/* 1rem, not the mono's 11px: anything smaller and iOS zooms the page when the
+   field takes focus. */
+.sh-fp__input {
+  flex: 1;
+  min-width: 0;
+  height: 2.9rem;
   padding: 0;
   border: 0;
   background: none;
   color: var(--sh-ink);
-  font-family: var(--sh-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0;
-  text-align: left;
-  text-transform: uppercase;
-  cursor: pointer;
+  font-family: var(--sh-accent);
+  font-size: 1rem;
 }
 
-.sh-filters__tally { color: var(--sh-smoke); }
+.sh-fp__input::placeholder { color: var(--sh-smoke); opacity: 1; }
+.sh-fp__input::-webkit-search-cancel-button { appearance: none; }
+.sh-drawer .sh-fp__input:focus-visible { outline: 0; }
 
-/* A plus that loses its upright to become a minus. */
-.sh-filters__mark {
-  position: relative;
+.sh-fp__clearq {
+  display: grid;
   flex: none;
-  width: 0.7rem;
-  height: 0.7rem;
-}
-
-.sh-filters__mark::before,
-.sh-filters__mark::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: currentColor;
-}
-
-.sh-filters__mark::after { transform: rotate(90deg); transition: transform 0.4s var(--sh-ease); }
-.sh-filters__legend[aria-expanded='true'] .sh-filters__mark::after { transform: rotate(0deg); }
-
-.sh-filters__body { padding-bottom: 1.25rem; }
-
-/* Sizes on an even grid, so XXL does not wrap onto a row of its own under
-   five chips of a different width. */
-.sh-filters__chips {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.4rem;
-}
-
-.sh-filters__chips .sh-chip { justify-content: center; padding-inline: 0.5rem; }
-
-/* Colours read as names beside their swatch, not as a row of dots somebody
-   has to hover to identify. Two to a row, because a column of four short
-   words left most of the panel empty. The chosen one is ringed, the same mark
-   the product card uses. */
-.sh-filters__colors {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.15rem 0.75rem;
-}
-
-.sh-filters__color {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  min-height: 2.5rem;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
   color: var(--sh-stone);
-  font-family: var(--sh-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0;
-  text-transform: uppercase;
   cursor: pointer;
-  transition: color 0.3s var(--sh-ease);
 }
 
-.sh-filters__color:is(:hover, :focus-within) { color: var(--sh-ink); }
-.sh-filters__color--on { color: var(--sh-ink); }
+.sh-fp__clearq svg { width: 0.9rem; height: 0.9rem; }
+.sh-fp__clearq:is(:hover, :focus-visible) { background: var(--sh-chalk); color: var(--sh-ink); }
 
-.sh-filters__color .swatchdot { flex: none; width: 1rem; height: 1rem; }
+.sh-fp__group { padding-block: 1.5rem; border-bottom: 1px solid var(--sh-line-soft); }
+.sh-fp__group:last-child { border-bottom: 0; }
 
-.sh-filters__color .swatchdot--on {
-  box-shadow: 0 0 0 2px var(--sh-white), 0 0 0 3px var(--sh-ink);
-}
-
-.sh-filters__price {
+.sh-fp__head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
-  font-family: var(--sh-mono);
-  font-size: 0.8125rem;
+  margin-bottom: 0.9rem;
 }
 
-.sh-filters__range { width: 100%; margin-top: 0.75rem; accent-color: var(--sh-ink); }
-
-.sh-filters__hint {
-  margin-top: 0.4rem;
-  color: var(--sh-smoke);
+.sh-fp__title {
+  margin: 0;
+  color: var(--sh-ink);
   font-family: var(--sh-mono);
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.4;
   text-transform: uppercase;
 }
 
-/* --- the phone's sheet ---------------------------------------------------- */
+.sh-fp__note { color: var(--sh-smoke); }
 
-@media (max-width: 61.9375rem) {
-  .sh-shop__scrim {
-    position: fixed;
-    inset: 0;
-    z-index: 60;
-    border: 0;
-    background: rgba(10, 10, 10, 0.5);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s var(--sh-ease);
-  }
-
-  .sh-shop__layout--sheet .sh-shop__scrim { opacity: 1; pointer-events: auto; }
-
-  .sh-shop__aside {
-    position: fixed;
-    z-index: 61;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    display: grid;
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    max-height: 86svh;
-    background: var(--sh-white);
-    transform: translateY(101%);
-    transition: transform 0.5s var(--sh-ease);
-  }
-
-  .sh-shop__layout--sheet .sh-shop__aside { transform: none; }
-
-  .sh-shop__sheetbar {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1.15rem var(--sh-gutter) 1rem;
-    border-bottom: 1px solid var(--sh-line);
-  }
-
-  /* The grab handle, so the sheet reads as one before it is touched. */
-  .sh-shop__sheetbar::before {
-    content: "";
-    position: absolute;
-    top: 0.45rem;
-    left: 50%;
-    width: 2.25rem;
-    height: 0.2rem;
-    border-radius: 999px;
-    background: var(--sh-mist);
-    transform: translateX(-50%);
-  }
-
-  .sh-shop__asidescroll {
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    padding: 1.25rem var(--sh-gutter);
-  }
-
-  .sh-shop__sheetfoot {
-    padding: 1rem var(--sh-gutter) calc(1rem + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--sh-line);
-  }
+/* The ring a hidden checkbox would have drawn, on the label that shows it. */
+.sh-fp__seg:has(:focus-visible),
+.sh-fp__size:has(:focus-visible),
+.sh-fp__color:has(:focus-visible) {
+  outline: 2px solid var(--sh-ink);
+  outline-offset: 2px;
 }
+
+/* Gender: one answer of three, so a segmented control rather than chips. */
+.sh-fp__segment {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  padding: 0.25rem;
+  border-radius: 999px;
+  background: var(--sh-chalk);
+}
+
+.sh-fp__seg {
+  display: grid;
+  place-items: center;
+  min-height: 2.5rem;
+  border-radius: 999px;
+  color: var(--sh-stone);
+  font-family: var(--sh-mono);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color 0.3s var(--sh-ease),
+    color 0.3s var(--sh-ease);
+}
+
+.sh-fp__seg:hover { color: var(--sh-ink); }
+
+.sh-fp__seg--on {
+  background: var(--sh-white);
+  color: var(--sh-ink);
+  box-shadow: 0 1px 3px rgba(10, 10, 10, 0.12);
+}
+
+/* Sizes on an even grid of big targets that share the row between them, so
+   a run of five sits on one line rather than leaving XXL on its own. */
+.sh-fp__sizes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(3.25rem, 1fr));
+  gap: 0.45rem;
+}
+
+.sh-fp__size {
+  display: grid;
+  place-items: center;
+  min-height: 3rem;
+  border: 1px solid var(--sh-line);
+  border-radius: 0.75rem;
+  font-family: var(--sh-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 0.3s var(--sh-ease),
+    background-color 0.3s var(--sh-ease),
+    color 0.3s var(--sh-ease);
+}
+
+.sh-fp__size:hover { border-color: var(--sh-ink); }
+
+.sh-fp__size--on {
+  border-color: var(--sh-ink);
+  background: var(--sh-ink);
+  color: var(--sh-white);
+}
+
+/* Colours are named tiles, two to a row, ticked when chosen. */
+.sh-fp__colors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sh-fp__color {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 3rem;
+  padding: 0 0.75rem 0 0.85rem;
+  border: 1px solid var(--sh-line);
+  border-radius: 0.75rem;
+  font-family: var(--sh-mono);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 0.3s var(--sh-ease),
+    box-shadow 0.3s var(--sh-ease);
+}
+
+.sh-fp__color:hover { border-color: var(--sh-ink); }
+
+.sh-fp__color--on {
+  border-color: var(--sh-ink);
+  box-shadow: inset 0 0 0 1px var(--sh-ink);
+}
+
+.sh-fp__color .swatchdot { flex: none; width: 1.1rem; height: 1.1rem; cursor: inherit; }
+
+.sh-fp__colorname {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sh-fp__tick { flex: none; width: 1rem; height: 1rem; opacity: 0; transition: opacity 0.2s var(--sh-ease); }
+.sh-fp__color--on .sh-fp__tick { opacity: 1; }
+
+/* Price: the chosen ceiling stated between the two ends of the range. */
+.sh-fp__pricehead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0 0 0.75rem;
+  color: var(--sh-smoke);
+  font-family: var(--sh-mono);
+  font-size: 0.6875rem;
+}
+
+.sh-fp__pricehead strong { color: var(--sh-ink); font-size: 0.8125rem; font-weight: 500; }
+
+.sh-fp__rangewrap { display: block; }
+
+.sh-fp__range {
+  display: block;
+  width: 100%;
+  height: 1.75rem;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.sh-fp__range:focus-visible { outline: 0; }
+
+.sh-fp__range::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--sh-ink) var(--fill, 100%), var(--sh-mist) var(--fill, 100%));
+}
+
+.sh-fp__range::-webkit-slider-thumb {
+  width: 1.35rem;
+  height: 1.35rem;
+  margin-top: calc((3px - 1.35rem) / 2);
+  border: 2px solid var(--sh-ink);
+  border-radius: 50%;
+  background: var(--sh-white);
+  box-shadow: 0 1px 3px rgba(10, 10, 10, 0.2);
+  -webkit-appearance: none;
+}
+
+.sh-fp__range::-moz-range-track { height: 3px; border-radius: 3px; background: var(--sh-mist); }
+.sh-fp__range::-moz-range-progress { height: 3px; border-radius: 3px; background: var(--sh-ink); }
+
+.sh-fp__range::-moz-range-thumb {
+  box-sizing: border-box;
+  width: 1.35rem;
+  height: 1.35rem;
+  border: 2px solid var(--sh-ink);
+  border-radius: 50%;
+  background: var(--sh-white);
+  box-shadow: 0 1px 3px rgba(10, 10, 10, 0.2);
+}
+
+.sh-fp__range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(10, 10, 10, 0.18); }
+.sh-fp__range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px rgba(10, 10, 10, 0.18); }
 
 /* --- the end of the collection -------------------------------------------- */
 
@@ -729,12 +843,6 @@
 }
 
 .sh-shop__end span { flex: none; text-align: center; }
-
-@media (min-width: 62rem) {
-  .sh-shop__scrim,
-  .sh-shop__sheetbar,
-  .sh-shop__sheetfoot { display: none; }
-}
 
 /* ==========================================================================
    Cart
@@ -1705,11 +1813,18 @@
    ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
-  .sh-shop__aside,
-  .sh-shop__togglemark::after,
-  .sh-filters__mark::after,
-  .sh-filters__color,
-  .sh-filters__search,
+  .sh-shop__main,
+  .sh-shop__toggle,
+  .sh-shop__togglecount,
+  .sh-shop__chip,
+  .sh-drawer__scrim,
+  .sh-drawer__panel,
+  .sh-drawer__close,
+  .sh-fp__search,
+  .sh-fp__seg,
+  .sh-fp__size,
+  .sh-fp__color,
+  .sh-fp__tick,
   .sh-faq__jump,
   .sh-faq__mark::after,
   .sh-faq__row,

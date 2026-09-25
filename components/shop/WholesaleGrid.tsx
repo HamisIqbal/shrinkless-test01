@@ -18,8 +18,9 @@ type Props = { styles: WholesaleProductDTO[] };
  * differs on passed as props: the card points at the style's own page, and the
  * price line quotes the opening rung of the ladder rather than a shelf price.
  *
- * No quick view. There is nothing to add to a cart at 150 units, so the eye
- * would open a dialog with no purpose behind it.
+ * No quick view: the retail dialog sells sizes one at a time. The card's own
+ * Add to cart sells by the run instead — a colour and a tier, the same two
+ * choices the style's page asks for.
  */
 export function WholesaleGrid({ styles }: Props) {
   const cards = useMemo(
@@ -60,14 +61,18 @@ export function WholesaleGrid({ styles }: Props) {
           ? `From ${formatCents(opening.unitPriceCents)}`
           : 'On request';
 
-        return { product, price };
+        return {
+          product,
+          price,
+          buy: { tiers: style.tiers, variants: style.variants, colors: style.colors },
+        };
       }),
     [styles],
   );
 
   return (
     <ul className="sh-shop__grid">
-      {cards.map(({ product, price }, index) => (
+      {cards.map(({ product, price, buy }, index) => (
         <motion.li
           key={product.id}
           initial={{ opacity: 0, y: 24 }}
@@ -84,6 +89,7 @@ export function WholesaleGrid({ styles }: Props) {
             index={index}
             href={`/wholesale/${product.slug}`}
             priceLabel={price}
+            buy={buy}
           />
         </motion.li>
       ))}

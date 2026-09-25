@@ -1,7 +1,7 @@
 /**
  * Line icons, drawn to one spec: 20x20 box, 1.25 stroke, round caps, no fill.
  *
- * Inline SVG rather than an icon font or a package — there are five of them,
+ * Inline SVG rather than an icon font or a package — there are a handful of them,
  * they inherit `currentColor`, and shipping a dependency to draw five paths
  * would cost more than the paths do.
  */
@@ -87,6 +87,39 @@ export function InstagramIcon({ className }: IconProps) {
       <rect x="3.5" y="3.5" width="13" height="13" rx="3.75" />
       <circle cx="10" cy="10" r="3.25" />
       <circle cx="13.9" cy="6.1" r="0.75" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+/** Two sliders: the way into the collection's filters. */
+export function FilterIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M3.5 6.5h13M3.5 13.5h13M7.5 4.25v4.5M12.5 11.25v4.5" />
+    </svg>
+  );
+}
+
+export function CloseIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M5 5l10 10M15 5L5 15" />
+    </svg>
+  );
+}
+
+export function CheckIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M4.5 10.5l3.5 3.5 7.5-8" />
+    </svg>
+  );
+}
+
+export function PlusIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M10 4.5v11M4.5 10h11" />
     </svg>
   );
 }

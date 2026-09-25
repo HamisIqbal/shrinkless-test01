@@ -50,9 +50,24 @@ function retailBasis(variants: readonly VariantDoc[]): number {
   return sellable.length ? Math.min(...sellable.map((variant) => variant.priceCents)) : 0;
 }
 
+function toVariantDTO(variant: WithId<VariantDoc>): VariantDTO {
+  return {
+    id: String(variant._id),
+    size: variant.size,
+    color: variant.color,
+    sku: variant.sku,
+    priceCents: variant.priceCents,
+    stock: variant.stock,
+    inStock: variant.stock > 0,
+    enabled: variant.enabled,
+    lowStockThreshold: variant.lowStockThreshold ?? null,
+    imagePublicId: variant.imagePublicId ?? '',
+  };
+}
+
 function toWholesaleDTO(
   product: WithId<ProductDoc>,
-  variants: readonly VariantDoc[],
+  variants: readonly WithId<VariantDoc>[],
 ): WholesaleProductDTO {
   const retailCents = retailBasis(variants);
   const frame = product.images[0];
@@ -81,6 +96,7 @@ function toWholesaleDTO(
     tiers: tierLadder(retailCents),
     fiberContent: product.fiberContent ?? '',
     origin: product.origin ?? '',
+    variants: variants.map(toVariantDTO),
   };
 }
 
@@ -149,20 +165,7 @@ export async function getWholesaleProductBySlug(
     ...(frame.mobileZoom ? { mobileZoom: frame.mobileZoom } : {}),
   }));
 
-  const variantDTOs: VariantDTO[] = variants.map((variant) => ({
-    id: String(variant._id),
-    size: variant.size,
-    color: variant.color,
-    sku: variant.sku,
-    priceCents: variant.priceCents,
-    stock: variant.stock,
-    inStock: variant.stock > 0,
-    enabled: variant.enabled,
-    lowStockThreshold: variant.lowStockThreshold ?? null,
-    imagePublicId: variant.imagePublicId ?? '',
-  }));
-
-  return { ...toWholesaleDTO(product, variants), images, variants: variantDTOs };
+  return { ...toWholesaleDTO(product, variants), images };
 }
 
 /**

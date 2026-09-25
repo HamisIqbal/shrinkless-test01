@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildFilterQuery, toggleValue } from '@/lib/shop/filters';
+import { CLEAR_FILTERS, appliedFilters, buildFilterQuery, toggleValue } from '@/lib/shop/filters';
 
 const empty = {
   sizes: [],
@@ -77,5 +77,47 @@ describe('buildFilterQuery with price bounds', () => {
 
   it('drops a cleared bound', () => {
     expect(buildFilterQuery({ ...empty, minPrice: 40 }, { minPrice: null })).toBe('');
+  });
+});
+
+describe('appliedFilters', () => {
+  it('is empty when nothing narrows the grid', () => {
+    expect(appliedFilters(empty)).toEqual([]);
+  });
+
+  it('does not count the sort as a filter', () => {
+    expect(appliedFilters({ ...empty, sort: 'price-asc' })).toEqual([]);
+  });
+
+  it('labels each filter and names the change that removes it', () => {
+    const applied = appliedFilters({
+      ...empty,
+      q: 'crew',
+      gender: 'women',
+      sizes: ['s', 'xl'],
+      colors: ['black'],
+      maxPrice: 40,
+    });
+
+    expect(applied.map((entry) => entry.label)).toEqual([
+      '“crew”',
+      'Women',
+      'S',
+      'XL',
+      'black',
+      'Up to $40.00',
+    ]);
+    expect(applied.find((entry) => entry.key === 'size-s')?.clear).toEqual({ sizes: ['xl'] });
+    expect(applied.find((entry) => entry.key === 'max')?.clear).toEqual({ maxPrice: null });
+  });
+
+  it('keeps a lower price bound from the URL removable', () => {
+    const [entry] = appliedFilters({ ...empty, minPrice: 20 });
+    expect(entry).toMatchObject({ label: 'From $20.00', clear: { minPrice: null } });
+  });
+
+  it('clears every filter and keeps the sort', () => {
+    const filter = { ...empty, sort: 'price-desc' as const, sizes: ['m'], q: 'tee', maxPrice: 30 };
+    expect(buildFilterQuery(filter, CLEAR_FILTERS)).toBe('sort=price-desc');
   });
 });

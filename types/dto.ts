@@ -388,6 +388,9 @@ export type WholesaleProductDTO = {
   tiers: WholesaleTierDTO[];
   fiberContent: string;
   origin: string;
+  /** The sellable variants behind the style, so a card or the style's page
+   *  can add a run to the cart. */
+  variants: VariantDTO[];
 };
 
 /**
@@ -395,14 +398,12 @@ export type WholesaleProductDTO = {
  *
  * The line sheet card needs a frame, a title and an opening figure; the style
  * page needs everything the row used to carry inline — the whole gallery and
- * the full description rather than the clamped lead. Same shape plus the two
- * fields the listing has no use for, so the card and the page are never
+ * the full description rather than the clamped lead. Same shape plus the
+ * gallery the listing has no use for, so the card and the page are never
  * reading two different records of the same style.
  */
 export type WholesaleProductDetailDTO = WholesaleProductDTO & {
   images: ImageDTO[];
-  /** The sellable variants behind the style, so the page can add to the cart. */
-  variants: VariantDTO[];
 };
 
 /**

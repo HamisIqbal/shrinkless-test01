@@ -1,14 +1,26 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useId, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatCents } from '@/lib/money';
 import { imageUrl } from '@/lib/images';
 import { toColorways } from '@/lib/shop/colorways';
+import { retailAddOptions, tradeAddOptions, type AddOption } from '@/lib/shop/quick-add';
+import { CardAddButton, CardAddPanel, useCardAdd } from '@/components/shop/CardAdd';
 import { EyeIcon } from '@/components/site/icons';
-import type { ProductDTO } from '@/types/dto';
+import type { ProductDTO, VariantDTO, WholesaleTierDTO } from '@/types/dto';
 import { cropStyle } from '@/lib/media/crop';
+
+/**
+ * What the card's Add to cart sells. `retail` reads the product's own
+ * variants; `trade` is a wholesale style, bought by the run; `none` draws no
+ * button, for the header's search results.
+ */
+export type CardBuy =
+  | 'retail'
+  | 'none'
+  | { tiers: WholesaleTierDTO[]; variants: VariantDTO[]; colors: string[] };
 
 type Props = {
   product: ProductDTO;
@@ -22,6 +34,8 @@ type Props = {
   /** Replaces the derived price, for a sheet that quotes a ladder rather
    *  than a single figure. */
   priceLabel?: string;
+  /** Defaults to the retail product's own sizes. */
+  buy?: CardBuy;
 };
 
 /** How far a mouse has to travel before a drag stops counting as a click. */
@@ -52,6 +66,11 @@ const DRAG_SLOP = 5;
  * reel's scroll position rather than owned by a button, and the colour dots
  * scroll the reel rather than setting it — but the price, the link and the
  * picture still agree, because they are all still reading one number.
+ *
+ * **Add to cart** sits under the caption on every card. A product with one
+ * size adds straight away; anything else raises a picker over the foot of the
+ * photograph — the sizes of the colour on show, or a trade style's runs and
+ * colours — so a shopper can buy from the grid without losing their place.
  */
 export function ProductCard({
   product,
@@ -59,6 +78,7 @@ export function ProductCard({
   onQuickView,
   href: hrefOverride,
   priceLabel,
+  buy = 'retail',
 }: Props) {
   const colorways = useMemo(() => toColorways(product), [product]);
   const reelRef = useRef<HTMLDivElement>(null);
@@ -85,6 +105,36 @@ export function ProductCard({
     (colorway
       ? `/product/${product.slug}?color=${encodeURIComponent(colorway.color)}`
       : `/product/${product.slug}`);
+
+  /* --- Add to cart ------------------------------------------------------ */
+
+  const addId = useId();
+  const addButton = useRef<HTMLButtonElement>(null);
+  const [picking, setPicking] = useState(false);
+  const { add, pending, added } = useCardAdd();
+
+  const trade = typeof buy === 'object' ? buy : null;
+  const [tradeColor, setTradeColor] = useState(trade?.colors[0] ?? '');
+
+  // Retail offers the sizes of the colour on show, so stepping the card to
+  // another colour changes what the picker adds.
+  const options: AddOption[] = trade
+    ? tradeAddOptions(trade.tiers, trade.variants, tradeColor)
+    : buy === 'retail'
+      ? retailAddOptions(colorway ? colorway.variants : product.variants, product.quantityRule)
+      : [];
+
+  const buyable = options.some((option) => option.variantId);
+
+  // One size and nothing to choose between: the button adds it.
+  const direct = !trade && options.length === 1 ? options[0] : null;
+
+  const closePicker = useCallback(() => setPicking(false), []);
+
+  function onBuy() {
+    if (direct) add(direct);
+    else setPicking((value) => !value);
+  }
 
   const show = useCallback((target: number) => {
     const reel = reelRef.current;
@@ -176,7 +226,7 @@ export function ProductCard({
   }
 
   return (
-    <article className="pcard">
+    <article className={`pcard${picking ? ' pcard--picking' : ''}`}>
       <div className="pcard__media">
         <div
           ref={reelRef}
@@ -244,6 +294,38 @@ export function ProductCard({
           </button>
         ) : null}
 
+        {picking ? (
+          <CardAddPanel
+            id={addId}
+            heading={trade ? 'Choose a run' : colorway ? `Choose a size · ${colorway.color}` : 'Choose a size'}
+            options={options}
+            layout={trade ? 'rows' : 'grid'}
+            pending={pending}
+            toggle={addButton}
+            onPick={(option) => add(option, closePicker)}
+            onClose={closePicker}
+            lead={
+              trade && trade.colors.length > 1 ? (
+                <ul className="pcard__addcolors" aria-label="Colour">
+                  {trade.colors.map((option) => (
+                    <li key={option}>
+                      <button
+                        type="button"
+                        className={`pcard__addcolor${option === tradeColor ? ' pcard__addcolor--on' : ''}`}
+                        aria-pressed={option === tradeColor}
+                        onClick={() => setTradeColor(option)}
+                      >
+                        <span className={`swatchdot dot--${option}`} aria-hidden="true" />
+                        {option}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null
+            }
+          />
+        ) : null}
+
         <div className="pcard__foot--over">
           {/* One flag at a time, and sold out outranks new: a shopper who
               cannot buy it needs to know that before they need to know it is
@@ -300,6 +382,18 @@ export function ProductCard({
             </li>
           ))}
         </ul>
+      ) : null}
+
+      {buy !== 'none' && options.length ? (
+        <CardAddButton
+          ref={addButton}
+          controls={direct ? undefined : addId}
+          open={picking}
+          pending={pending}
+          added={added}
+          unavailable={!buyable}
+          onClick={onBuy}
+        />
       ) : null}
     </article>
   );

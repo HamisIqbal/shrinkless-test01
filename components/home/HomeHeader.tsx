@@ -493,7 +493,7 @@ export function HomeHeader({ menu, cart, signedIn, isAdmin, storeEmail, products
               <ul className="hm-search__grid">
                 {results.map((product, index) => (
                   <li key={product.id} className="hm-search__cell">
-                    <ProductCard product={product} index={index} />
+                    <ProductCard product={product} index={index} buy="none" />
                   </li>
                 ))}
               </ul>
